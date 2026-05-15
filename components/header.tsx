@@ -11,6 +11,9 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
+import { CreditCard, LayoutDashboard } from "lucide-react";
+
+import { dashboardSidebarWidthClass } from "@/components/dashboard-sidebar";
 
 const navItems = [
   { href: "#features", label: "Features" },
@@ -18,13 +21,9 @@ const navItems = [
   { href: "#about", label: "About" },
 ];
 
-const dashboardNavItems = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/transactions", label: "Add Transaction" },
-  { href: "/dashboard/budgets", label: "Budget" },
-  { href: "/dashboard/reports", label: "Reports" },
-  { href: "/dashboard/analytics", label: "Analytics" },
-  { href: "/dashboard/ai-insights", label: "AI Insights" },
+const dashboardQuickActions = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/transactions", label: "Add Transaction", icon: CreditCard, featured: true },
 ];
 
 const Header = () => {
@@ -50,35 +49,46 @@ const Header = () => {
   if (isDashboardNav) {
     return (
       <header className="sticky top-0 z-50 border-b border-violet-100 bg-white/85 backdrop-blur-xl">
-        <div className="mx-auto flex h-18 w-full max-w-7xl items-center gap-6 px-4 sm:px-6 lg:px-8">
-          <nav className="flex min-w-0 flex-1 items-center gap-3 overflow-x-auto">
-            {dashboardNavItems.map((item) => {
-              const isActive =
-                item.href === "/dashboard"
-                  ? pathname === "/dashboard"
-                  : pathname.startsWith(item.href);
+        <div className="flex h-18 w-full items-center">
+          <div
+            className={`hidden h-full shrink-0 border-r border-violet-100 px-5 lg:flex lg:items-center ${dashboardSidebarWidthClass}`}
+          >
+            <Link href="/" className="flex min-w-0 items-center">
+              <div className="flex h-14 w-[152px] items-center overflow-hidden sm:w-[196px]">
+                <Image
+                  src="/logo.png"
+                  alt="Finance AI logo"
+                  width={1536}
+                  height={1024}
+                  className="h-auto w-[176px] max-w-none object-contain origin-left sm:w-[232px]"
+                  priority
+                  unoptimized
+                />
+              </div>
+            </Link>
+          </div>
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={
-                    isActive
-                      ? "rounded-full bg-violet-700 px-4 py-2 text-sm font-medium whitespace-nowrap text-white"
-                      : "rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap text-violet-700/80 transition hover:bg-violet-50 hover:text-violet-900"
-                  }
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+          <div className="flex min-w-0 flex-1 items-center px-4 sm:px-6 lg:px-10">
+            <Link href="/" className="flex min-w-0 items-center lg:hidden">
+              <div className="flex h-14 w-[152px] items-center overflow-hidden sm:w-[196px]">
+                <Image
+                  src="/logo.png"
+                  alt="Finance AI logo"
+                  width={1536}
+                  height={1024}
+                  className="h-auto w-[176px] max-w-none object-contain origin-left sm:w-[232px]"
+                  priority
+                  unoptimized
+                />
+              </div>
+            </Link>
 
-          <div className="shrink-0">
-            <ClerkLoading>{userButtonFallback}</ClerkLoading>
-            <ClerkLoaded>
-              <UserButton />
-            </ClerkLoaded>
+            <div className="ml-auto flex shrink-0 items-center">
+              <ClerkLoading>{userButtonFallback}</ClerkLoading>
+              <ClerkLoaded>
+                <UserButton />
+              </ClerkLoaded>
+            </div>
           </div>
         </div>
       </header>
@@ -87,7 +97,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-violet-100 bg-white/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-18 w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="flex h-18 w-full items-center gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex min-w-0 items-center">
           <div className="flex h-16 w-[168px] items-center overflow-hidden sm:w-[222px]">
             <Image
@@ -102,38 +112,84 @@ const Header = () => {
           </div>
         </Link>
 
-        <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={
-                item.featured
-                  ? "rounded-full bg-violet-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-800"
-                  : "text-sm font-medium text-violet-700/80 transition hover:text-violet-900"
-              }
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <Show when="signed-out">
+          <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={
+                  item.featured
+                    ? "rounded-full bg-violet-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-800"
+                    : "text-sm font-medium text-violet-700/80 transition hover:text-violet-900"
+                }
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
 
-        <div className="ml-auto flex items-center gap-3">
-          <Show when="signed-out">
+          <div className="ml-auto flex items-center gap-3">
             <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
               {signInButton}
             </SignInButton>
             <SignUpButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
               {signUpButton}
             </SignUpButton>
-          </Show>
-          <Show when="signed-in">
+          </div>
+        </Show>
+
+        <Show when="signed-in">
+          <nav className="hidden flex-1 items-center justify-center gap-8 lg:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={
+                  item.featured
+                    ? "rounded-full bg-violet-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-800"
+                    : "text-sm font-medium text-violet-700/80 transition hover:text-violet-900"
+                }
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-3">
+            <nav className="hidden items-center gap-3 md:flex">
+              {dashboardQuickActions.map((item) => {
+                const Icon = item.icon;
+                const isActive =
+                  item.href === "/dashboard"
+                    ? pathname === "/dashboard"
+                    : pathname.startsWith(item.href);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={
+                      item.featured
+                        ? "inline-flex h-10 items-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-medium text-white transition hover:bg-slate-900"
+                        : isActive
+                          ? "inline-flex h-10 items-center gap-2 rounded-md border border-violet-200 bg-white px-4 text-sm font-medium text-slate-950 shadow-sm"
+                          : "inline-flex h-10 items-center gap-2 rounded-md border border-violet-100 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50"
+                    }
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
             <ClerkLoading>{userButtonFallback}</ClerkLoading>
             <ClerkLoaded>
               <UserButton />
             </ClerkLoaded>
-          </Show>
-        </div>
+          </div>
+        </Show>
       </div>
     </header>
   );

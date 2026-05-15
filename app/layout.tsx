@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
+import AppFooter from "@/components/app-footer";
+import AppMain from "@/components/app-main";
 
 
 const inter = Inter({
@@ -32,15 +34,10 @@ export default function RootLayout({
         {/*header*/}
         <Header />
         
-        <main className="min-h-screen ">{children}</main>
+        <AppMain>{children}</AppMain>
         
         {/*footer*/}
-        <footer className="border-t border-violet-100 bg-violet-50/70 py-12">
-
-        <div className="container mx-auto text-center text-violet-950/60">
-          <p>Made With 💜 by Debarghya Bandyopadhyay</p>
-        </div>
-        </footer>
+        <AppFooter />
         
         </body>
     </html>
