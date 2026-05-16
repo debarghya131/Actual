@@ -23,7 +23,7 @@ const navItems = [
 
 const dashboardQuickActions = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/transactions", label: "Add Transaction", icon: CreditCard, featured: true },
+  { href: "/transaction", label: "Add Transaction", icon: CreditCard, featured: true },
 ];
 
 const Header = () => {

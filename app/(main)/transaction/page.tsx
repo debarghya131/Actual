@@ -1,6 +1,6 @@
 import DashboardPageShell from "@/components/dashboard-page-shell";
 
-export default function TransactionsPage() {
+export default function TransactionPage() {
   return (
     <DashboardPageShell
       eyebrow="Transactions"

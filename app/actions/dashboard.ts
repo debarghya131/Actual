@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 import { AccountType } from "@/lib/generated/prisma/enums";
+import { checkUser } from "@/lib/checkUser";
 import { db } from "@/lib/prisma";
 
 type DecimalLike = {
@@ -46,9 +47,7 @@ async function getCurrentDbUser() {
     throw new Error("Unauthorized");
   }
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
+  const user = await checkUser();
 
   if (!user) {
     throw new Error("User not found");
@@ -78,7 +77,12 @@ export async function getUserAccounts() {
 export async function createAccount(data: CreateAccountInput) {
   const user = await getCurrentDbUser();
 
+  const name = data.name.trim();
   const balance = Number(data.balance);
+
+  if (!name) {
+    throw new Error("Account name is required");
+  }
 
   if (!Number.isFinite(balance)) {
     throw new Error("Invalid balance amount");
@@ -88,28 +92,29 @@ export async function createAccount(data: CreateAccountInput) {
     throw new Error("Invalid account type");
   }
 
-  const existingAccounts = await db.account.findMany({
-    where: { userId: user.id },
-    select: { id: true },
-  });
-
-  const shouldBeDefault = existingAccounts.length === 0 || Boolean(data.isDefault);
-
-  if (shouldBeDefault) {
-    await db.account.updateMany({
-      where: { userId: user.id, isDefault: true },
-      data: { isDefault: false },
+  const account = await db.$transaction(async (tx) => {
+    const existingAccountCount = await tx.account.count({
+      where: { userId: user.id },
     });
-  }
 
-  const account = await db.account.create({
-    data: {
-      name: data.name,
-      type: data.type,
-      balance,
-      userId: user.id,
-      isDefault: shouldBeDefault,
-    },
+    const shouldBeDefault = existingAccountCount === 0 || Boolean(data.isDefault);
+
+    if (shouldBeDefault) {
+      await tx.account.updateMany({
+        where: { userId: user.id, isDefault: true },
+        data: { isDefault: false },
+      });
+    }
+
+    return tx.account.create({
+      data: {
+        name,
+        type: data.type,
+        balance,
+        userId: user.id,
+        isDefault: shouldBeDefault,
+      },
+    });
   });
 
   revalidatePath("/dashboard");

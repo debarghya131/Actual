@@ -5,6 +5,7 @@ import Header from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import AppFooter from "@/components/app-footer";
 import AppMain from "@/components/app-main";
+import { Toaster } from "@/components/ui/sonner";
 
 
 const inter = Inter({
@@ -35,6 +36,7 @@ export default function RootLayout({
         <Header />
         
         <AppMain>{children}</AppMain>
+        <Toaster />
         
         {/*footer*/}
         <AppFooter />
