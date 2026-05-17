@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 type DashboardAccount = {
@@ -137,7 +138,7 @@ export function DashboardOverview({
                     ) : (
                       <ArrowUpRight className="mr-1 h-4 w-4" />
                     )}
-                    ${transaction.amount.toFixed(2)}
+                    {formatCurrency(transaction.amount)}
                   </div>
                 </div>
               ))
@@ -168,7 +169,7 @@ export function DashboardOverview({
                     <div className="flex items-center justify-between gap-4 text-sm">
                       <span className="font-medium">{expense.category}</span>
                       <span className="text-muted-foreground">
-                        ${expense.amount.toFixed(2)}
+                        {formatCurrency(expense.amount)}
                       </span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-muted">

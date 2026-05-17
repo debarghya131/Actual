@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/currency";
 import {
   Select,
   SelectContent,
@@ -127,13 +128,13 @@ export function AccountChart({
           <div className="text-center">
             <p className="text-muted-foreground">Total Income</p>
             <p className="text-lg font-bold text-green-500">
-              ${totals.income.toFixed(2)}
+              {formatCurrency(totals.income)}
             </p>
           </div>
           <div className="text-center">
             <p className="text-muted-foreground">Total Expenses</p>
             <p className="text-lg font-bold text-red-500">
-              ${totals.expense.toFixed(2)}
+              {formatCurrency(totals.expense)}
             </p>
           </div>
           <div className="text-center">
@@ -145,7 +146,7 @@ export function AccountChart({
                   : "text-red-500"
               }`}
             >
-              ${(totals.income - totals.expense).toFixed(2)}
+              {formatCurrency(totals.income - totals.expense)}
             </p>
           </div>
         </div>
@@ -166,10 +167,10 @@ export function AccountChart({
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => formatCurrency(value)}
               />
               <Tooltip
-                formatter={(value) => [`$${value}`, undefined]}
+                formatter={(value) => [formatCurrency(value), undefined]}
                 contentStyle={{
                   backgroundColor: "hsl(var(--popover))",
                   border: "1px solid hsl(var(--border))",

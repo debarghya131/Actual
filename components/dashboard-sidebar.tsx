@@ -15,7 +15,7 @@ export const dashboardSidebarWidthClass = "lg:w-[280px]";
 
 export const dashboardNavItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/transaction", label: "Add Transaction", icon: CreditCard },
+  { href: "/transaction/create", label: "Add Transaction", icon: CreditCard },
   { href: "/dashboard/budgets", label: "Budget", icon: PiggyBank },
   { href: "/dashboard/reports", label: "Reports", icon: ReceiptText },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },

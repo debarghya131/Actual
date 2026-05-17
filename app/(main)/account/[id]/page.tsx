@@ -1,18 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 
 import { checkUser } from "@/lib/checkUser";
+import { formatCurrency } from "@/lib/currency";
 import { db } from "@/lib/prisma";
 import { AccountChart } from "../_components/account-chart";
 import { TransactionTable } from "../_components/transaction-table";
-
-const currencyFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
-function formatCurrency(value: unknown) {
-  return currencyFormatter.format(Number(value ?? 0));
-}
 
 export default async function AccountPage({
   params,

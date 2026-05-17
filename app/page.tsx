@@ -45,7 +45,7 @@ export default function Home() {
             <div className="grid gap-4 rounded-2xl bg-white/8 p-5">
               <div className="rounded-xl bg-white/10 p-4">
                 <p className="text-xs tracking-[0.18em] text-violet-100/70 uppercase">Monthly spend</p>
-                <p className="mt-2 text-3xl font-semibold">$2,480</p>
+                <p className="mt-2 text-3xl font-semibold">₹2,480</p>
               </div>
               <div className="rounded-xl bg-white/10 p-4">
                 <p className="text-xs tracking-[0.18em] text-violet-100/70 uppercase">AI note</p>

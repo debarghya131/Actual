@@ -83,14 +83,15 @@ export async function bulkDeleteTransactions(transactionIds: string[]) {
     });
 
     // Group transactions by account to update balances
-    const accountBalanceChanges = transactions.reduce<Record<string, number>>((acc, transaction) => {
-      const change =
-        transaction.type === "EXPENSE"
-          ? Number(transaction.amount)
-          : -Number(transaction.amount);
-      acc[transaction.accountId] = (acc[transaction.accountId] || 0) + change;
-      return acc;
-    }, {});
+    const accountBalanceChanges = transactions.reduce<Record<string, number>>(
+      (acc, transaction) => {
+        const amount = transaction.amount.toNumber();
+        const change = transaction.type === "EXPENSE" ? amount : -amount;
+        acc[transaction.accountId] = (acc[transaction.accountId] || 0) + change;
+        return acc;
+      },
+      {}
+    );
 
     // Delete transactions and update account balances in a transaction
     await db.$transaction(async (tx) => {
@@ -118,9 +119,12 @@ export async function bulkDeleteTransactions(transactionIds: string[]) {
     });
 
     revalidatePath("/dashboard");
-    revalidatePath("/account/[id]");
+    revalidatePath("/transaction");
+    for (const accountId of Object.keys(accountBalanceChanges)) {
+      revalidatePath(`/account/${accountId}`);
+    }
 
-    return { success: true };
+    return { success: true, deletedCount: transactions.length };
   } catch (error) {
     return {
       success: false,

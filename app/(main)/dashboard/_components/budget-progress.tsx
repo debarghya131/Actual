@@ -16,6 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { updateBudget } from "@/app/actions/budget";
+import { formatCurrency } from "@/lib/currency";
 
 type BudgetProgressProps = {
   initialBudget: {
@@ -105,9 +106,7 @@ export function BudgetProgress({
               <>
                 <CardDescription>
                   {initialBudget
-                    ? `$${currentExpenses.toFixed(
-                        2
-                      )} of $${initialBudget.amount.toFixed(2)} spent`
+                    ? `${formatCurrency(currentExpenses)} of ${formatCurrency(initialBudget.amount)} spent`
                     : "No budget set"}
                 </CardDescription>
                 <Button

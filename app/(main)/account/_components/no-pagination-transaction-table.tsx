@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/currency";
 import { categoryColors } from "@/data/categories";
 import { bulkDeleteTransactions } from "@/app/actions/account";
 import useFetch from "@/hooks/use-fetch";
@@ -167,7 +168,6 @@ export function NoPaginationTransactionTable({
   const {
     loading: deleteLoading,
     fn: deleteFn,
-    data: deleted,
   } = useFetch(bulkDeleteTransactions);
 
   const handleBulkDelete = async () => {
@@ -178,14 +178,28 @@ export function NoPaginationTransactionTable({
     )
       return;
 
-    deleteFn(selectedIds);
+    const result = await deleteFn(selectedIds);
+
+    if (result.success) {
+      toast.success("Transactions deleted successfully");
+      setSelectedIds([]);
+      router.refresh();
+    } else {
+      toast.error(result.error);
+    }
   };
 
-  useEffect(() => {
-    if (deleted && !deleteLoading) {
-      toast.error("Transactions deleted successfully");
+  const handleDeleteTransaction = async (id: string) => {
+    const result = await deleteFn([id]);
+
+    if (result.success) {
+      toast.success("Transaction deleted successfully");
+      setSelectedIds((current) => current.filter((item) => item !== id));
+      router.refresh();
+    } else {
+      toast.error(result.error);
     }
-  }, [deleted, deleteLoading]);
+  };
 
   const handleClearFilters = () => {
     setSearchTerm("");
@@ -366,8 +380,8 @@ export function NoPaginationTransactionTable({
                         : "text-green-500"
                     )}
                   >
-                    {transaction.type === "EXPENSE" ? "-" : "+"}$
-                    {transaction.amount.toFixed(2)}
+                    {transaction.type === "EXPENSE" ? "-" : "+"}
+                    {formatCurrency(transaction.amount)}
                   </TableCell>
                   <TableCell>
                     {transaction.isRecurring ? (
@@ -428,7 +442,7 @@ export function NoPaginationTransactionTable({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive"
-                          onClick={() => deleteFn([transaction.id])}
+                          onClick={() => handleDeleteTransaction(transaction.id)}
                         >
                           Delete
                         </DropdownMenuItem>
