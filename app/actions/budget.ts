@@ -4,7 +4,7 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
-export async function getCurrentBudget(accountId) {
+export async function getCurrentBudget(accountId: string) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
@@ -63,7 +63,7 @@ export async function getCurrentBudget(accountId) {
   }
 }
 
-export async function updateBudget(amount) {
+export async function updateBudget(amount: number) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
@@ -95,6 +95,9 @@ export async function updateBudget(amount) {
     };
   } catch (error) {
     console.error("Error updating budget:", error);
-    return { success: false, error: error.message };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update budget",
+    };
   }
 }

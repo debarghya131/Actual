@@ -1,18 +1,13 @@
 import { notFound, redirect } from "next/navigation";
 
-import DashboardPageShell from "@/components/dashboard-page-shell";
 import { checkUser } from "@/lib/checkUser";
 import { db } from "@/lib/prisma";
+import { AccountChart } from "../_components/account-chart";
+import { TransactionTable } from "../_components/transaction-table";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
-});
-
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
 });
 
 function formatCurrency(value: unknown) {
@@ -39,7 +34,9 @@ export default async function AccountPage({
     include: {
       transactions: {
         orderBy: { date: "desc" },
-        take: 12,
+      },
+      _count: {
+        select: { transactions: true },
       },
     },
   });
@@ -48,68 +45,47 @@ export default async function AccountPage({
     notFound();
   }
 
-  const income = account.transactions
-    .filter((transaction) => transaction.type === "INCOME")
-    .reduce((total, transaction) => total + Number(transaction.amount), 0);
-  const expenses = account.transactions
-    .filter((transaction) => transaction.type === "EXPENSE")
-    .reduce((total, transaction) => total + Number(transaction.amount), 0);
+  const transactions = account.transactions.map((transaction) => ({
+    id: transaction.id,
+    type: transaction.type,
+    amount: Number(transaction.amount),
+    description: transaction.description,
+    date: transaction.date.toISOString(),
+    category: transaction.category,
+    isRecurring: transaction.isRecurring,
+    recurringInterval: transaction.recurringInterval,
+    nextRecurringDate: transaction.nextRecurringDate?.toISOString() ?? null,
+  }));
 
   return (
-    <DashboardPageShell
-      eyebrow="Account"
-      title={account.name}
-      description="Review this account's current balance, recent transactions, and cash movement."
-    >
-      <div className="grid gap-4 md:grid-cols-3">
-        {[
-          ["Balance", formatCurrency(account.balance)],
-          ["Recent Income", formatCurrency(income)],
-          ["Recent Expenses", formatCurrency(expenses)],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-violet-100 bg-white p-5">
-            <p className="text-sm font-medium text-violet-950/60">{label}</p>
-            <p className="mt-3 text-2xl font-semibold text-slate-950">{value}</p>
-          </div>
-        ))}
-      </div>
-
-      <section className="mt-6 rounded-2xl border border-violet-100 bg-white p-5">
-        <h2 className="text-lg font-semibold text-slate-950">Recent Transactions</h2>
-        <div className="mt-5 divide-y divide-violet-100">
-          {account.transactions.length > 0 ? (
-            account.transactions.map((transaction) => (
-              <div
-                key={transaction.id}
-                className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-medium text-slate-950">
-                    {transaction.description || transaction.category}
-                  </p>
-                  <p className="mt-1 text-sm text-violet-950/55">
-                    {transaction.category} &middot; {dateFormatter.format(transaction.date)}
-                  </p>
-                </div>
-                <p
-                  className={
-                    transaction.type === "INCOME"
-                      ? "font-semibold text-emerald-700"
-                      : "font-semibold text-slate-950"
-                  }
-                >
-                  {transaction.type === "INCOME" ? "+" : "-"}
-                  {formatCurrency(transaction.amount)}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="rounded-xl border border-dashed border-violet-200 bg-violet-50/45 p-4 text-sm leading-6 text-violet-950/62">
-              No transactions have been added to this account yet.
+    <section className="w-full px-6 py-8 sm:px-10 lg:px-12">
+      <div className="mx-auto w-full max-w-[1320px]">
+        <div className="mb-6 flex items-start justify-between gap-6">
+          <div>
+            <h1 className="text-5xl font-semibold leading-none tracking-tight text-indigo-600">
+              {account.name}
+            </h1>
+            <p className="mt-2 text-xs text-zinc-500">
+              {account.type.charAt(0) + account.type.slice(1).toLowerCase()} Account
             </p>
-          )}
+          </div>
+
+          <div className="pt-5 text-right">
+            <p className="text-lg font-semibold leading-none text-zinc-950">
+              {formatCurrency(account.balance)}
+            </p>
+            <p className="mt-1 text-[11px] text-zinc-500">
+              {account._count.transactions} Transactions
+            </p>
+          </div>
         </div>
-      </section>
-    </DashboardPageShell>
+
+        <AccountChart transactions={transactions} />
+
+        <div className="mt-6">
+          <TransactionTable transactions={transactions} />
+        </div>
+      </div>
+    </section>
   );
 }

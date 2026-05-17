@@ -18,7 +18,7 @@ export const proxy = clerkMiddleware(async (auth, req) => {
     req.nextUrl.pathname === "/.netlify/functions/inngest" ||
     req.nextUrl.pathname === "/.redwood/functions/inngest"
   ) {
-    return new NextResponse(null, { status: 204 });
+    return NextResponse.next();
   }
 
   if (req.nextUrl.pathname === "/sign%20in" || req.nextUrl.pathname === "/sign in") {

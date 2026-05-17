@@ -4,18 +4,33 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
-const serializeDecimal = (obj) => {
-  const serialized = { ...obj };
-  if (obj.balance) {
-    serialized.balance = obj.balance.toNumber();
+type DecimalLike = {
+  toNumber: () => number;
+};
+
+type SerializableRecord = Record<string, unknown>;
+
+function isDecimalLike(value: unknown): value is DecimalLike {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "toNumber" in value &&
+    typeof value.toNumber === "function"
+  );
+}
+
+const serializeDecimal = <T extends SerializableRecord>(obj: T) => {
+  const serialized: SerializableRecord = { ...obj };
+  if (isDecimalLike(obj["balance"])) {
+    serialized["balance"] = obj["balance"].toNumber();
   }
-  if (obj.amount) {
-    serialized.amount = obj.amount.toNumber();
+  if (isDecimalLike(obj["amount"])) {
+    serialized["amount"] = obj["amount"].toNumber();
   }
   return serialized;
 };
 
-export async function getAccountWithTransactions(accountId) {
+export async function getAccountWithTransactions(accountId: string) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
@@ -48,7 +63,7 @@ export async function getAccountWithTransactions(accountId) {
   };
 }
 
-export async function bulkDeleteTransactions(transactionIds) {
+export async function bulkDeleteTransactions(transactionIds: string[]) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
@@ -68,11 +83,11 @@ export async function bulkDeleteTransactions(transactionIds) {
     });
 
     // Group transactions by account to update balances
-    const accountBalanceChanges = transactions.reduce((acc, transaction) => {
+    const accountBalanceChanges = transactions.reduce<Record<string, number>>((acc, transaction) => {
       const change =
         transaction.type === "EXPENSE"
-          ? transaction.amount
-          : -transaction.amount;
+          ? Number(transaction.amount)
+          : -Number(transaction.amount);
       acc[transaction.accountId] = (acc[transaction.accountId] || 0) + change;
       return acc;
     }, {});
@@ -107,11 +122,14 @@ export async function bulkDeleteTransactions(transactionIds) {
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete transactions",
+    };
   }
 }
 
-export async function updateDefaultAccount(accountId) {
+export async function updateDefaultAccount(accountId: string) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
@@ -143,8 +161,12 @@ export async function updateDefaultAccount(accountId) {
     });
 
     revalidatePath("/dashboard");
-    return { success: true, data: serializeTransaction(account) };
+    return { success: true, data: serializeDecimal(account) };
   } catch (error) {
-    return { success: false, error: error.message };
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to update default account",
+    };
   }
 }

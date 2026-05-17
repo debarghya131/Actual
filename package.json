@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "inngest": "inngest-cli dev",
+    "dev": "INNGEST_DEV=1 next dev",
+    "email": "email dev",
+    "inngest": "inngest-cli dev --no-discovery -u http://localhost:3000/api/inngest",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -29,8 +30,11 @@
     "react": "19.2.4",
     "react-day-picker": "^10.0.0",
     "react-dom": "19.2.4",
+    "react-email": "6.1.4",
     "react-hook-form": "^7.75.0",
     "react-spinners": "^0.17.0",
+    "recharts": "^3.8.1",
+    "resend": "^6.12.3",
     "shadcn": "^4.7.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
@@ -39,6 +43,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@react-email/ui": "6.1.4",
     "@tailwindcss/postcss": "^4.3.0",
     "@types/node": "^20",
     "@types/react": "^19",
