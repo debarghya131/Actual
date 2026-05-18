@@ -135,6 +135,8 @@ export async function createTransaction(data: TransactionInput) {
 
     revalidatePath("/dashboard");
     revalidatePath("/transaction");
+    revalidatePath("/transaction/create");
+    revalidatePath("/dashboard/transaction/create");
     revalidatePath(`/account/${transaction.accountId}`);
 
     return { success: true, data: serializeAmount(transaction) };
@@ -247,6 +249,8 @@ export async function updateTransaction(id: string, data: TransactionInput) {
 
     revalidatePath("/dashboard");
     revalidatePath("/transaction");
+    revalidatePath("/transaction/create");
+    revalidatePath("/dashboard/transaction/create");
     revalidatePath(`/account/${data.accountId}`);
     if (originalTransaction.accountId !== data.accountId) {
       revalidatePath(`/account/${originalTransaction.accountId}`);

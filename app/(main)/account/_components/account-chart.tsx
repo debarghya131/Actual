@@ -33,9 +33,15 @@ const DATE_RANGES = {
 type DateRange = keyof typeof DATE_RANGES;
 
 type AccountChartTransaction = {
+  accountId?: string;
   date: Date | string;
   type: "INCOME" | "EXPENSE";
   amount: number;
+};
+
+type AccountChartAccount = {
+  id: string;
+  name: string;
 };
 
 type ChartDataPoint = {
@@ -46,10 +52,13 @@ type ChartDataPoint = {
 };
 
 export function AccountChart({
+  accounts = [],
   transactions,
 }: {
+  accounts?: AccountChartAccount[];
   transactions: AccountChartTransaction[];
 }) {
+  const [accountId, setAccountId] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange>("3M");
 
   const filteredData = useMemo(() => {
@@ -61,7 +70,10 @@ export function AccountChart({
 
     // Filter transactions within date range
     const filtered = transactions.filter(
-      (t) => new Date(t.date) >= startDate && new Date(t.date) <= endOfDay(now)
+      (t) =>
+        (accountId === "all" || t.accountId === accountId) &&
+        new Date(t.date) >= startDate &&
+        new Date(t.date) <= endOfDay(now)
     );
 
     // Group transactions by date
@@ -88,7 +100,7 @@ export function AccountChart({
     return Object.values(grouped).sort(
       (a, b) => a.timestamp - b.timestamp
     );
-  }, [transactions, dateRange]);
+  }, [transactions, accountId, dateRange]);
 
   // Calculate totals for the selected period
   const totals = useMemo(() => {
@@ -103,25 +115,43 @@ export function AccountChart({
 
   return (
     <Card className="rounded-xl border-zinc-200 shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
+      <CardHeader className="flex flex-col gap-4 space-y-0 pb-7 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="text-base font-normal">
           Transaction Overview
         </CardTitle>
-        <Select
-          defaultValue={dateRange}
-          onValueChange={(value) => setDateRange(value as DateRange)}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Select range" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(DATE_RANGES).map(([key, { label }]) => (
-              <SelectItem key={key} value={key}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap gap-2">
+          {accounts.length > 1 && (
+            <Select value={accountId} onValueChange={setAccountId}>
+              <SelectTrigger className="w-[170px]">
+                <SelectValue placeholder="All Accounts" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Accounts</SelectItem>
+                {accounts.map((account) => (
+                  <SelectItem key={account.id} value={account.id}>
+                    {account.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          <Select
+            defaultValue={dateRange}
+            onValueChange={(value) => setDateRange(value as DateRange)}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Select range" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(DATE_RANGES).map(([key, { label }]) => (
+                <SelectItem key={key} value={key}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="mb-6 flex justify-around text-sm">

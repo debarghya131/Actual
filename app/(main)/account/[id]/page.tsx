@@ -3,8 +3,6 @@ import { notFound, redirect } from "next/navigation";
 import { checkUser } from "@/lib/checkUser";
 import { formatCurrency } from "@/lib/currency";
 import { db } from "@/lib/prisma";
-import { AccountChart } from "../_components/account-chart";
-import { TransactionTable } from "../_components/transaction-table";
 
 export default async function AccountPage({
   params,
@@ -24,9 +22,6 @@ export default async function AccountPage({
       userId: user.id,
     },
     include: {
-      transactions: {
-        orderBy: { date: "desc" },
-      },
       _count: {
         select: { transactions: true },
       },
@@ -36,18 +31,6 @@ export default async function AccountPage({
   if (!account) {
     notFound();
   }
-
-  const transactions = account.transactions.map((transaction) => ({
-    id: transaction.id,
-    type: transaction.type,
-    amount: Number(transaction.amount),
-    description: transaction.description,
-    date: transaction.date.toISOString(),
-    category: transaction.category,
-    isRecurring: transaction.isRecurring,
-    recurringInterval: transaction.recurringInterval,
-    nextRecurringDate: transaction.nextRecurringDate?.toISOString() ?? null,
-  }));
 
   return (
     <section className="w-full px-6 py-8 sm:px-10 lg:px-12">
@@ -70,12 +53,6 @@ export default async function AccountPage({
               {account._count.transactions} Transactions
             </p>
           </div>
-        </div>
-
-        <AccountChart transactions={transactions} />
-
-        <div className="mt-6">
-          <TransactionTable transactions={transactions} />
         </div>
       </div>
     </section>

@@ -71,6 +71,7 @@ type SortField = "date" | "amount" | "category";
 
 type TransactionTableItem = {
   id: string;
+  accountId?: string;
   type: TransactionType;
   amount: number;
   description?: string | null;
@@ -81,17 +82,27 @@ type TransactionTableItem = {
   nextRecurringDate?: Date | string | null;
 };
 
-type TransactionTableProps = {
-  transactions: TransactionTableItem[];
+type TransactionTableAccount = {
+  id: string;
+  name: string;
 };
 
-export function TransactionTable({ transactions }: TransactionTableProps) {
+type TransactionTableProps = {
+  transactions: TransactionTableItem[];
+  accounts?: TransactionTableAccount[];
+};
+
+export function TransactionTable({
+  transactions,
+  accounts = [],
+}: TransactionTableProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState({
     field: "date" as SortField,
     direction: "desc" as "asc" | "desc",
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const [accountFilter, setAccountFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [recurringFilter, setRecurringFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -106,6 +117,13 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
       const searchLower = searchTerm.toLowerCase();
       result = result.filter((transaction) =>
         transaction.description?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply account filter
+    if (accountFilter) {
+      result = result.filter(
+        (transaction) => transaction.accountId === accountFilter
       );
     }
 
@@ -144,7 +162,14 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
     });
 
     return result;
-  }, [transactions, searchTerm, typeFilter, recurringFilter, sortConfig]);
+  }, [
+    transactions,
+    searchTerm,
+    accountFilter,
+    typeFilter,
+    recurringFilter,
+    sortConfig,
+  ]);
 
   // Pagination calculations
   const totalPages = Math.ceil(
@@ -220,8 +245,10 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
 
   const handleClearFilters = () => {
     setSearchTerm("");
+    setAccountFilter("");
     setTypeFilter("");
     setRecurringFilter("");
+    setSelectedIds([]);
     setCurrentPage(1);
   };
 
@@ -236,7 +263,7 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
         <BarLoader className="mt-4" width={"100%"} color="#9333ea" />
       )}
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -249,7 +276,30 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
             className="pl-8"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {accounts.length > 1 && (
+            <Select
+              value={accountFilter || "all"}
+              onValueChange={(value) => {
+                setAccountFilter(value === "all" ? "" : value);
+                setSelectedIds([]);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="All Accounts" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Accounts</SelectItem>
+                {accounts.map((account) => (
+                  <SelectItem key={account.id} value={account.id}>
+                    {account.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           <Select
             value={typeFilter}
             onValueChange={(value) => {
@@ -296,7 +346,7 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
             </div>
           )}
 
-          {(searchTerm || typeFilter || recurringFilter) && (
+          {(searchTerm || accountFilter || typeFilter || recurringFilter) && (
             <Button
               variant="outline"
               size="icon"
@@ -464,7 +514,7 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
                         <DropdownMenuItem
                           onClick={() =>
                             router.push(
-                              `/transaction/create?edit=${transaction.id}`
+                              `/dashboard/transaction/create?edit=${transaction.id}`
                             )
                           }
                         >

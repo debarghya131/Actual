@@ -6,6 +6,7 @@ import {
   BarChart3,
   BrainCircuit,
   CreditCard,
+  HeartPulse,
   LayoutDashboard,
   PiggyBank,
   ReceiptText,
@@ -15,10 +16,19 @@ export const dashboardSidebarWidthClass = "lg:w-[280px]";
 
 export const dashboardNavItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/transaction/create", label: "Add Transaction", icon: CreditCard },
+  {
+    href: "/dashboard/transaction/create",
+    label: "Add Transaction",
+    icon: CreditCard,
+  },
   { href: "/dashboard/budgets", label: "Budget", icon: PiggyBank },
   { href: "/dashboard/reports", label: "Reports", icon: ReceiptText },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  {
+    href: "/dashboard/financial-health",
+    label: "Financial Health",
+    icon: HeartPulse,
+  },
   { href: "/dashboard/ai-insights", label: "AI Insights", icon: BrainCircuit },
 ];
 

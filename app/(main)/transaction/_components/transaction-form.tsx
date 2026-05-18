@@ -72,6 +72,8 @@ type AddTransactionFormProps = {
   categories: CategoryOption[];
   editMode?: boolean;
   initialData?: InitialTransaction | null;
+  onCancel?: () => void;
+  onSuccess?: () => void;
 };
 
 export function AddTransactionForm({
@@ -79,6 +81,8 @@ export function AddTransactionForm({
   categories,
   editMode = false,
   initialData = null,
+  onCancel,
+  onSuccess,
 }: AddTransactionFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -184,9 +188,13 @@ export function AddTransactionForm({
           : "Transaction created successfully"
       );
       reset();
-      router.push(`/account/${transactionResult.data.accountId}`);
+      router.refresh();
+      onSuccess?.();
+      if (editMode) {
+        router.push("/dashboard/transaction/create");
+      }
     }
-  }, [editMode, reset, router, transactionLoading, transactionResult]);
+  }, [editMode, onSuccess, reset, router, transactionLoading, transactionResult]);
 
   const type = useWatch({ control, name: "type" });
   const accountId = useWatch({ control, name: "accountId" });
@@ -238,7 +246,7 @@ export function AddTransactionForm({
           }}
           value={type}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
@@ -277,7 +285,7 @@ export function AddTransactionForm({
             }
             value={accountId}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select account" />
             </SelectTrigger>
             <SelectContent>
@@ -314,7 +322,7 @@ export function AddTransactionForm({
           }
           value={category}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
@@ -425,7 +433,7 @@ export function AddTransactionForm({
             }
             value={recurringInterval}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select interval" />
             </SelectTrigger>
             <SelectContent>
@@ -449,7 +457,7 @@ export function AddTransactionForm({
           type="button"
           variant="outline"
           className="w-full"
-          onClick={() => router.back()}
+          onClick={onCancel ?? (() => router.back())}
         >
           Cancel
         </Button>

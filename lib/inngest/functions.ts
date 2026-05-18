@@ -1,7 +1,7 @@
 import { inngest } from "./client";
 import { db } from "@/lib/prisma";
 import { sendEmail } from "@/app/actions/send-email";
-import EmailTemplate from "@/emails/templet";
+import EmailTemplate from "@/emails/template";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const RECURRING_INTERVALS = ["DAILY", "WEEKLY", "MONTHLY", "YEARLY"] as const;
@@ -281,6 +281,7 @@ export const checkBudgetAlerts = inngest.createFunction(
           subject: `Budget Alert for ${defaultAccount.name}`,
           react: EmailTemplate({
             userName: budget.user.name,
+            type: "budget-alert",
             data: {
               percentageUsed,
               budgetAmount: Number(budgetAmount.toFixed(1)),

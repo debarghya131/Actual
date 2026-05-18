@@ -433,7 +433,7 @@ export function NoPaginationTransactionTable({
                         <DropdownMenuItem
                           onClick={() =>
                             router.push(
-                              `/transaction/create?edit=${transaction.id}`
+                              `/dashboard/transaction/create?edit=${transaction.id}`
                             )
                           }
                         >

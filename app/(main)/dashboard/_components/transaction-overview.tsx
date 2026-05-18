@@ -40,9 +40,11 @@ export function DashboardOverview({
   accounts,
   transactions,
 }: DashboardOverviewProps) {
+  const currentMonthKey = format(new Date(), "yyyy-MM");
   const [selectedAccountId, setSelectedAccountId] = useState(
     accounts.find((account) => account.isDefault)?.id ?? accounts[0]?.id ?? "",
   );
+  const [selectedMonth, setSelectedMonth] = useState(currentMonthKey);
 
   const accountTransactions = transactions.filter(
     (transaction) => transaction.accountId === selectedAccountId,
@@ -52,18 +54,28 @@ export function DashboardOverview({
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
 
-  const currentDate = new Date();
-  const currentMonthExpenses = accountTransactions.filter((transaction) => {
-    const transactionDate = new Date(transaction.date);
+  const monthOptions = Array.from(
+    new Map(
+      [selectedMonth, currentMonthKey, ...accountTransactions.map((transaction) =>
+        format(new Date(transaction.date), "yyyy-MM")
+      )].map((monthKey) => [
+        monthKey,
+        {
+          value: monthKey,
+          label: format(new Date(`${monthKey}-01T00:00:00`), "MMMM yyyy"),
+        },
+      ])
+    ).values()
+  ).sort((a, b) => b.value.localeCompare(a.value));
 
+  const selectedMonthExpenses = accountTransactions.filter((transaction) => {
     return (
       transaction.type === "EXPENSE" &&
-      transactionDate.getMonth() === currentDate.getMonth() &&
-      transactionDate.getFullYear() === currentDate.getFullYear()
+      format(new Date(transaction.date), "yyyy-MM") === selectedMonth
     );
   });
 
-  const expensesByCategory = currentMonthExpenses.reduce<Record<string, number>>(
+  const expensesByCategory = selectedMonthExpenses.reduce<Record<string, number>>(
     (totals, transaction) => {
       totals[transaction.category] =
         (totals[transaction.category] ?? 0) + transaction.amount;
@@ -148,15 +160,27 @@ export function DashboardOverview({
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
           <CardTitle className="text-base font-normal">
             Monthly Expense Breakdown
           </CardTitle>
+          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+            <SelectTrigger className="w-[155px]">
+              <SelectValue placeholder="Select month" />
+            </SelectTrigger>
+            <SelectContent>
+              {monthOptions.map((month) => (
+                <SelectItem key={month.value} value={month.value}>
+                  {month.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </CardHeader>
         <CardContent>
           {expenseBreakdown.length === 0 ? (
             <p className="py-4 text-center text-muted-foreground">
-              No expenses this month
+              No expenses for this month
             </p>
           ) : (
             <div className="space-y-4">

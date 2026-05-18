@@ -120,6 +120,8 @@ export async function bulkDeleteTransactions(transactionIds: string[]) {
 
     revalidatePath("/dashboard");
     revalidatePath("/transaction");
+    revalidatePath("/transaction/create");
+    revalidatePath("/dashboard/transaction/create");
     for (const accountId of Object.keys(accountBalanceChanges)) {
       revalidatePath(`/account/${accountId}`);
     }
