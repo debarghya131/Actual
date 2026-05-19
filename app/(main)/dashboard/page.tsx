@@ -1,12 +1,9 @@
 import { redirect } from "next/navigation";
-import { Plus } from "lucide-react";
 
 import { checkUser } from "@/lib/checkUser";
 import { db } from "@/lib/prisma";
-import AccountCard from "./_components/account-card";
 import BudgetProgress from "./_components/budget-progress";
 import DashboardOverview from "./_components/transaction-overview";
-import CreateAccountDrawer from "@/components/create-account-drawer";
 
 export default async function DashboardPage() {
   const user = await checkUser();
@@ -47,7 +44,6 @@ export default async function DashboardPage() {
     category: transaction.category,
   }));
 
-  const defaultAccount = accounts.find((account) => account.isDefault) ?? accounts[0];
   const currentMonth = new Date();
   const currentExpenses = transactions
     .filter((transaction) => {
@@ -55,7 +51,6 @@ export default async function DashboardPage() {
 
       return (
         transaction.type === "EXPENSE" &&
-        transaction.accountId === defaultAccount?.id &&
         transactionDate.getMonth() === currentMonth.getMonth() &&
         transactionDate.getFullYear() === currentMonth.getFullYear()
       );
@@ -70,29 +65,13 @@ export default async function DashboardPage() {
     : null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <BudgetProgress
         initialBudget={budget}
         currentExpenses={currentExpenses}
       />
 
       <DashboardOverview accounts={accounts} transactions={transactions} />
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <CreateAccountDrawer>
-          <button
-            type="button"
-            className="flex min-h-36 flex-col items-center justify-center rounded-xl border border-dashed border-violet-200 bg-white p-6 text-muted-foreground transition hover:shadow-md"
-          >
-            <Plus className="mb-2 h-10 w-10" />
-            <span className="text-sm font-medium">Add New Account</span>
-          </button>
-        </CreateAccountDrawer>
-        {accounts.length > 0 &&
-          accounts.map((account) => (
-            <AccountCard key={account.id} account={account} />
-          ))}
-      </div>
     </div>
   );
 }

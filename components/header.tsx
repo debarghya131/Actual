@@ -11,9 +11,10 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
-import { CreditCard, HeartPulse, LayoutDashboard } from "lucide-react";
+import { CreditCard, LayoutDashboard } from "lucide-react";
 
 import { dashboardSidebarWidthClass } from "@/components/dashboard-sidebar";
+import FinancialHealthNavScore from "@/components/financial-health-nav-score";
 
 const navItems = [
   { href: "#features", label: "Features" },
@@ -28,14 +29,6 @@ const dashboardQuickActions = [
     label: "Add Transaction",
     icon: CreditCard,
     featured: true,
-  },
-];
-
-const dashboardTopNavItems = [
-  {
-    href: "/dashboard/financial-health",
-    label: "Financial Health Score",
-    icon: HeartPulse,
   },
 ];
 
@@ -97,25 +90,7 @@ const Header = () => {
             </Link>
 
             <nav className="ml-auto mr-4 hidden items-center gap-2 sm:flex">
-              {dashboardTopNavItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname.startsWith(item.href);
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={
-                      isActive
-                        ? "inline-flex h-10 items-center gap-2 rounded-md border border-violet-200 bg-violet-50 px-4 text-sm font-medium text-violet-900"
-                        : "inline-flex h-10 items-center gap-2 rounded-md border border-violet-100 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-900"
-                    }
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+              <FinancialHealthNavScore />
             </nav>
 
             <div className="flex shrink-0 items-center">

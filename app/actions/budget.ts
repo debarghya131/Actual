@@ -89,6 +89,7 @@ export async function updateBudget(amount: number) {
     });
 
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/budgets");
     return {
       success: true,
       data: { ...budget, amount: budget.amount.toNumber() },

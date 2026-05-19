@@ -6,13 +6,13 @@ import {
   BarChart3,
   BrainCircuit,
   CreditCard,
-  HeartPulse,
   LayoutDashboard,
   PiggyBank,
   ReceiptText,
 } from "lucide-react";
+import SidebarBankingSection from "@/components/sidebar-banking-section";
 
-export const dashboardSidebarWidthClass = "lg:w-[280px]";
+export const dashboardSidebarWidthClass = "lg:w-[250px]";
 
 export const dashboardNavItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -24,22 +24,26 @@ export const dashboardNavItems = [
   { href: "/dashboard/budgets", label: "Budget", icon: PiggyBank },
   { href: "/dashboard/reports", label: "Reports", icon: ReceiptText },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-  {
-    href: "/dashboard/financial-health",
-    label: "Financial Health",
-    icon: HeartPulse,
-  },
   { href: "/dashboard/ai-insights", label: "AI Insights", icon: BrainCircuit },
 ];
 
-export default function DashboardSidebar() {
+type DashboardSidebarProps = {
+  accounts: {
+    id: string;
+    name: string;
+    balance: number;
+    isDefault: boolean;
+  }[];
+};
+
+export default function DashboardSidebar({ accounts }: DashboardSidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside
       className={`hidden h-full shrink-0 border-r border-violet-100 bg-white/92 backdrop-blur-xl lg:flex ${dashboardSidebarWidthClass}`}
     >
-      <div className="flex flex-1 flex-col px-5 py-6">
+      <div className="flex min-h-0 flex-1 flex-col px-5 py-6">
         <nav className="space-y-2">
           {dashboardNavItems.map((item) => {
             const isActive =
@@ -65,10 +69,14 @@ export default function DashboardSidebar() {
           })}
         </nav>
 
-        <div className="mt-auto border-t border-violet-100 pt-5">
-          <p className="text-xs leading-6 text-violet-950/55">
-            Made with <span className="text-violet-600">💜</span> by Debarghya
-          </p>
+        <div className="mt-auto min-h-0 space-y-5">
+          <SidebarBankingSection accounts={accounts} />
+
+          <div className="border-t border-violet-100 pt-5">
+            <p className="text-xs leading-6 text-violet-950/55">
+              Made with <span className="text-violet-600">💜</span> by Debarghya
+            </p>
+          </div>
         </div>
       </div>
     </aside>
