@@ -35,6 +35,11 @@ export function ReceiptScanner({ onScanComplete }: ReceiptScannerProps) {
       return;
     }
 
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
     try {
       await scanReceiptFn(file);
     } catch {
@@ -45,7 +50,6 @@ export function ReceiptScanner({ onScanComplete }: ReceiptScannerProps) {
   const handleScanComplete = useCallback(
     (data: ScannedReceipt) => {
       onScanComplete(data);
-      toast.success("Receipt scanned successfully");
     },
     [onScanComplete]
   );
@@ -72,7 +76,10 @@ export function ReceiptScanner({ onScanComplete }: ReceiptScannerProps) {
         capture="environment"
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) handleReceiptScan(file);
+          if (file) {
+            void handleReceiptScan(file);
+          }
+          e.currentTarget.value = "";
         }}
       />
       <Button

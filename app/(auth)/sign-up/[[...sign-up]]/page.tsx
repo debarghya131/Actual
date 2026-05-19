@@ -1,11 +1,26 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { SignUp } from "@clerk/nextjs";
 
-const Page = () => {
+const Page = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect_url?: string }>;
+}) => {
+  const { userId } = await auth();
+  const { redirect_url } = await searchParams;
+
+  if (userId) {
+    redirect("/dashboard");
+  }
+
+  const redirectUrl = redirect_url || "/dashboard";
+
   return (
     <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center p-6">
       <SignUp
-        forceRedirectUrl="/dashboard"
-        fallbackRedirectUrl="/dashboard"
+        forceRedirectUrl={redirectUrl}
+        fallbackRedirectUrl={redirectUrl}
         appearance={{
           elements: {
             rootBox: "w-full",

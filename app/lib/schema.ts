@@ -21,6 +21,22 @@ export const transactionSchema = z
       .optional(),
   })
   .superRefine((data, ctx) => {
+    const parsedAmount = Number(data.amount);
+
+    if (!Number.isFinite(parsedAmount)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Amount must be a valid number",
+        path: ["amount"],
+      });
+    } else if (parsedAmount <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Amount must be greater than 0",
+        path: ["amount"],
+      });
+    }
+
     if (data.isRecurring && !data.recurringInterval) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

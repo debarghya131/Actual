@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import BudgetPlanningBoard from "@/app/(main)/dashboard/_components/budget-planning-board";
 import { defaultCategories } from "@/data/categories";
 import { checkUser } from "@/lib/checkUser";
+import { getDashboardPreferences } from "@/lib/dashboard-preferences";
 import { db } from "@/lib/prisma";
 
 export default async function BudgetsPage() {
@@ -16,7 +17,7 @@ export default async function BudgetsPage() {
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  const [budget, transactions] = await Promise.all([
+  const [budget, transactions, dashboardPreferences] = await Promise.all([
     db.budget.findUnique({
       where: { userId: user.id },
     }),
@@ -27,6 +28,7 @@ export default async function BudgetsPage() {
       },
       orderBy: { date: "desc" },
     }),
+    getDashboardPreferences(user.id),
   ]);
 
   const serializedTransactions = transactions.map((transaction) => ({
@@ -87,6 +89,7 @@ export default async function BudgetsPage() {
             color: category.color,
           }))}
           completedTransactions={serializedTransactions}
+          initialPreferences={dashboardPreferences}
         />
       </div>
     </section>

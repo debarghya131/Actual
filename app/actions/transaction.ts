@@ -43,12 +43,27 @@ const serializeAmount = <T extends AmountRecord>(obj: T) => ({
 });
 
 function normalizeTransactionInput(data: TransactionInput) {
+  const amount = Number(data.amount);
+  const category = data.category.trim();
+  const description = data.description?.trim() || undefined;
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error("Amount must be greater than 0");
+  }
+
+  if (!category) {
+    throw new Error("Category is required");
+  }
+
   if (data.isRecurring && !data.recurringInterval) {
     throw new Error("Recurring interval is required");
   }
 
   return {
     ...data,
+    amount,
+    category,
+    description,
     recurringInterval: data.isRecurring ? data.recurringInterval : null,
     nextRecurringDate:
       data.isRecurring && data.recurringInterval
@@ -300,9 +315,22 @@ export async function getUserTransactions(
 // Scan Receipt
 export async function scanReceipt(file: File) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       throw new Error("GROQ_API_KEY is not set.");
+    }
+
+    if (!file.type.startsWith("image/")) {
+      throw new Error("Please upload an image file.");
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("File size should be less than 5MB.");
     }
 
     // Convert File to ArrayBuffer
@@ -381,12 +409,18 @@ export async function scanReceipt(file: File) {
 
     try {
       const data = JSON.parse(text) as ReceiptScanResult;
+      const amount = Number(data.amount ?? 0);
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new Error("Could not detect a valid receipt total.");
+      }
+
       return {
-        amount: Number(data.amount ?? 0),
+        amount,
         date: data.date ? new Date(data.date) : new Date(),
-        description: data.description,
-        category: data.category,
-        merchantName: data.merchantName,
+        description: data.description?.trim() || data.merchantName?.trim(),
+        category: data.category?.trim().toLowerCase(),
+        merchantName: data.merchantName?.trim(),
       };
     } catch (parseError) {
       console.error("Error parsing JSON response:", parseError);

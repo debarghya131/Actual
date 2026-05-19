@@ -15,16 +15,17 @@ import SidebarBankingSection from "@/components/sidebar-banking-section";
 export const dashboardSidebarWidthClass = "lg:w-[250px]";
 
 export const dashboardNavItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, segment: "" },
   {
     href: "/dashboard/transaction/create",
     label: "Add Transaction",
     icon: CreditCard,
+    segment: "/transaction/create",
   },
-  { href: "/dashboard/budgets", label: "Budget", icon: PiggyBank },
-  { href: "/dashboard/reports", label: "Reports", icon: ReceiptText },
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/dashboard/ai-insights", label: "AI Insights", icon: BrainCircuit },
+  { href: "/dashboard/budgets", label: "Budget", icon: PiggyBank, segment: "/budgets" },
+  { href: "/dashboard/reports", label: "Reports", icon: ReceiptText, segment: "/reports" },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, segment: "/analytics" },
+  { href: "/dashboard/ai-insights", label: "AI Insights", icon: BrainCircuit, segment: "/ai-insights" },
 ];
 
 type DashboardSidebarProps = {
@@ -34,9 +35,15 @@ type DashboardSidebarProps = {
     balance: number;
     isDefault: boolean;
   }[];
+  basePath?: string;
+  demoMode?: boolean;
 };
 
-export default function DashboardSidebar({ accounts }: DashboardSidebarProps) {
+export default function DashboardSidebar({
+  accounts,
+  basePath = "/dashboard",
+  demoMode = false,
+}: DashboardSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -46,16 +53,17 @@ export default function DashboardSidebar({ accounts }: DashboardSidebarProps) {
       <div className="flex min-h-0 flex-1 flex-col px-5 py-6">
         <nav className="space-y-2">
           {dashboardNavItems.map((item) => {
+            const href = `${basePath}${item.segment}`;
             const isActive =
-              item.href === "/dashboard"
-                ? pathname === "/dashboard"
-                : pathname.startsWith(item.href);
+              item.segment === ""
+                ? pathname === basePath
+                : pathname.startsWith(href);
             const Icon = item.icon;
 
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={href}
                 className={
                   isActive
                     ? "flex items-center gap-3 rounded-2xl bg-violet-700 px-4 py-3 text-sm font-medium text-white shadow-[0_18px_40px_-24px_rgba(109,40,217,0.8)]"
@@ -70,11 +78,11 @@ export default function DashboardSidebar({ accounts }: DashboardSidebarProps) {
         </nav>
 
         <div className="mt-auto min-h-0 space-y-5">
-          <SidebarBankingSection accounts={accounts} />
+          <SidebarBankingSection accounts={accounts} demoMode={demoMode} />
 
           <div className="border-t border-violet-100 pt-5">
             <p className="text-xs leading-6 text-violet-950/55">
-              Made with <span className="text-violet-600">💜</span> by Debarghya
+              {demoMode ? "Demo access is view-only with sample data." : <>Made with <span className="text-violet-600">💜</span> by Debarghya</>}
             </p>
           </div>
         </div>

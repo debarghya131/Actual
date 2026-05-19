@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { checkUser } from "@/lib/checkUser";
+import { getDashboardPreferences } from "@/lib/dashboard-preferences";
 import { db } from "@/lib/prisma";
 import BudgetProgress from "./_components/budget-progress";
 import DashboardOverview from "./_components/transaction-overview";
@@ -12,7 +13,7 @@ export default async function DashboardPage() {
     redirect("/sign-in");
   }
 
-  const [rawAccounts, rawTransactions, rawBudget] = await Promise.all([
+  const [rawAccounts, rawTransactions, rawBudget, dashboardPreferences] = await Promise.all([
     db.account.findMany({
       where: { userId: user.id },
       orderBy: [{ isDefault: "desc" }, { updatedAt: "desc" }],
@@ -24,6 +25,7 @@ export default async function DashboardPage() {
     db.budget.findUnique({
       where: { userId: user.id },
     }),
+    getDashboardPreferences(user.id),
   ]);
 
   const accounts = rawAccounts.map((account) => ({
@@ -71,7 +73,11 @@ export default async function DashboardPage() {
         currentExpenses={currentExpenses}
       />
 
-      <DashboardOverview accounts={accounts} transactions={transactions} />
+      <DashboardOverview
+        accounts={accounts}
+        transactions={transactions}
+        preferences={dashboardPreferences}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import {
   ArrowDownRight,
@@ -42,66 +42,33 @@ type DashboardTransaction = {
 type DashboardOverviewProps = {
   accounts: DashboardAccount[];
   transactions: DashboardTransaction[];
+  preferences: {
+    savingsGoalTargets: Record<string, string>;
+    categoryTargetsByMonth: Record<string, Record<string, string>>;
+  };
 };
-
-const GOAL_STORAGE_KEY = "budget-savings-goal";
-const UPCOMING_GOALS_STORAGE_KEY = "budget-upcoming-goal-targets";
-const CATEGORY_STORAGE_KEY_PREFIX = "budget-category-targets";
-
-function getCategoryStorageKey(monthKey: string) {
-  return `${CATEGORY_STORAGE_KEY_PREFIX}:${monthKey}`;
-}
 
 function normalizeCategoryKey(value: string | null | undefined) {
   const normalized = (value ?? "").trim().toLowerCase();
   return normalized || "uncategorized";
 }
 
-function loadMonthlyCategoryBudget(monthKey: string) {
-  if (typeof window === "undefined") {
-    return {
-      categoryTargets: {} as Record<string, string>,
-    };
-  }
-
-  const storedCategoryTargets = window.localStorage.getItem(
-    getCategoryStorageKey(monthKey)
-  );
-  return {
-    categoryTargets: storedCategoryTargets
-      ? (JSON.parse(storedCategoryTargets) as Record<string, string>)
-      : {},
-  };
-}
-
 export function DashboardOverview({
   accounts,
   transactions,
+  preferences,
 }: DashboardOverviewProps) {
   const currentMonthKey = format(new Date(), "yyyy-MM");
-  const [savingsGoalTarget] = useState(() => {
-    if (typeof window === "undefined") {
-      return 0;
-    }
-
-    const storedGoals = window.localStorage.getItem(UPCOMING_GOALS_STORAGE_KEY);
-    const parsedGoals = storedGoals
-      ? (JSON.parse(storedGoals) as Record<string, string>)
-      : {};
-    const currentMonthGoal = parsedGoals[currentMonthKey];
-    const fallbackGoal = window.localStorage.getItem(GOAL_STORAGE_KEY);
-    const resolvedGoal = Number(currentMonthGoal || fallbackGoal || 0);
-
-    return Number.isFinite(resolvedGoal) ? resolvedGoal : 0;
-  });
+  const parsedGoalTarget = Number(preferences.savingsGoalTargets[currentMonthKey] || 0);
+  const savingsGoalTarget = Number.isFinite(parsedGoalTarget) ? parsedGoalTarget : 0;
   const [selectedAccountId, setSelectedAccountId] = useState(
     accounts.find((account) => account.isDefault)?.id ?? accounts[0]?.id ?? "",
   );
   const [selectedMonth, setSelectedMonth] = useState(currentMonthKey);
-  const initialCategoryBudget = loadMonthlyCategoryBudget(currentMonthKey);
-  const [categoryTargetsForMonth, setCategoryTargetsForMonth] = useState<
-    Record<string, string>
-  >(initialCategoryBudget.categoryTargets);
+  const categoryTargetsForMonth = useMemo(
+    () => preferences.categoryTargetsByMonth[selectedMonth] ?? {},
+    [preferences.categoryTargetsByMonth, selectedMonth],
+  );
 
   const currentMonthTransactions = transactions.filter(
     (transaction) => format(new Date(transaction.date), "yyyy-MM") === currentMonthKey,
@@ -348,11 +315,7 @@ export function DashboardOverview({
             </CardTitle>
             <Select
               value={selectedMonth}
-              onValueChange={(monthKey) => {
-                setSelectedMonth(monthKey);
-                const monthBudget = loadMonthlyCategoryBudget(monthKey);
-                setCategoryTargetsForMonth(monthBudget.categoryTargets);
-              }}
+              onValueChange={setSelectedMonth}
             >
               <SelectTrigger className="w-[155px]">
                 <SelectValue placeholder="Select month" />

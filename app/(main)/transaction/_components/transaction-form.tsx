@@ -74,6 +74,7 @@ type AddTransactionFormProps = {
   initialData?: InitialTransaction | null;
   onCancel?: () => void;
   onSuccess?: () => void;
+  demoMode?: boolean;
 };
 
 export function AddTransactionForm({
@@ -83,6 +84,7 @@ export function AddTransactionForm({
   initialData = null,
   onCancel,
   onSuccess,
+  demoMode = false,
 }: AddTransactionFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -142,6 +144,11 @@ export function AddTransactionForm({
     : createTransactionResult;
 
   const onSubmit = (data: TransactionFormValues) => {
+    if (demoMode) {
+      toast.info("Demo mode is read-only");
+      return;
+    }
+
     const formData = {
       ...data,
       amount: parseFloat(data.amount),
@@ -232,7 +239,7 @@ export function AddTransactionForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
       {/* Receipt Scanner - Only show in create mode */}
-      {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
+      {!editMode && !demoMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
 
       {/* Type */}
       <div className="space-y-2">
@@ -245,6 +252,7 @@ export function AddTransactionForm({
             });
           }}
           value={type}
+          disabled={demoMode}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select type" />
@@ -268,6 +276,7 @@ export function AddTransactionForm({
             step="0.01"
             placeholder="0.00"
             {...register("amount")}
+            disabled={demoMode}
           />
           {errors.amount && (
             <p className="text-sm text-red-500">{errors.amount.message}</p>
@@ -284,6 +293,7 @@ export function AddTransactionForm({
               })
             }
             value={accountId}
+            disabled={demoMode}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select account" />
@@ -294,14 +304,16 @@ export function AddTransactionForm({
                   {account.name} ({formatCurrency(account.balance)})
                 </SelectItem>
               ))}
-              <CreateAccountDrawer>
-                <Button
-                  variant="ghost"
-                  className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                >
-                  Create Account
-                </Button>
-              </CreateAccountDrawer>
+              {!demoMode ? (
+                <CreateAccountDrawer>
+                  <Button
+                    variant="ghost"
+                    className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                  >
+                    Create Account
+                  </Button>
+                </CreateAccountDrawer>
+              ) : null}
             </SelectContent>
           </Select>
           {errors.accountId && (
@@ -321,6 +333,7 @@ export function AddTransactionForm({
             })
           }
           value={category}
+          disabled={demoMode}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select category" />
@@ -349,6 +362,7 @@ export function AddTransactionForm({
                 "w-full pl-3 text-left font-normal",
                 !date && "text-muted-foreground"
               )}
+              disabled={demoMode}
             >
               {date ? format(date, "PPP") : <span>Pick a date</span>}
               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -380,7 +394,11 @@ export function AddTransactionForm({
       {/* Description */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Description</label>
-        <Input placeholder="Enter description" {...register("description")} />
+        <Input
+          placeholder="Enter description"
+          {...register("description")}
+          disabled={demoMode}
+        />
         {errors.description && (
           <p className="text-sm text-red-500">{errors.description.message}</p>
         )}
@@ -413,6 +431,7 @@ export function AddTransactionForm({
               });
             }
           }}
+          disabled={demoMode}
         />
       </div>
 
@@ -432,6 +451,7 @@ export function AddTransactionForm({
               )
             }
             value={recurringInterval}
+            disabled={demoMode}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select interval" />
@@ -461,12 +481,18 @@ export function AddTransactionForm({
         >
           Cancel
         </Button>
-        <Button type="submit" className="w-full" disabled={transactionLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={transactionLoading || demoMode}
+        >
           {transactionLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {editMode ? "Updating..." : "Creating..."}
             </>
+          ) : demoMode ? (
+            "Read-Only Demo"
           ) : editMode ? (
             "Update Transaction"
           ) : (

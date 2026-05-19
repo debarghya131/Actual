@@ -13,16 +13,17 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  clerkUserId   String    @unique // clerk user id
-  email         String    @unique
-  name          String?
-  imageUrl      String?
-  transactions  Transaction[]
-  accounts      Account[]
-  budgets       Budget[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                   String                @id @default(uuid())
+  clerkUserId          String                @unique // clerk user id
+  email                String                @unique
+  name                 String?
+  imageUrl             String?
+  transactions         Transaction[]
+  accounts             Account[]
+  budgets              Budget[]
+  dashboardPreferences DashboardPreferences?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   @@map("users")
 }
@@ -80,6 +81,19 @@ model Budget {
 
   @@index([userId])
   @@map("budgets")
+}
+
+model DashboardPreferences {
+  userId                   String   @id @map("user_id")
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthlyBudgetTargets     Json     @map("monthly_budget_targets")
+  savingsGoalTargets       Json     @map("savings_goal_targets")
+  categoryTargetsByMonth   Json     @map("category_targets_by_month")
+  visibleCategoryIdsByMonth Json    @map("visible_category_ids_by_month")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  @@map("dashboard_preferences")
 }
 
 enum TransactionType {

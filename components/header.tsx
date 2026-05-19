@@ -18,7 +18,7 @@ import FinancialHealthNavScore from "@/components/financial-health-nav-score";
 
 const navItems = [
   { href: "#features", label: "Features" },
-  { href: "#demo", label: "Try Demo", featured: true },
+  { href: "/demo/dashboard", label: "Try Demo", featured: true },
   { href: "#about", label: "About" },
 ];
 
@@ -34,7 +34,9 @@ const dashboardQuickActions = [
 
 const Header = () => {
   const pathname = usePathname();
-  const isDashboardNav = pathname.startsWith("/dashboard");
+  const isDashboardNav =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/demo/dashboard");
+  const isDemoRoute = pathname.startsWith("/demo/dashboard");
 
   const signInButton = (
     <button className="h-10 cursor-pointer rounded-full border border-violet-200 bg-white/80 px-4 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:text-violet-900 sm:px-5">
@@ -89,16 +91,32 @@ const Header = () => {
               </div>
             </Link>
 
-            <nav className="ml-auto mr-4 hidden items-center gap-2 sm:flex">
-              <FinancialHealthNavScore />
-            </nav>
+            {isDemoRoute ? (
+              <div className="ml-auto mr-4 hidden items-center gap-3 sm:flex">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">
+                  Demo Mode
+                </span>
+                <Link
+                  href="/sign-in"
+                  className="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-900"
+                >
+                  Sign In
+                </Link>
+              </div>
+            ) : (
+              <nav className="ml-auto mr-4 hidden items-center gap-2 sm:flex">
+                <FinancialHealthNavScore />
+              </nav>
+            )}
 
-            <div className="flex shrink-0 items-center">
-              <ClerkLoading>{userButtonFallback}</ClerkLoading>
-              <ClerkLoaded>
-                <UserButton />
-              </ClerkLoaded>
-            </div>
+            {!isDemoRoute ? (
+              <div className="flex shrink-0 items-center">
+                <ClerkLoading>{userButtonFallback}</ClerkLoading>
+                <ClerkLoaded>
+                  <UserButton />
+                </ClerkLoaded>
+              </div>
+            ) : null}
           </div>
         </div>
       </header>

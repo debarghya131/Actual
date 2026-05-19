@@ -5,6 +5,7 @@ import { CreditCard, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { showDemoModeToast } from "@/lib/demo-mode";
 import { AddTransactionForm } from "./transaction-form";
 
 type AccountOption = {
@@ -37,6 +38,8 @@ type TransactionFormDialogProps = {
   categories: CategoryOption[];
   editMode?: boolean;
   initialData?: InitialTransaction | null;
+  demoMode?: boolean;
+  basePath?: string;
 };
 
 export function TransactionFormDialog({
@@ -44,6 +47,8 @@ export function TransactionFormDialog({
   categories,
   editMode = false,
   initialData = null,
+  demoMode = false,
+  basePath = "/dashboard",
 }: TransactionFormDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(editMode);
@@ -51,7 +56,7 @@ export function TransactionFormDialog({
   const closeDialog = () => {
     setOpen(false);
     if (editMode) {
-      router.replace("/dashboard/transaction/create");
+      router.replace(`${basePath}/transaction/create`);
     }
   };
 
@@ -60,7 +65,13 @@ export function TransactionFormDialog({
       <Button
         type="button"
         className="h-10 gap-2 rounded-lg bg-slate-950 px-4 text-white hover:bg-slate-900"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (demoMode) {
+            showDemoModeToast("adding a transaction");
+            return;
+          }
+          setOpen(true);
+        }}
       >
         <CreditCard className="h-4 w-4" />
         Add Transaction
@@ -104,6 +115,7 @@ export function TransactionFormDialog({
                 initialData={initialData}
                 onCancel={closeDialog}
                 onSuccess={() => setOpen(false)}
+                demoMode={demoMode}
               />
             </div>
           </div>

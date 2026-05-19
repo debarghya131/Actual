@@ -32,23 +32,12 @@ export default async function AnalyticsPage() {
     date: transaction.date.toISOString(),
     type: transaction.type,
     amount: Number(transaction.amount),
+    category: transaction.category,
   }));
 
   return (
     <section className="min-h-full w-full px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-7xl space-y-8">
-        <div className="max-w-4xl">
-          <p className="text-sm font-semibold tracking-[0.22em] text-violet-600 uppercase">
-            Analysis
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold text-slate-950">
-            Transaction Analytics
-          </h1>
-          <p className="mt-4 text-base leading-8 text-violet-950/65">
-            Review income, expenses, and net movement across your transactions.
-          </p>
-        </div>
-
+      <div className="mx-auto w-full max-w-7xl space-y-8">
         <AccountChart
           accounts={chartAccounts}
           transactions={chartTransactions}

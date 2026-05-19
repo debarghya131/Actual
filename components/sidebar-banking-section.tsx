@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { updateDefaultAccount } from "@/app/actions/account";
 import useFetch from "@/hooks/use-fetch";
 import { formatCurrency } from "@/lib/currency";
+import { showDemoModeToast } from "@/lib/demo-mode";
 
 type BankingAccount = {
   id: string;
@@ -20,9 +21,16 @@ type BankingAccount = {
 
 type SidebarBankingSectionProps = {
   accounts: BankingAccount[];
+  demoMode?: boolean;
 };
 
-function BankingItem({ account }: { account: BankingAccount }) {
+function BankingItem({
+  account,
+  demoMode = false,
+}: {
+  account: BankingAccount;
+  demoMode?: boolean;
+}) {
   const { id, name, balance, isDefault } = account;
   const {
     loading: updateDefaultLoading,
@@ -33,6 +41,11 @@ function BankingItem({ account }: { account: BankingAccount }) {
   const handleDefaultChange = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
+
+    if (demoMode) {
+      showDemoModeToast("changing the default account");
+      return;
+    }
 
     if (isDefault) {
       toast.warning("You need at least 1 default account");
@@ -77,6 +90,7 @@ function BankingItem({ account }: { account: BankingAccount }) {
 
 export default function SidebarBankingSection({
   accounts,
+  demoMode = false,
 }: SidebarBankingSectionProps) {
   return (
     <div className="min-h-0 border-t border-violet-100 pt-5">
@@ -97,19 +111,30 @@ export default function SidebarBankingSection({
           <span>Connect Bank API</span>
         </button>
 
-        <CreateAccountDrawer>
+        {demoMode ? (
           <button
             type="button"
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 bg-white px-4 py-3 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:bg-violet-50"
+            onClick={() => showDemoModeToast("adding a new account")}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 bg-white px-4 py-3 text-sm font-medium text-violet-500"
           >
             <Plus className="h-4 w-4" />
             <span>Add New Account</span>
           </button>
-        </CreateAccountDrawer>
+        ) : (
+          <CreateAccountDrawer>
+            <button
+              type="button"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 bg-white px-4 py-3 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:bg-violet-50"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add New Account</span>
+            </button>
+          </CreateAccountDrawer>
+        )}
 
         <div className="max-h-[240px] space-y-3 overflow-y-auto pr-1">
           {accounts.map((account) => (
-            <BankingItem key={account.id} account={account} />
+            <BankingItem key={account.id} account={account} demoMode={demoMode} />
           ))}
         </div>
       </div>

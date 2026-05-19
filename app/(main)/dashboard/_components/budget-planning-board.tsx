@@ -4,7 +4,10 @@ import { useState } from "react";
 import { Check, Pencil, PiggyBank, Plus, Target, Wallet, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { updateBudget } from "@/app/actions/budget";
+import {
+  updateBudget,
+  updateBudgetDashboardPreferences,
+} from "@/app/actions/budget";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import useFetch from "@/hooks/use-fetch";
 import { formatCurrency } from "@/lib/currency";
+import { showDemoModeToast } from "@/lib/demo-mode";
 
 type CategoryBudgetDefinition = {
   id: string;
@@ -47,13 +51,15 @@ type BudgetPlanningBoardProps = {
   savingsGoalSeed: number;
   categoryDefinitions: CategoryBudgetDefinition[];
   completedTransactions: CompletedBudgetTransaction[];
+  initialPreferences: {
+    monthlyBudgetTargets: Record<string, string>;
+    savingsGoalTargets: Record<string, string>;
+    categoryTargetsByMonth: Record<string, Record<string, string>>;
+    visibleCategoryIdsByMonth: Record<string, string[]>;
+  };
+  demoMode?: boolean;
 };
 
-const CATEGORY_STORAGE_KEY_PREFIX = "budget-category-targets";
-const CATEGORY_VISIBLE_STORAGE_KEY_PREFIX = "budget-visible-categories";
-const GOAL_STORAGE_KEY = "budget-savings-goal";
-const UPCOMING_BUDGETS_STORAGE_KEY = "budget-upcoming-month-targets";
-const UPCOMING_GOALS_STORAGE_KEY = "budget-upcoming-goal-targets";
 const BUDGET_TIMELINE_MONTH_COUNT = 8;
 
 function addMonths(date: Date, months: number) {
@@ -76,14 +82,6 @@ function getDisplayMonthLabel(monthKey: string, currentMonthKey?: string) {
   return monthKey === currentMonthKey
     ? `${getMonthLabel(monthKey)} (Current)`
     : getMonthLabel(monthKey);
-}
-
-function getCategoryStorageKey(monthKey: string) {
-  return `${CATEGORY_STORAGE_KEY_PREFIX}:${monthKey}`;
-}
-
-function getVisibleCategoryStorageKey(monthKey: string) {
-  return `${CATEGORY_VISIBLE_STORAGE_KEY_PREFIX}:${monthKey}`;
 }
 
 function getBudgetTimeline(baseDate: Date, count: number) {
@@ -176,24 +174,15 @@ function getDefaultCategoryTargets(categoryItems: CategoryBudgetItem[]) {
   );
 }
 
-function loadCategoryTargetsForMonth(
-  monthKey: string,
-  categoryItems: CategoryBudgetItem[]
+function mergeCategoryTargetsForMonth(
+  storedTargets: Record<string, string> | undefined,
+  categoryItems: CategoryBudgetItem[],
 ) {
   const defaultCategoryTargets = getDefaultCategoryTargets(categoryItems);
 
-  if (typeof window === "undefined") {
-    return defaultCategoryTargets;
-  }
-
-  const storedTargets = window.localStorage.getItem(getCategoryStorageKey(monthKey));
-  const parsedTargets = storedTargets
-    ? (JSON.parse(storedTargets) as Record<string, string>)
-    : {};
-
   return {
     ...defaultCategoryTargets,
-    ...parsedTargets,
+    ...(storedTargets ?? {}),
   };
 }
 
@@ -201,23 +190,12 @@ function getDefaultVisibleCategoryIds(categoryItems: CategoryBudgetItem[]) {
   return categoryItems.slice(0, 6).map((item) => item.id);
 }
 
-function loadVisibleCategoryIdsForMonth(
-  monthKey: string,
-  categoryItems: CategoryBudgetItem[]
+function mergeVisibleCategoryIdsForMonth(
+  storedVisibleIds: string[] | undefined,
+  categoryItems: CategoryBudgetItem[],
 ) {
   const defaultVisibleIds = getDefaultVisibleCategoryIds(categoryItems);
-
-  if (typeof window === "undefined") {
-    return defaultVisibleIds;
-  }
-
-  const storedVisibleIds = window.localStorage.getItem(
-    getVisibleCategoryStorageKey(monthKey)
-  );
-  const parsedVisibleIds = storedVisibleIds
-    ? (JSON.parse(storedVisibleIds) as string[])
-    : [];
-  const validVisibleIds = parsedVisibleIds.filter((id) =>
+  const validVisibleIds = (storedVisibleIds ?? []).filter((id) =>
     categoryItems.some((item) => item.id === id)
   );
 
@@ -235,10 +213,12 @@ export default function BudgetPlanningBoard({
   savingsGoalSeed,
   categoryDefinitions,
   completedTransactions,
+  initialPreferences,
+  demoMode = false,
 }: BudgetPlanningBoardProps) {
   const today = new Date();
   const budgetTimeline = getBudgetTimeline(today, BUDGET_TIMELINE_MONTH_COUNT);
-  const currentMonthKey = budgetTimeline[0]?.key;
+  const currentMonthKey = budgetTimeline[0]!.key;
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const allCategoryDefinitions = categoryDefinitions;
@@ -254,7 +234,10 @@ export default function BudgetPlanningBoard({
   );
   const [selectedCategoryToAdd, setSelectedCategoryToAdd] = useState("");
   const [visibleCategoryIds, setVisibleCategoryIds] = useState(() =>
-    loadVisibleCategoryIdsForMonth(currentMonthKey, allCategoryItemsForMonth)
+    mergeVisibleCategoryIdsForMonth(
+      initialPreferences.visibleCategoryIdsByMonth[currentMonthKey],
+      allCategoryItemsForMonth
+    )
   );
   const currentCategoryItems = allCategoryItemsForMonth.filter((item) =>
     visibleCategoryIds.includes(item.id)
@@ -265,33 +248,23 @@ export default function BudgetPlanningBoard({
 
   const [isEditingMonthly, setIsEditingMonthly] = useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
+  const [savedVisibleCategoryIdsByMonth, setSavedVisibleCategoryIdsByMonth] =
+    useState(initialPreferences.visibleCategoryIdsByMonth);
+  const [savedCategoryTargetsByMonth, setSavedCategoryTargetsByMonth] = useState(
+    initialPreferences.categoryTargetsByMonth
+  );
   const [monthlyBudgetValue, setMonthlyBudgetValue] = useState(
     initialBudget?.amount?.toString() || ""
   );
-  const [goalValue, setGoalValue] = useState(() => {
-    if (typeof window === "undefined") {
-      return savingsGoalSeed.toFixed(0);
-    }
-
-    return window.localStorage.getItem(GOAL_STORAGE_KEY) ?? savingsGoalSeed.toFixed(0);
-  });
+  const [goalValue, setGoalValue] = useState(savingsGoalSeed.toFixed(0));
   const [upcomingGoalTargets, setUpcomingGoalTargets] = useState<Record<string, string>>(
     () => {
       const defaultUpcomingGoals = getDefaultUpcomingGoalTargets(savingsGoalSeed);
 
-      if (typeof window === "undefined") {
-        return defaultUpcomingGoals;
-      }
-
-      const storedGoals = window.localStorage.getItem(UPCOMING_GOALS_STORAGE_KEY);
-      const parsedGoals = storedGoals
-        ? (JSON.parse(storedGoals) as Record<string, string>)
-        : {};
-
       return {
         ...defaultUpcomingGoals,
         ...pickTimelineMonthValues(
-          parsedGoals,
+          initialPreferences.savingsGoalTargets,
           getBudgetTimeline(new Date(), BUDGET_TIMELINE_MONTH_COUNT).map(
             (month) => month.key
           )
@@ -300,7 +273,11 @@ export default function BudgetPlanningBoard({
     }
   );
   const [categoryTargets, setCategoryTargets] = useState<Record<string, string>>(
-    () => loadCategoryTargetsForMonth(currentMonthKey, currentCategoryItems)
+    () =>
+      mergeCategoryTargetsForMonth(
+        initialPreferences.categoryTargetsByMonth[currentMonthKey],
+        currentCategoryItems
+      )
   );
   const [upcomingBudgetTargets, setUpcomingBudgetTargets] = useState<Record<string, string>>(
     () => {
@@ -309,19 +286,10 @@ export default function BudgetPlanningBoard({
         savingsGoalSeed
       );
 
-      if (typeof window === "undefined") {
-        return defaultUpcomingTargets;
-      }
-
-      const storedTargets = window.localStorage.getItem(UPCOMING_BUDGETS_STORAGE_KEY);
-      const parsedTargets = storedTargets
-        ? (JSON.parse(storedTargets) as Record<string, string>)
-        : {};
-
       return {
         ...defaultUpcomingTargets,
         ...pickTimelineMonthValues(
-          parsedTargets,
+          initialPreferences.monthlyBudgetTargets,
           getBudgetTimeline(new Date(), BUDGET_TIMELINE_MONTH_COUNT).map(
             (month) => month.key
           )
@@ -334,6 +302,10 @@ export default function BudgetPlanningBoard({
     loading: isUpdatingMonthly,
     fn: updateBudgetFn,
   } = useFetch(updateBudget);
+  const {
+    loading: isSavingPreferences,
+    fn: updateBudgetDashboardPreferencesFn,
+  } = useFetch(updateBudgetDashboardPreferences);
 
   const effectiveBudgetAmount = Number(monthlyBudgetValue || initialBudget?.amount || 0);
   const currentSavings = Math.max(currentIncome - currentExpenses, 0);
@@ -347,7 +319,35 @@ export default function BudgetPlanningBoard({
       ? Math.min((currentExpenses / effectiveBudgetAmount) * 100, 100)
       : 0;
 
+  const persistPreferences = async ({
+    nextBudgetTargets = upcomingBudgetTargets,
+    nextGoalTargets = upcomingGoalTargets,
+    nextCategoryTargetsByMonth = savedCategoryTargetsByMonth,
+    nextVisibleCategoryIdsByMonth = savedVisibleCategoryIdsByMonth,
+  }: {
+    nextBudgetTargets?: Record<string, string>;
+    nextGoalTargets?: Record<string, string>;
+    nextCategoryTargetsByMonth?: Record<string, Record<string, string>>;
+    nextVisibleCategoryIdsByMonth?: Record<string, string[]>;
+  }) => {
+    const result = await updateBudgetDashboardPreferencesFn({
+      monthlyBudgetTargets: nextBudgetTargets,
+      savingsGoalTargets: nextGoalTargets,
+      categoryTargetsByMonth: nextCategoryTargetsByMonth,
+      visibleCategoryIdsByMonth: nextVisibleCategoryIdsByMonth,
+    });
+
+    if (!result?.success) {
+      throw new Error(result?.error ?? "Failed to save preferences");
+    }
+  };
+
   const handleMonthlySave = async () => {
+    if (demoMode) {
+      toast.info("Demo mode is read-only");
+      return;
+    }
+
     const currentBudgetTarget =
       (currentMonthKey && upcomingBudgetTargets[currentMonthKey]) || monthlyBudgetValue;
     const amount = Number(currentBudgetTarget);
@@ -366,10 +366,7 @@ export default function BudgetPlanningBoard({
         nextTargets[currentMonthKey] = normalizedAmount;
       }
 
-      window.localStorage.setItem(
-        UPCOMING_BUDGETS_STORAGE_KEY,
-        JSON.stringify(nextTargets)
-      );
+      await persistPreferences({ nextBudgetTargets: nextTargets });
       setMonthlyBudgetValue(normalizedAmount);
       setUpcomingBudgetTargets(nextTargets);
       setIsEditingMonthly(false);
@@ -379,7 +376,12 @@ export default function BudgetPlanningBoard({
     }
   };
 
-  const handleGoalSave = () => {
+  const handleGoalSave = async () => {
+    if (demoMode) {
+      toast.info("Demo mode is read-only");
+      return;
+    }
+
     const currentGoalTarget =
       (currentMonthKey && upcomingGoalTargets[currentMonthKey]) || goalValue;
     const amount = Number(currentGoalTarget);
@@ -396,15 +398,15 @@ export default function BudgetPlanningBoard({
       nextGoals[currentMonthKey] = normalizedAmount;
     }
 
-    window.localStorage.setItem(GOAL_STORAGE_KEY, normalizedAmount);
-    window.localStorage.setItem(
-      UPCOMING_GOALS_STORAGE_KEY,
-      JSON.stringify(nextGoals)
-    );
-    setGoalValue(normalizedAmount);
-    setUpcomingGoalTargets(nextGoals);
-    setIsEditingGoal(false);
-    toast.success("Savings goal saved");
+    try {
+      await persistPreferences({ nextGoalTargets: nextGoals });
+      setGoalValue(normalizedAmount);
+      setUpcomingGoalTargets(nextGoals);
+      setIsEditingGoal(false);
+      toast.success("Savings goal saved");
+    } catch {
+      toast.error("Failed to save savings goal");
+    }
   };
 
   const handleCategoryTargetChange = (category: string, value: string) => {
@@ -414,18 +416,34 @@ export default function BudgetPlanningBoard({
     }));
   };
 
-  const handleCategorySave = () => {
-    window.localStorage.setItem(
-      getCategoryStorageKey(selectedCategoryMonth),
-      JSON.stringify(categoryTargets)
-    );
-    window.localStorage.setItem(
-      getVisibleCategoryStorageKey(selectedCategoryMonth),
-      JSON.stringify(visibleCategoryIds)
-    );
-    setIsEditingCategory(false);
-    setIsAddingCategory(false);
-    toast.success("Category budget plan saved");
+  const handleCategorySave = async () => {
+    if (demoMode) {
+      toast.info("Demo mode is read-only");
+      return;
+    }
+
+    const nextCategoryTargetsByMonth = {
+      ...savedCategoryTargetsByMonth,
+      [selectedCategoryMonth]: categoryTargets,
+    };
+    const nextVisibleCategoryIdsByMonth = {
+      ...savedVisibleCategoryIdsByMonth,
+      [selectedCategoryMonth]: visibleCategoryIds,
+    };
+
+    try {
+      await persistPreferences({
+        nextCategoryTargetsByMonth,
+        nextVisibleCategoryIdsByMonth,
+      });
+      setSavedCategoryTargetsByMonth(nextCategoryTargetsByMonth);
+      setSavedVisibleCategoryIdsByMonth(nextVisibleCategoryIdsByMonth);
+      setIsEditingCategory(false);
+      setIsAddingCategory(false);
+      toast.success("Category budget plan saved");
+    } catch {
+      toast.error("Failed to save category budget plan");
+    }
   };
 
   const handleCategoryMonthChange = (monthKey: string) => {
@@ -436,8 +454,15 @@ export default function BudgetPlanningBoard({
     );
 
     setSelectedCategoryMonth(monthKey);
-    setVisibleCategoryIds(loadVisibleCategoryIdsForMonth(monthKey, monthItems));
-    setCategoryTargets(loadCategoryTargetsForMonth(monthKey, monthItems));
+    setVisibleCategoryIds(
+      mergeVisibleCategoryIdsForMonth(
+        savedVisibleCategoryIdsByMonth[monthKey],
+        monthItems
+      )
+    );
+    setCategoryTargets(
+      mergeCategoryTargetsForMonth(savedCategoryTargetsByMonth[monthKey], monthItems)
+    );
     setSelectedCategoryToAdd("");
     setIsAddingCategory(false);
   };
@@ -463,7 +488,12 @@ export default function BudgetPlanningBoard({
     );
 
     setVisibleCategoryIds(nextVisibleCategoryIds);
-    setCategoryTargets(loadCategoryTargetsForMonth(selectedCategoryMonth, monthItems));
+    setCategoryTargets(
+      mergeCategoryTargetsForMonth(
+        savedCategoryTargetsByMonth[selectedCategoryMonth],
+        monthItems
+      )
+    );
     setSelectedCategoryToAdd("");
     setIsAddingCategory(false);
     toast.success("Category added");
@@ -488,22 +518,10 @@ export default function BudgetPlanningBoard({
       initialBudget?.amount ?? null,
       savingsGoalSeed
     );
-
-    if (typeof window === "undefined") {
-      const fallbackAmount = (initialBudget?.amount ?? savingsGoalSeed).toFixed(0);
-      setUpcomingBudgetTargets(defaultUpcomingTargets);
-      setMonthlyBudgetValue(fallbackAmount);
-      return;
-    }
-
-    const storedTargets = window.localStorage.getItem(UPCOMING_BUDGETS_STORAGE_KEY);
-    const parsedTargets = storedTargets
-      ? (JSON.parse(storedTargets) as Record<string, string>)
-      : {};
     const restoredTargets = {
       ...defaultUpcomingTargets,
       ...pickTimelineMonthValues(
-        parsedTargets,
+        initialPreferences.monthlyBudgetTargets,
         budgetTimeline.map((month) => month.key)
       ),
     };
@@ -518,28 +536,15 @@ export default function BudgetPlanningBoard({
 
   const restoreGoalTargets = () => {
     const defaultUpcomingGoals = getDefaultUpcomingGoalTargets(savingsGoalSeed);
-
-    if (typeof window === "undefined") {
-      setUpcomingGoalTargets(defaultUpcomingGoals);
-      setGoalValue(savingsGoalSeed.toFixed(0));
-      return;
-    }
-
-    const storedGoalValue =
-      window.localStorage.getItem(GOAL_STORAGE_KEY) ?? savingsGoalSeed.toFixed(0);
-    const storedGoals = window.localStorage.getItem(UPCOMING_GOALS_STORAGE_KEY);
-    const parsedGoals = storedGoals
-      ? (JSON.parse(storedGoals) as Record<string, string>)
-      : {};
     const restoredGoals = {
       ...defaultUpcomingGoals,
       ...pickTimelineMonthValues(
-        parsedGoals,
+        initialPreferences.savingsGoalTargets,
         budgetTimeline.map((month) => month.key)
       ),
     };
 
-    setGoalValue(storedGoalValue);
+    setGoalValue(savingsGoalSeed.toFixed(0));
     setUpcomingGoalTargets(restoredGoals);
   };
 
@@ -555,13 +560,22 @@ export default function BudgetPlanningBoard({
             <p className="mt-2 text-sm text-violet-950/60">
               Set one total monthly spending limit and compare it with live expenses across all accounts.
             </p>
+            {demoMode ? (
+              <p className="mt-2 inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">
+                Read-Only Demo
+              </p>
+            ) : null}
           </div>
 
           {!isEditingMonthly ? (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsEditingMonthly(true)}
+              onClick={() =>
+                demoMode
+                  ? showDemoModeToast("editing monthly budgets")
+                  : setIsEditingMonthly(true)
+              }
               className="h-8 w-8"
             >
               <Pencil className="h-4 w-4" />
@@ -576,7 +590,7 @@ export default function BudgetPlanningBoard({
                   variant="ghost"
                   size="icon"
                   onClick={handleMonthlySave}
-                  disabled={isUpdatingMonthly}
+                  disabled={isUpdatingMonthly || isSavingPreferences}
                 >
                   <Check className="h-4 w-4 text-green-600" />
                 </Button>
@@ -587,7 +601,7 @@ export default function BudgetPlanningBoard({
                     restoreBudgetTargets();
                     setIsEditingMonthly(false);
                   }}
-                  disabled={isUpdatingMonthly}
+                  disabled={isUpdatingMonthly || isSavingPreferences}
                 >
                   <X className="h-4 w-4 text-red-500" />
                 </Button>
@@ -724,12 +738,16 @@ export default function BudgetPlanningBoard({
                 ))}
               </SelectContent>
             </Select>
-            {!isEditingCategory ? (
+          {!isEditingCategory ? (
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => setIsEditingCategory(true)}
+                onClick={() =>
+                  demoMode
+                    ? showDemoModeToast("editing category budgets")
+                    : setIsEditingCategory(true)
+                }
               >
                 <Pencil className="h-4 w-4" />
               </Button>
@@ -739,6 +757,7 @@ export default function BudgetPlanningBoard({
                   variant="ghost"
                   size="icon"
                   onClick={handleCategorySave}
+                  disabled={isSavingPreferences}
                 >
                   <Check className="h-4 w-4 text-green-600" />
                 </Button>
@@ -752,15 +771,22 @@ export default function BudgetPlanningBoard({
                       completedTransactions
                     );
                     setVisibleCategoryIds(
-                      loadVisibleCategoryIdsForMonth(selectedCategoryMonth, monthItems)
+                      mergeVisibleCategoryIdsForMonth(
+                        savedVisibleCategoryIdsByMonth[selectedCategoryMonth],
+                        monthItems
+                      )
                     );
                     setCategoryTargets(
-                      loadCategoryTargetsForMonth(selectedCategoryMonth, monthItems)
+                      mergeCategoryTargetsForMonth(
+                        savedCategoryTargetsByMonth[selectedCategoryMonth],
+                        monthItems
+                      )
                     );
                     setSelectedCategoryToAdd("");
                     setIsAddingCategory(false);
                     setIsEditingCategory(false);
                   }}
+                  disabled={isSavingPreferences}
                 >
                   <X className="h-4 w-4 text-red-500" />
                 </Button>
@@ -985,7 +1011,11 @@ export default function BudgetPlanningBoard({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsEditingGoal(true)}
+              onClick={() =>
+                demoMode
+                  ? showDemoModeToast("editing savings goals")
+                  : setIsEditingGoal(true)
+              }
               className="h-8 w-8"
             >
               <Pencil className="h-4 w-4" />
@@ -996,6 +1026,7 @@ export default function BudgetPlanningBoard({
                 variant="ghost"
                 size="icon"
                 onClick={handleGoalSave}
+                disabled={isSavingPreferences}
               >
                 <Check className="h-4 w-4 text-green-600" />
               </Button>
@@ -1006,6 +1037,7 @@ export default function BudgetPlanningBoard({
                   restoreGoalTargets();
                   setIsEditingGoal(false);
                 }}
+                disabled={isSavingPreferences}
               >
                 <X className="h-4 w-4 text-red-500" />
               </Button>

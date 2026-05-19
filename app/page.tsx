@@ -1,4 +1,5 @@
 import Hero from "@/components/hero";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -41,6 +42,14 @@ export default function Home() {
               <p className="mt-5 max-w-xl text-base leading-8 text-violet-100/80">
                 The demo experience is designed to feel like a real working product, not a static marketing screen.
               </p>
+              <div className="mt-8">
+                <Link
+                  href="/demo/dashboard"
+                  className="inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-violet-900 transition hover:bg-violet-50"
+                >
+                  Open Read-Only Demo
+                </Link>
+              </div>
             </div>
             <div className="grid gap-4 rounded-2xl bg-white/8 p-5">
               <div className="rounded-xl bg-white/10 p-4">

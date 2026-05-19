@@ -5,7 +5,13 @@ import { usePathname } from "next/navigation";
 
 import { dashboardNavItems } from "@/components/dashboard-sidebar";
 
-export default function DashboardMobileNav() {
+type DashboardMobileNavProps = {
+  basePath?: string;
+};
+
+export default function DashboardMobileNav({
+  basePath = "/dashboard",
+}: DashboardMobileNavProps) {
   const pathname = usePathname();
 
   return (
@@ -19,15 +25,16 @@ export default function DashboardMobileNav() {
 
       <nav className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         {dashboardNavItems.map((item) => {
+          const href = `${basePath}${item.segment}`;
           const isActive =
-            item.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname.startsWith(item.href);
+            item.segment === ""
+              ? pathname === basePath
+              : pathname.startsWith(href);
 
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={href}
               className={
                 isActive
                   ? "rounded-full bg-violet-700 px-4 py-2 text-sm font-medium whitespace-nowrap text-white"

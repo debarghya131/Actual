@@ -55,6 +55,7 @@ import { bulkDeleteTransactions } from "@/app/actions/account";
 import useFetch from "@/hooks/use-fetch";
 import { BarLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
+import { showDemoModeToast } from "@/lib/demo-mode";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -90,11 +91,15 @@ type TransactionTableAccount = {
 type TransactionTableProps = {
   transactions: TransactionTableItem[];
   accounts?: TransactionTableAccount[];
+  demoMode?: boolean;
+  basePath?: string;
 };
 
 export function TransactionTable({
   transactions,
   accounts = [],
+  demoMode = false,
+  basePath = "/dashboard",
 }: TransactionTableProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState({
@@ -192,6 +197,9 @@ export function TransactionTable({
   };
 
   const handleSelect = (id: string) => {
+    if (demoMode) {
+      return;
+    }
     setSelectedIds((current) =>
       current.includes(id)
         ? current.filter((item) => item !== id)
@@ -200,6 +208,9 @@ export function TransactionTable({
   };
 
   const handleSelectAll = () => {
+    if (demoMode) {
+      return;
+    }
     setSelectedIds((current) =>
       current.length === paginatedTransactions.length
         ? []
@@ -213,6 +224,10 @@ export function TransactionTable({
   } = useFetch(bulkDeleteTransactions);
 
   const handleBulkDelete = async () => {
+    if (demoMode) {
+      showDemoModeToast("deleting transactions");
+      return;
+    }
     if (
       !window.confirm(
         `Are you sure you want to delete ${selectedIds.length} transactions?`
@@ -232,6 +247,11 @@ export function TransactionTable({
   };
 
   const handleDeleteTransaction = async (id: string) => {
+    if (demoMode) {
+      showDemoModeToast("deleting transactions");
+      return;
+    }
+
     const result = await deleteFn([id]);
 
     if (result.success) {
@@ -259,7 +279,7 @@ export function TransactionTable({
 
   return (
     <div className="space-y-4">
-      {deleteLoading && (
+      {deleteLoading && !demoMode && (
         <BarLoader className="mt-4" width={"100%"} color="#9333ea" />
       )}
       {/* Filters */}
@@ -333,7 +353,7 @@ export function TransactionTable({
           </Select>
 
           {/* Bulk Actions */}
-          {selectedIds.length > 0 && (
+          {selectedIds.length > 0 && !demoMode && (
             <div className="flex items-center gap-2">
               <Button
                 variant="destructive"
@@ -371,6 +391,7 @@ export function TransactionTable({
                     paginatedTransactions.length > 0
                   }
                   onCheckedChange={handleSelectAll}
+                  disabled={demoMode}
                 />
               </TableHead>
               <TableHead
@@ -437,6 +458,7 @@ export function TransactionTable({
                     <Checkbox
                       checked={selectedIds.includes(transaction.id)}
                       onCheckedChange={() => handleSelect(transaction.id)}
+                      disabled={demoMode}
                     />
                   </TableCell>
                   <TableCell>
@@ -513,9 +535,11 @@ export function TransactionTable({
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() =>
-                            router.push(
-                              `/dashboard/transaction/create?edit=${transaction.id}`
-                            )
+                            demoMode
+                              ? showDemoModeToast("editing transactions")
+                              : router.push(
+                                  `${basePath}/transaction/create?edit=${transaction.id}`
+                                )
                           }
                         >
                           Edit

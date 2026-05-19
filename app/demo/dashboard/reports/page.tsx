@@ -1,9 +1,7 @@
 import { format } from "date-fns";
-import { redirect } from "next/navigation";
 
 import MonthlyReportsViewer from "@/app/(main)/dashboard/_components/monthly-reports-viewer";
-import { checkUser } from "@/lib/checkUser";
-import { db } from "@/lib/prisma";
+import { demoTransactions } from "@/lib/demo-data";
 
 type MonthlyReportAccumulator = {
   monthKey: string;
@@ -26,27 +24,12 @@ function toCategoryLabel(category: string | null) {
     .join(" ");
 }
 
-export default async function ReportsPage() {
-  const user = await checkUser();
-
-  if (!user) {
-    redirect("/sign-in");
-  }
-
-  const transactions = await db.transaction.findMany({
-    where: {
-      userId: user.id,
-      status: "COMPLETED",
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
-
-  const reportMap = transactions.reduce<Record<string, MonthlyReportAccumulator>>(
+export default function DemoReportsPage() {
+  const reportMap = demoTransactions.reduce<Record<string, MonthlyReportAccumulator>>(
     (acc, transaction) => {
-      const monthKey = format(transaction.date, "yyyy-MM");
-      const monthLabel = format(transaction.date, "MMMM yyyy");
+      const transactionDate = new Date(transaction.date);
+      const monthKey = format(transactionDate, "yyyy-MM");
+      const monthLabel = format(transactionDate, "MMMM yyyy");
 
       if (!acc[monthKey]) {
         acc[monthKey] = {
@@ -59,16 +42,15 @@ export default async function ReportsPage() {
         };
       }
 
-      const amount = Number(transaction.amount);
       acc[monthKey].transactionCount += 1;
 
       if (transaction.type === "INCOME") {
-        acc[monthKey].totalIncome += amount;
+        acc[monthKey].totalIncome += transaction.amount;
       } else {
-        acc[monthKey].totalExpenses += amount;
+        acc[monthKey].totalExpenses += transaction.amount;
         const category = toCategoryLabel(transaction.category);
         acc[monthKey].byCategory[category] =
-          (acc[monthKey].byCategory[category] ?? 0) + amount;
+          (acc[monthKey].byCategory[category] ?? 0) + transaction.amount;
       }
 
       return acc;

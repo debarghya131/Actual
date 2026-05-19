@@ -18,11 +18,15 @@ type BudgetProgressProps = {
     amount: number;
   } | null;
   currentExpenses: number;
+  manageHref?: string;
+  manageLabel?: string;
 };
 
 export function BudgetProgress({
   initialBudget,
   currentExpenses,
+  manageHref = "/dashboard/budgets",
+  manageLabel = "Manage",
 }: BudgetProgressProps) {
   const percentUsed = initialBudget
     ? (currentExpenses / initialBudget.amount) * 100
@@ -44,10 +48,10 @@ export function BudgetProgress({
           </div>
         </div>
         <Link
-          href="/dashboard/budgets"
+          href={manageHref}
           className="text-xs font-medium text-violet-700 transition hover:text-violet-900"
         >
-          Manage
+          {manageLabel}
         </Link>
       </CardHeader>
       <CardContent className="px-3 pb-3 pt-0">

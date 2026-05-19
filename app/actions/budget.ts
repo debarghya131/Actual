@@ -1,6 +1,11 @@
 "use server";
 
 import { db } from "@/lib/prisma";
+import {
+  getDashboardPreferences,
+  saveDashboardPreferences,
+  type DashboardPreferences,
+} from "@/lib/dashboard-preferences";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
@@ -99,6 +104,63 @@ export async function updateBudget(amount: number) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to update budget",
+    };
+  }
+}
+
+export async function getBudgetDashboardPreferences() {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    return {
+      success: true,
+      data: await getDashboardPreferences(user.id),
+    };
+  } catch (error) {
+    console.error("Error fetching dashboard preferences:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch dashboard preferences",
+    };
+  }
+}
+
+export async function updateBudgetDashboardPreferences(
+  preferences: DashboardPreferences,
+) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    await saveDashboardPreferences(user.id, preferences);
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/budgets");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating dashboard preferences:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to update dashboard preferences",
     };
   }
 }
