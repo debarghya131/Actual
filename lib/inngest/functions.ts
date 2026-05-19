@@ -74,6 +74,33 @@ export const processRecurringTransaction = inngest.createFunction(
           : Number(transaction.amount);
 
       const result = await db.$transaction(async (tx) => {
+        const nextRecurringDate = calculateNextRecurringDate(
+          processedAt,
+          recurringInterval
+        );
+        const claimResult = await tx.transaction.updateMany({
+          where: {
+            id: transaction.id,
+            userId,
+            isRecurring: true,
+            status: "COMPLETED",
+            recurringInterval,
+            nextRecurringDate: transaction.nextRecurringDate,
+          },
+          data: {
+            lastProcessed: processedAt,
+            nextRecurringDate,
+          },
+        });
+
+        // Another worker may have already processed this due item.
+        if (claimResult.count === 0) {
+          return {
+            status: "skipped" as const,
+            reason: "Recurring transaction already processed",
+          };
+        }
+
         const createdTransaction = await tx.transaction.create({
           data: {
             type: transaction.type,
@@ -102,27 +129,18 @@ export const processRecurringTransaction = inngest.createFunction(
           },
         });
 
-        const nextRecurringDate = calculateNextRecurringDate(
-          processedAt,
-          recurringInterval
-        );
-
-        await tx.transaction.update({
-          where: { id: transaction.id },
-          data: {
-            lastProcessed: processedAt,
-            nextRecurringDate,
-          },
-        });
-
         return {
           createdTransactionId: createdTransaction.id,
+          status: "processed" as const,
           nextRecurringDate,
         };
       });
 
+      if (result.status === "skipped") {
+        return result;
+      }
+
       return {
-        status: "processed",
         sourceTransactionId: transaction.id,
         ...result,
       };
@@ -191,16 +209,7 @@ export const checkBudgetAlerts = inngest.createFunction(
     const budgets = await step.run("fetch-budgets", async () => {
       return db.budget.findMany({
         include: {
-          user: {
-            include: {
-              accounts: {
-                where: {
-                  isDefault: true,
-                },
-                take: 1,
-              },
-            },
-          },
+          user: true,
         },
       });
     });
@@ -208,16 +217,6 @@ export const checkBudgetAlerts = inngest.createFunction(
     const results = [];
 
     for (const budget of budgets) {
-      const defaultAccount = budget.user.accounts[0];
-      if (!defaultAccount) {
-        results.push({
-          budgetId: budget.id,
-          status: "skipped",
-          reason: "No default account found",
-        });
-        continue;
-      }
-
       const result = await step.run(`check-budget-${budget.id}`, async () => {
         const startDate = new Date();
         startDate.setDate(1);
@@ -226,8 +225,8 @@ export const checkBudgetAlerts = inngest.createFunction(
         const expenses = await db.transaction.aggregate({
           where: {
             userId: budget.userId,
-            accountId: defaultAccount.id,
             type: "EXPENSE",
+            status: "COMPLETED",
             date: {
               gte: startDate,
             },
@@ -278,7 +277,7 @@ export const checkBudgetAlerts = inngest.createFunction(
 
         const emailResult = await sendEmail({
           to: budget.user.email,
-          subject: `Budget Alert for ${defaultAccount.name}`,
+          subject: "Budget Alert",
           react: EmailTemplate({
             userName: budget.user.name,
             type: "budget-alert",
@@ -286,7 +285,6 @@ export const checkBudgetAlerts = inngest.createFunction(
               percentageUsed,
               budgetAmount: Number(budgetAmount.toFixed(1)),
               totalExpenses: Number(totalExpenses.toFixed(1)),
-              accountName: defaultAccount.name,
             },
           }),
         });
@@ -298,7 +296,6 @@ export const checkBudgetAlerts = inngest.createFunction(
             reason: getErrorMessage(emailResult.error),
             userId: budget.userId,
             email: budget.user.email,
-            accountName: defaultAccount.name,
             percentageUsed: Number(percentageUsed.toFixed(1)),
             budgetAmount: Number(budgetAmount.toFixed(1)),
             totalExpenses: Number(totalExpenses.toFixed(1)),
@@ -316,7 +313,6 @@ export const checkBudgetAlerts = inngest.createFunction(
           userId: budget.userId,
           email: budget.user.email,
           emailId: emailResult.data?.id,
-          accountName: defaultAccount.name,
           percentageUsed: Number(percentageUsed.toFixed(1)),
           budgetAmount: Number(budgetAmount.toFixed(1)),
           totalExpenses: Number(totalExpenses.toFixed(1)),
