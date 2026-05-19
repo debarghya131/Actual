@@ -36,7 +36,7 @@ type DashboardTransaction = {
   amount: number;
   description: string | null;
   date: string;
-  category: string;
+  category: string | null;
 };
 
 type DashboardOverviewProps = {
@@ -46,6 +46,33 @@ type DashboardOverviewProps = {
 
 const GOAL_STORAGE_KEY = "budget-savings-goal";
 const UPCOMING_GOALS_STORAGE_KEY = "budget-upcoming-goal-targets";
+const CATEGORY_STORAGE_KEY_PREFIX = "budget-category-targets";
+
+function getCategoryStorageKey(monthKey: string) {
+  return `${CATEGORY_STORAGE_KEY_PREFIX}:${monthKey}`;
+}
+
+function normalizeCategoryKey(value: string | null | undefined) {
+  const normalized = (value ?? "").trim().toLowerCase();
+  return normalized || "uncategorized";
+}
+
+function loadMonthlyCategoryBudget(monthKey: string) {
+  if (typeof window === "undefined") {
+    return {
+      categoryTargets: {} as Record<string, string>,
+    };
+  }
+
+  const storedCategoryTargets = window.localStorage.getItem(
+    getCategoryStorageKey(monthKey)
+  );
+  return {
+    categoryTargets: storedCategoryTargets
+      ? (JSON.parse(storedCategoryTargets) as Record<string, string>)
+      : {},
+  };
+}
 
 export function DashboardOverview({
   accounts,
@@ -71,6 +98,10 @@ export function DashboardOverview({
     accounts.find((account) => account.isDefault)?.id ?? accounts[0]?.id ?? "",
   );
   const [selectedMonth, setSelectedMonth] = useState(currentMonthKey);
+  const initialCategoryBudget = loadMonthlyCategoryBudget(currentMonthKey);
+  const [categoryTargetsForMonth, setCategoryTargetsForMonth] = useState<
+    Record<string, string>
+  >(initialCategoryBudget.categoryTargets);
 
   const currentMonthTransactions = transactions.filter(
     (transaction) => format(new Date(transaction.date), "yyyy-MM") === currentMonthKey,
@@ -101,7 +132,7 @@ export function DashboardOverview({
 
   const monthOptions = Array.from(
     new Map(
-      [selectedMonth, currentMonthKey, ...accountTransactions.map((transaction) =>
+      [selectedMonth, currentMonthKey, ...transactions.map((transaction) =>
         format(new Date(transaction.date), "yyyy-MM")
       )].map((monthKey) => [
         monthKey,
@@ -113,7 +144,7 @@ export function DashboardOverview({
     ).values()
   ).sort((a, b) => b.value.localeCompare(a.value));
 
-  const selectedMonthExpenses = accountTransactions.filter((transaction) => {
+  const selectedMonthExpenses = transactions.filter((transaction) => {
     return (
       transaction.type === "EXPENSE" &&
       format(new Date(transaction.date), "yyyy-MM") === selectedMonth
@@ -122,20 +153,40 @@ export function DashboardOverview({
 
   const expensesByCategory = selectedMonthExpenses.reduce<Record<string, number>>(
     (totals, transaction) => {
-      totals[transaction.category] =
-        (totals[transaction.category] ?? 0) + transaction.amount;
+      const categoryKey = normalizeCategoryKey(transaction.category);
+      totals[categoryKey] = (totals[categoryKey] ?? 0) + transaction.amount;
       return totals;
     },
     {},
   );
 
-  const expenseBreakdown = Object.entries(expensesByCategory)
-    .map(([category, amount]) => ({ category, amount }))
-    .sort((a, b) => b.amount - a.amount);
-  const totalExpenses = expenseBreakdown.reduce(
-    (total, expense) => total + expense.amount,
-    0,
+  const labelByCategory = selectedMonthExpenses.reduce<Record<string, string>>(
+    (labels, transaction) => {
+      const key = normalizeCategoryKey(transaction.category);
+      labels[key] = transaction.category ?? "Uncategorized";
+      return labels;
+    },
+    {}
   );
+
+  const targetByCategory = Object.entries(categoryTargetsForMonth).reduce<
+    Record<string, number>
+  >((targets, [category, target]) => {
+    const amount = Number(target);
+    if (Number.isFinite(amount) && amount > 0) {
+      targets[normalizeCategoryKey(category)] = amount;
+    }
+    return targets;
+  }, {});
+
+  const expenseBreakdown = Object.entries(expensesByCategory)
+    .map(([category, amount]) => ({
+      category,
+      label: labelByCategory[category] ?? category,
+      amount,
+      target: targetByCategory[category] ?? 0,
+    }))
+    .sort((a, b) => b.amount - a.amount);
 
   return (
     <section className="space-y-6">
@@ -295,7 +346,14 @@ export function DashboardOverview({
             <CardTitle className="text-base font-normal">
               Monthly Expense Breakdown
             </CardTitle>
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+            <Select
+              value={selectedMonth}
+              onValueChange={(monthKey) => {
+                setSelectedMonth(monthKey);
+                const monthBudget = loadMonthlyCategoryBudget(monthKey);
+                setCategoryTargetsForMonth(monthBudget.categoryTargets);
+              }}
+            >
               <SelectTrigger className="w-[155px]">
                 <SelectValue placeholder="Select month" />
               </SelectTrigger>
@@ -316,22 +374,49 @@ export function DashboardOverview({
             ) : (
               <div className="max-h-[340px] space-y-3 overflow-y-auto pr-2">
                 {expenseBreakdown.map((expense) => {
-                  const percent =
-                    totalExpenses > 0 ? (expense.amount / totalExpenses) * 100 : 0;
+                  const usagePercent =
+                    expense.target > 0
+                      ? (expense.amount / expense.target) * 100
+                      : 0;
+                  const progressPercent = Math.min(usagePercent, 100);
+                  const progressColorClass =
+                    expense.target <= 0
+                      ? "bg-violet-400"
+                      : expense.amount > expense.target
+                        ? "bg-red-500"
+                        : usagePercent >= 100
+                          ? "bg-emerald-500"
+                        : usagePercent >= 80
+                          ? "bg-amber-500"
+                          : "bg-emerald-500";
 
                   return (
                     <div key={expense.category} className="space-y-2">
                       <div className="flex items-center justify-between gap-4 text-sm">
-                        <span className="font-medium">{expense.category}</span>
+                        <span className="font-medium">{expense.label}</span>
                         <span className="text-muted-foreground">
                           {formatCurrency(expense.amount)}
                         </span>
                       </div>
                       <div className="h-2 overflow-hidden rounded-full bg-muted">
                         <div
-                          className="h-full rounded-full bg-violet-600"
-                          style={{ width: `${percent}%` }}
+                          className={`h-full rounded-full ${progressColorClass}`}
+                          style={{ width: `${progressPercent}%` }}
                         />
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span>
+                          {expense.target > 0
+                            ? `Target ${formatCurrency(expense.target)}`
+                            : "No target set"}
+                        </span>
+                        <span>
+                          {expense.target > 0
+                            ? usagePercent > 100
+                              ? `${usagePercent.toFixed(1)}% overused`
+                              : `${usagePercent.toFixed(1)}% used`
+                            : ""}
+                        </span>
                       </div>
                     </div>
                   );

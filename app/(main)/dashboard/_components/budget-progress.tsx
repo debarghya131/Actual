@@ -66,7 +66,9 @@ export function BudgetProgress({
               }`}
             />
             <p className="text-xs text-muted-foreground text-right">
-              {percentUsed.toFixed(1)}% used
+              {percentUsed > 100
+                ? `${percentUsed.toFixed(1)}% overused`
+                : `${percentUsed.toFixed(1)}% used`}
             </p>
           </div>
         )}

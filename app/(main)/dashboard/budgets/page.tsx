@@ -13,8 +13,8 @@ export default async function BudgetsPage() {
   }
 
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
 
   const [budget, transactions] = await Promise.all([
     db.budget.findUnique({
@@ -24,10 +24,6 @@ export default async function BudgetsPage() {
       where: {
         userId: user.id,
         status: "COMPLETED",
-        date: {
-          gte: startOfMonth,
-          lte: endOfMonth,
-        },
       },
       orderBy: { date: "desc" },
     }),
@@ -37,39 +33,36 @@ export default async function BudgetsPage() {
     type: transaction.type,
     amount: Number(transaction.amount),
     category: transaction.category,
+    date: transaction.date.toISOString(),
   }));
 
   const currentExpenses = serializedTransactions
-    .filter((transaction) => transaction.type === "EXPENSE")
+    .filter((transaction) => {
+      const transactionDate = new Date(transaction.date);
+
+      return (
+        transaction.type === "EXPENSE" &&
+        transactionDate.getMonth() === currentMonth &&
+        transactionDate.getFullYear() === currentYear
+      );
+    })
     .reduce((total, transaction) => total + transaction.amount, 0);
 
   const currentIncome = serializedTransactions
-    .filter((transaction) => transaction.type === "INCOME")
+    .filter((transaction) => {
+      const transactionDate = new Date(transaction.date);
+
+      return (
+        transaction.type === "INCOME" &&
+        transactionDate.getMonth() === currentMonth &&
+        transactionDate.getFullYear() === currentYear
+      );
+    })
     .reduce((total, transaction) => total + transaction.amount, 0);
 
   const expenseCategories = defaultCategories.filter(
     (category) => category.type === "EXPENSE"
   );
-
-  const categoryItems = expenseCategories
-    .map((category) => {
-      const spent = serializedTransactions
-        .filter(
-          (transaction) =>
-            transaction.type === "EXPENSE" &&
-            transaction.category.toLowerCase() === category.id.toLowerCase()
-        )
-        .reduce((total, transaction) => total + transaction.amount, 0);
-
-      return {
-        category: category.name,
-        color: category.color,
-        spent,
-        suggested: Math.max(spent, 500),
-      };
-    })
-    .sort((a, b) => b.spent - a.spent)
-    .slice(0, 6);
 
   const savingsGoalSeed = Math.max(currentIncome * 0.2, 5000);
 
@@ -88,7 +81,12 @@ export default async function BudgetsPage() {
           currentExpenses={currentExpenses}
           currentIncome={currentIncome}
           savingsGoalSeed={savingsGoalSeed}
-          categoryItems={categoryItems}
+          categoryDefinitions={expenseCategories.map((category) => ({
+            id: category.id,
+            category: category.name,
+            color: category.color,
+          }))}
+          completedTransactions={serializedTransactions}
         />
       </div>
     </section>
