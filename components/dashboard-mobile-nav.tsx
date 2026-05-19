@@ -37,8 +37,8 @@ export default function DashboardMobileNav({
               href={href}
               className={
                 isActive
-                  ? "rounded-full bg-violet-700 px-4 py-2 text-sm font-medium whitespace-nowrap text-white"
-                  : "rounded-full border border-violet-100 bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-violet-700 transition hover:border-violet-200 hover:bg-violet-50"
+                  ? "relative rounded-full bg-gradient-to-r from-violet-700 via-violet-600 to-fuchsia-600 px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-[0_16px_36px_-20px_rgba(109,40,217,0.8)] ring-1 ring-violet-300/40"
+                  : "rounded-full border border-violet-100 bg-white px-4 py-2 text-sm font-medium whitespace-nowrap text-violet-700 transition duration-300 hover:border-violet-200 hover:bg-violet-50 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.24)]"
               }
             >
               {item.label}

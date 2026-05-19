@@ -66,8 +66,8 @@ export default function DashboardSidebar({
                 href={href}
                 className={
                   isActive
-                    ? "flex items-center gap-3 rounded-2xl bg-violet-700 px-4 py-3 text-sm font-medium text-white shadow-[0_18px_40px_-24px_rgba(109,40,217,0.8)]"
-                    : "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-violet-950/72 transition hover:bg-violet-50 hover:text-violet-900"
+                    ? "relative flex items-center gap-3 rounded-2xl bg-gradient-to-r from-violet-700 via-violet-600 to-fuchsia-600 px-4 py-3 text-sm font-medium text-white shadow-[0_20px_44px_-24px_rgba(109,40,217,0.82)] ring-1 ring-violet-300/40 before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:bg-violet-500/30 before:blur-xl"
+                    : "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-violet-950/72 transition duration-300 hover:bg-violet-50 hover:text-violet-900 hover:shadow-[0_14px_32px_-22px_rgba(109,40,217,0.22)]"
                 }
               >
                 <Icon className="h-4 w-4 shrink-0" />

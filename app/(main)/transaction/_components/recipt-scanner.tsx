@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import { Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -67,40 +68,48 @@ export function ReceiptScanner({ onScanComplete }: ReceiptScannerProps) {
   }, [scanReceiptError]);
 
   return (
-    <div className="flex items-center gap-4">
-      <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        accept="image/*"
-        capture="environment"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            void handleReceiptScan(file);
-          }
-          e.currentTarget.value = "";
-        }}
-      />
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full h-10 bg-gradient-to-br from-orange-500 via-pink-500 to-purple-500 animate-gradient hover:opacity-90 transition-opacity text-white hover:text-white"
-        onClick={() => fileInputRef.current?.click()}
-        disabled={scanReceiptLoading}
-      >
-        {scanReceiptLoading ? (
-          <>
-            <Loader2 className="mr-2 animate-spin" />
-            <span>Scanning Receipt...</span>
-          </>
-        ) : (
-          <>
-            <Camera className="mr-2" />
-            <span>Scan Receipt with AI</span>
-          </>
-        )}
-      </Button>
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div className="flex items-center gap-4">
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept="image/*"
+          capture="environment"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              void handleReceiptScan(file);
+            }
+            e.currentTarget.value = "";
+          }}
+        />
+        <m.div
+          className="w-full"
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+        >
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 w-full rounded-xl border-0 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white shadow-[0_18px_40px_-22px_rgba(236,72,153,0.48)] transition duration-300 hover:text-white hover:shadow-[0_24px_52px_-20px_rgba(109,40,217,0.55)]"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={scanReceiptLoading}
+          >
+            {scanReceiptLoading ? (
+              <>
+                <Loader2 className="mr-2 animate-spin" />
+                <span>Scanning Receipt...</span>
+              </>
+            ) : (
+              <>
+                <Camera className="mr-2" />
+                <span>Scan Receipt with AI</span>
+              </>
+            )}
+          </Button>
+        </m.div>
+      </div>
+    </LazyMotion>
   );
 }

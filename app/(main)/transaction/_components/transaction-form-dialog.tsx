@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import { CreditCard, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -62,65 +63,75 @@ export function TransactionFormDialog({
 
   return (
     <>
-      <Button
-        type="button"
-        className="h-10 gap-2 rounded-lg bg-slate-950 px-4 text-white hover:bg-slate-900"
-        onClick={() => {
-          if (demoMode) {
-            showDemoModeToast("adding a transaction");
-            return;
-          }
-          setOpen(true);
-        }}
-      >
-        <CreditCard className="h-4 w-4" />
-        Add Transaction
-      </Button>
+      <LazyMotion features={domAnimation}>
+        <m.div whileHover={{ y: -2 }} transition={{ duration: 0.18, ease: "easeOut" }}>
+          <Button
+            type="button"
+            className="h-10 gap-2 rounded-xl bg-slate-950 px-4 text-white shadow-[0_16px_34px_-18px_rgba(15,23,42,0.75)] transition duration-300 hover:bg-slate-900 hover:shadow-[0_20px_42px_-18px_rgba(109,40,217,0.55)]"
+            onClick={() => {
+              if (demoMode) {
+                showDemoModeToast("adding a transaction");
+                return;
+              }
+              setOpen(true);
+            }}
+          >
+            <CreditCard className="h-4 w-4" />
+            Add Transaction
+          </Button>
+        </m.div>
 
-      {open && (
-        <div
-          aria-modal="true"
-          className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-slate-950/35 px-4 py-6 backdrop-blur-sm"
-          role="dialog"
-        >
-          <div className="relative w-full max-w-3xl rounded-2xl border border-violet-100 bg-white p-5 shadow-2xl sm:p-6">
-            <div className="mb-5 flex items-start justify-between gap-4 border-b border-violet-100 pb-4">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-950">
-                  {editMode ? "Edit Transaction" : "Add Transaction"}
-                </h2>
-                <p className="mt-1 text-sm text-violet-950/60">
-                  {editMode
-                    ? "Update this record and keep balances in sync."
-                    : "Record a new income or expense without leaving history."}
-                </p>
+        {open && (
+          <div
+            aria-modal="true"
+            className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-slate-950/38 px-4 py-6 backdrop-blur-sm"
+            role="dialog"
+          >
+            <m.div
+              initial={{ opacity: 0, y: 18, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-3xl rounded-[28px] border border-violet-100/90 bg-white p-5 shadow-[0_34px_100px_-38px_rgba(15,23,42,0.45)] sm:p-6"
+            >
+              <div className="mb-5 flex items-start justify-between gap-4 border-b border-violet-100 pb-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-950">
+                    {editMode ? "Edit Transaction" : "Add Transaction"}
+                  </h2>
+                  <p className="mt-1 text-sm text-violet-950/60">
+                    {editMode
+                      ? "Update this record and keep balances in sync."
+                      : "Record a new income or expense without leaving history."}
+                  </p>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Close transaction form"
+                  className="rounded-full transition duration-300 hover:bg-violet-50 hover:shadow-[0_12px_28px_-18px_rgba(109,40,217,0.24)]"
+                  onClick={closeDialog}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
 
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label="Close transaction form"
-                onClick={closeDialog}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="max-h-[calc(100vh-11rem)] overflow-y-auto pr-1">
-              <AddTransactionForm
-                accounts={accounts}
-                categories={categories}
-                editMode={editMode}
-                initialData={initialData}
-                onCancel={closeDialog}
-                onSuccess={() => setOpen(false)}
-                demoMode={demoMode}
-              />
-            </div>
+              <div className="max-h-[calc(100vh-11rem)] overflow-y-auto pr-1">
+                <AddTransactionForm
+                  accounts={accounts}
+                  categories={categories}
+                  editMode={editMode}
+                  initialData={initialData}
+                  onCancel={closeDialog}
+                  onSuccess={() => setOpen(false)}
+                  demoMode={demoMode}
+                />
+              </div>
+            </m.div>
           </div>
-        </div>
-      )}
+        )}
+      </LazyMotion>
     </>
   );
 }
