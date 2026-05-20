@@ -2,6 +2,7 @@
 
 import type { MouseEvent } from "react";
 import { useEffect } from "react";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import { Landmark, Link2, Plus, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
@@ -66,7 +67,15 @@ function BankingItem({
   }, [updatedAccount]);
 
   return (
-    <div className="rounded-2xl border border-violet-100 bg-violet-50/55 px-3 py-3">
+    <m.div
+      whileHover={{ y: -4, scale: 1.01 }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
+      className={`rounded-2xl border px-3 py-3 transition duration-300 ${
+        isDefault
+          ? "border-violet-200 bg-[linear-gradient(180deg,_rgba(245,243,255,0.98)_0%,_rgba(238,242,255,0.92)_100%)] shadow-[0_18px_38px_-28px_rgba(109,40,217,0.28)] hover:shadow-[0_22px_44px_-26px_rgba(109,40,217,0.36)]"
+          : "border-violet-100 bg-violet-50/55 hover:border-violet-200 hover:bg-violet-50/80 hover:shadow-[0_18px_34px_-28px_rgba(109,40,217,0.22)]"
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-slate-950">{name}</p>
@@ -84,7 +93,7 @@ function BankingItem({
         <Wallet className="h-3.5 w-3.5" />
         <span>{isDefault ? "Default account" : "Available account"}</span>
       </div>
-    </div>
+    </m.div>
   );
 }
 
@@ -93,6 +102,7 @@ export default function SidebarBankingSection({
   demoMode = false,
 }: SidebarBankingSectionProps) {
   return (
+    <LazyMotion features={domAnimation}>
     <div className="min-h-0 border-t border-violet-100 pt-5">
       <div className="mb-3 flex items-center gap-2 px-1">
         <Landmark className="h-4 w-4 text-violet-700" />
@@ -102,42 +112,73 @@ export default function SidebarBankingSection({
       </div>
 
       <div className="space-y-3">
-        <button
+        <m.button
           type="button"
           onClick={() => toast.error("Features coming soon")}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-200 bg-violet-50/80 px-4 py-3 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:bg-violet-100/70"
+          whileHover={{ y: -2, scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-200 bg-[linear-gradient(135deg,_rgba(245,243,255,0.98),_rgba(237,233,254,0.9))] px-4 py-3 text-sm font-medium text-violet-700 shadow-[0_16px_36px_-28px_rgba(109,40,217,0.22)] transition duration-300 hover:border-violet-300 hover:shadow-[0_24px_44px_-24px_rgba(109,40,217,0.32)]"
         >
           <Link2 className="h-4 w-4" />
           <span>Connect Bank API</span>
-        </button>
+        </m.button>
 
         {demoMode ? (
-          <button
+          <m.button
             type="button"
             onClick={() => showDemoModeToast("adding a new account")}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 bg-white px-4 py-3 text-sm font-medium text-violet-500"
+            whileHover={{ y: -2, scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 bg-white px-4 py-3 text-sm font-medium text-violet-500 transition duration-300 hover:border-violet-300 hover:bg-violet-50/80 hover:text-violet-700 hover:shadow-[0_18px_36px_-28px_rgba(109,40,217,0.24)]"
           >
             <Plus className="h-4 w-4" />
             <span>Add New Account</span>
-          </button>
+          </m.button>
         ) : (
           <CreateAccountDrawer>
-            <button
+            <m.button
               type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 bg-white px-4 py-3 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:bg-violet-50"
+              whileHover={{ y: -2, scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 bg-white px-4 py-3 text-sm font-medium text-violet-700 transition duration-300 hover:border-violet-300 hover:bg-violet-50 hover:shadow-[0_18px_36px_-28px_rgba(109,40,217,0.24)]"
             >
               <Plus className="h-4 w-4" />
               <span>Add New Account</span>
-            </button>
+            </m.button>
           </CreateAccountDrawer>
         )}
 
-        <div className="max-h-[240px] space-y-3 overflow-y-auto pr-1">
+        <m.div
+          className="max-h-[240px] space-y-3 overflow-y-auto pr-1"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: 0.06,
+              },
+            },
+          }}
+        >
           {accounts.map((account) => (
-            <BankingItem key={account.id} account={account} demoMode={demoMode} />
+            <m.div
+              key={account.id}
+              variants={{
+                hidden: { opacity: 0, y: 10 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <BankingItem account={account} demoMode={demoMode} />
+            </m.div>
           ))}
-        </div>
+        </m.div>
       </div>
     </div>
+    </LazyMotion>
   );
 }

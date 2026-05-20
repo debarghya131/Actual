@@ -44,7 +44,8 @@ export const SCORE_ITEMS = [
 export type ScoreKey = (typeof SCORE_ITEMS)[number]["key"];
 
 export type FinancialHealthSnapshot = {
-  score: number;
+  score: number | null;
+  isReady: boolean;
   status: {
     label: string;
     className: string;
@@ -92,6 +93,7 @@ export async function getFinancialHealthSnapshot(userId: string) {
         transaction.type === "EXPENSE" && transaction.isRecurring
     )
     .reduce((total, transaction) => total + Number(transaction.amount), 0);
+  const hasMeaningfulActivity = totalIncome > 0 || totalExpenses > 0;
   const net = totalIncome - totalExpenses;
   const budgetAmount = budget ? Number(budget.amount) : null;
 
@@ -115,12 +117,28 @@ export async function getFinancialHealthSnapshot(userId: string) {
     balance: clampScore((balanceCoverage / 3) * 10, 0, 10),
   };
 
+  if (!hasMeaningfulActivity) {
+    return {
+      score: null,
+      isReady: false,
+      status: getInsufficientDataStatus(),
+      scoreParts: {
+        savings: 0,
+        spending: 0,
+        budget: 0,
+        recurring: 0,
+        balance: 0,
+      },
+    } satisfies FinancialHealthSnapshot;
+  }
+
   const score = Math.round(
     Object.values(scoreParts).reduce((total, part) => total + part, 0)
   );
 
   return {
     score,
+    isReady: true,
     status: getScoreStatus(score),
     scoreParts,
   } satisfies FinancialHealthSnapshot;
@@ -156,4 +174,11 @@ function getScoreStatus(score: number) {
   }
 
   return { label: "At Risk", className: "text-red-600" };
+}
+
+function getInsufficientDataStatus() {
+  return {
+    label: "Insufficient Data",
+    className: "text-violet-700",
+  };
 }

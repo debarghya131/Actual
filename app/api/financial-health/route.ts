@@ -16,6 +16,7 @@ export async function GET() {
 
   return Response.json({
     score: snapshot.score,
+    isReady: snapshot.isReady,
     status: snapshot.status,
     parts: SCORE_ITEMS.map((item) => ({
       key: item.key,

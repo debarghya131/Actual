@@ -458,7 +458,11 @@ export function AddTransactionForm({
             <SelectTrigger className="w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)]">
               <SelectValue placeholder="Select interval" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent
+              position="popper"
+              sideOffset={8}
+              className="z-[140] overflow-hidden rounded-xl border border-violet-100 bg-white/98 shadow-[0_24px_56px_-28px_rgba(15,23,42,0.3)] backdrop-blur-xl"
+            >
               <SelectItem value="DAILY">Daily</SelectItem>
               <SelectItem value="WEEKLY">Weekly</SelectItem>
               <SelectItem value="MONTHLY">Monthly</SelectItem>

@@ -67,17 +67,35 @@ export function BudgetProgress({
           <CardContent className="px-3 pb-3 pt-0">
             {initialBudget && (
               <div className="space-y-0.5">
-                <Progress
-                  className="h-1.5"
-                  value={percentUsed}
-                  extraStyles={`${
-                    percentUsed >= 90
-                      ? "bg-red-500 shadow-[0_0_22px_rgba(239,68,68,0.35)]"
-                      : percentUsed >= 75
-                        ? "bg-yellow-500 shadow-[0_0_18px_rgba(234,179,8,0.28)]"
-                        : "bg-green-500 shadow-[0_0_18px_rgba(34,197,94,0.28)]"
-                  }`}
-                />
+                <m.div
+                  className="relative overflow-hidden rounded-full"
+                  initial={{ opacity: 0, scaleX: 0.75 }}
+                  animate={{ opacity: 1, scaleX: 1 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ transformOrigin: "left center" }}
+                >
+                  <Progress
+                    className="h-1.5"
+                    value={percentUsed}
+                    extraStyles={`${
+                      percentUsed >= 90
+                        ? "bg-red-500 shadow-[0_0_22px_rgba(239,68,68,0.35)]"
+                        : percentUsed >= 75
+                          ? "bg-yellow-500 shadow-[0_0_18px_rgba(234,179,8,0.28)]"
+                          : "bg-green-500 shadow-[0_0_18px_rgba(34,197,94,0.28)]"
+                    }`}
+                  />
+                  <m.div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-transparent via-white/55 to-transparent"
+                    animate={{ x: ["-120%", "560%"] }}
+                    transition={{
+                      duration: 2.3,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  />
+                </m.div>
                 <p className="text-xs text-muted-foreground text-right">
                   {percentUsed > 100
                     ? `${percentUsed.toFixed(1)}% overused`

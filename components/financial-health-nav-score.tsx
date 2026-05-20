@@ -19,7 +19,8 @@ type ScorePart = {
 };
 
 type FinancialHealthResponse = {
-  score: number;
+  score: number | null;
+  isReady: boolean;
   status: {
     label: string;
     className: string;
@@ -78,7 +79,7 @@ export default function FinancialHealthNavScore() {
             className="inline-flex h-10 items-center gap-2 rounded-md border border-violet-200 bg-violet-50 px-4 text-sm font-medium text-violet-900 transition hover:border-violet-300 hover:bg-violet-100/70"
           >
             <HeartPulse className="h-4 w-4 shrink-0" />
-            <span>{data.score}</span>
+            <span>{data.isReady ? data.score : "--"}</span>
             <span className="text-violet-950/50">/100</span>
           </button>
         </TooltipTrigger>
@@ -92,7 +93,7 @@ export default function FinancialHealthNavScore() {
             </p>
             <div className="mt-4 flex items-end justify-center gap-2">
               <span className="text-6xl font-semibold tracking-tight text-slate-950">
-                {data.score}
+                {data.isReady ? data.score : "--"}
               </span>
               <span className="pb-2 text-lg font-medium text-violet-950/55">
                 /100
@@ -102,36 +103,53 @@ export default function FinancialHealthNavScore() {
               {data.status.label}
             </p>
             <p className="mt-3 text-sm text-violet-950/60">
-              Hover to see how this score is calculated.
+              {data.isReady
+                ? "Hover to see how this score is calculated."
+                : "Add a few completed transactions to unlock your score."}
             </p>
 
             <div className="mt-6 space-y-3 rounded-2xl bg-violet-50/70 p-4 text-left">
-              <div>
-                <p className="text-xs font-semibold text-slate-950">
-                  Score calculation
-                </p>
-                <p className="text-xs text-violet-950/65">
-                  Total score is the sum of these weighted parts:
-                </p>
-              </div>
-
-              {data.parts.map((part) => (
-                <div key={part.key}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-950">
-                        {part.label}
-                      </p>
-                      <p className="text-xs text-violet-950/65">
-                        {part.description}
-                      </p>
-                    </div>
-                    <p className="shrink-0 text-xs font-semibold text-violet-900">
-                      {part.value}/{part.max}
+              {data.isReady ? (
+                <>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-950">
+                      Score calculation
+                    </p>
+                    <p className="text-xs text-violet-950/65">
+                      Total score is the sum of these weighted parts:
                     </p>
                   </div>
+
+                  {data.parts.map((part) => (
+                    <div key={part.key}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-xs font-semibold text-slate-950">
+                            {part.label}
+                          </p>
+                          <p className="text-xs text-violet-950/65">
+                            {part.description}
+                          </p>
+                        </div>
+                        <p className="shrink-0 text-xs font-semibold text-violet-900">
+                          {part.value}/{part.max}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-slate-950">
+                    Score unavailable for now
+                  </p>
+                  <p className="text-xs leading-5 text-violet-950/65">
+                    We need some completed monthly activity before Kubera can
+                    judge savings, spending control, recurring pressure, and
+                    balance coverage fairly.
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </TooltipContent>

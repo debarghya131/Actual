@@ -206,6 +206,17 @@ export async function updateTransaction(id: string, data: TransactionInput) {
 
     if (!originalTransaction) throw new Error("Transaction not found");
 
+    const destinationAccount = await db.account.findFirst({
+      where: {
+        id: data.accountId,
+        userId: user.id,
+      },
+    });
+
+    if (!destinationAccount) {
+      throw new Error("Destination account not found");
+    }
+
     // Calculate balance changes
     const oldBalanceChange =
       originalTransaction.type === "EXPENSE"

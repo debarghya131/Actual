@@ -41,6 +41,7 @@ model Account {
   updatedAt    DateTime      @updatedAt
 
   @@index([userId])
+  @@index([userId, isDefault])
   @@map("accounts")
 }
 
@@ -66,6 +67,8 @@ model Transaction {
 
   @@index([userId])
   @@index([accountId])
+  @@index([userId, status, date])
+  @@index([isRecurring, status, nextRecurringDate])
   @@map("transactions")
 }
 

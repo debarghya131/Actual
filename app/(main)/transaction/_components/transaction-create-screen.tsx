@@ -96,7 +96,7 @@ export async function TransactionCreateScreen({
   const weeklyInsight = buildWeeklyInsight(transactions);
 
   return (
-    <section className="min-h-full w-full px-4 py-8 sm:px-6 lg:px-8">
+    <section className="min-h-full w-full px-4 pb-8 pt-0 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-[1680px] rounded-[28px] border border-violet-100/90 bg-white/92 p-6 shadow-[0_22px_60px_-34px_rgba(91,33,182,0.18)] backdrop-blur-xl sm:p-8">
         <section className="space-y-5">
           <div className="flex flex-col gap-4 border-b border-violet-100 pb-6 sm:flex-row sm:items-start sm:justify-between">
@@ -104,10 +104,6 @@ export async function TransactionCreateScreen({
               <h2 className="text-lg font-semibold text-slate-950">
                 Transaction History
               </h2>
-              <p className="mt-2 text-sm leading-7 text-violet-950/60">
-                Filter by account, type, or recurring status while you review and
-                update recent activity.
-              </p>
             </div>
 
             <TransactionFormDialog
@@ -120,7 +116,11 @@ export async function TransactionCreateScreen({
           </div>
 
           {weeklyInsight ? (
-            <div className="rounded-[22px] border border-emerald-200/80 bg-gradient-to-r from-emerald-50 via-white to-violet-50 px-4 py-3 shadow-[0_18px_40px_-26px_rgba(16,185,129,0.38)]">
+            <div className="relative overflow-hidden rounded-[22px] border border-emerald-200/80 bg-gradient-to-r from-emerald-50 via-white to-violet-50 px-4 py-3 shadow-[0_18px_40px_-26px_rgba(16,185,129,0.38)]">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 -left-10 w-20 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-[weeklyInsightSweep_2.4s_linear_infinite]"
+              />
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
@@ -128,7 +128,7 @@ export async function TransactionCreateScreen({
                   </p>
                   <p className="mt-1 text-sm text-slate-600">{weeklyInsight.copy}</p>
                 </div>
-                <span className="shrink-0 text-lg font-semibold tracking-tight text-emerald-600">
+                <span className="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-lg font-semibold tracking-tight text-emerald-700 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.65)] ring-1 ring-emerald-200">
                   {weeklyInsight.value}
                 </span>
               </div>

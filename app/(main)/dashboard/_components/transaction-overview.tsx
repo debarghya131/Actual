@@ -191,12 +191,12 @@ export function DashboardOverview({
 
             <m.div whileHover={{ y: -5 }} transition={{ duration: 0.2, ease: "easeOut" }}>
               <Card className="border-violet-100 bg-white/95 shadow-[0_18px_44px_-32px_rgba(109,40,217,0.26)] transition duration-300 hover:shadow-[0_24px_56px_-28px_rgba(109,40,217,0.38)]">
-                <CardContent className="flex min-h-24 flex-col justify-center p-4">
+                <CardContent className="flex min-h-[104px] flex-col justify-center p-4">
                   <div className="flex items-center gap-2 text-sm font-medium text-violet-900">
                     <Target className="h-4 w-4 text-violet-700" />
                     Goal Progress
                   </div>
-                  <div className="mt-2 flex items-end justify-between gap-3">
+                  <div className="mt-1.5 flex items-end justify-between gap-3">
                     <p className="text-[2rem] font-semibold tracking-tight text-slate-950">
                       {savingsGoalProgress.toFixed(1)}%
                     </p>
@@ -206,18 +206,36 @@ export function DashboardOverview({
                         : "No current month goal"}
                     </p>
                   </div>
-                  <div className="mt-3 space-y-1">
-                    <Progress
-                      value={savingsGoalProgress}
-                      className="h-1.5"
-                      extraStyles={
-                        savingsGoalProgress >= 100
-                          ? "bg-emerald-500 shadow-[0_0_18px_rgba(16,185,129,0.35)]"
-                          : savingsGoalProgress >= 70
-                            ? "bg-violet-600 shadow-[0_0_18px_rgba(109,40,217,0.35)]"
-                            : "bg-amber-500 shadow-[0_0_18px_rgba(245,158,11,0.28)]"
-                      }
-                    />
+                  <div className="mt-2 space-y-1">
+                    <m.div
+                      className="relative overflow-hidden rounded-full"
+                      initial={{ opacity: 0, scaleX: 0.75 }}
+                      animate={{ opacity: 1, scaleX: 1 }}
+                      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ transformOrigin: "left center" }}
+                    >
+                      <Progress
+                        value={savingsGoalProgress}
+                        className="h-1.5"
+                        extraStyles={
+                          savingsGoalProgress >= 100
+                            ? "bg-emerald-500 shadow-[0_0_18px_rgba(16,185,129,0.35)]"
+                            : savingsGoalProgress >= 70
+                              ? "bg-violet-600 shadow-[0_0_18px_rgba(109,40,217,0.35)]"
+                              : "bg-amber-500 shadow-[0_0_18px_rgba(245,158,11,0.28)]"
+                        }
+                      />
+                      <m.div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-transparent via-white/55 to-transparent"
+                        animate={{ x: ["-120%", "560%"] }}
+                        transition={{
+                          duration: 2.1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                      />
+                    </m.div>
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="font-medium text-emerald-600">
                         {formatCurrency(currentSavings)} saved
@@ -365,14 +383,30 @@ export function DashboardOverview({
                               {formatCurrency(expense.amount)}
                             </span>
                           </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-muted">
+                          <m.div
+                            className="relative h-2 overflow-hidden rounded-full bg-muted"
+                            initial={{ opacity: 0, scaleX: 0.8 }}
+                            animate={{ opacity: 1, scaleX: 1 }}
+                            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                            style={{ transformOrigin: "left center" }}
+                          >
                             <m.div
                               className={`h-full rounded-full ${progressColorClass}`}
                               initial={{ width: 0 }}
                               animate={{ width: `${progressPercent}%` }}
                               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                             />
-                          </div>
+                            <m.div
+                              aria-hidden
+                              className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-transparent via-white/55 to-transparent"
+                              animate={{ x: ["-140%", "700%"] }}
+                              transition={{
+                                duration: 2.2,
+                                repeat: Infinity,
+                                ease: "linear",
+                              }}
+                            />
+                          </m.div>
                           <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                             <span>
                               {expense.target > 0

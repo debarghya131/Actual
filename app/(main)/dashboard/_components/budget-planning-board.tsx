@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import { Check, Pencil, PiggyBank, Plus, Target, Wallet, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -60,7 +61,7 @@ type BudgetPlanningBoardProps = {
   demoMode?: boolean;
 };
 
-const BUDGET_TIMELINE_MONTH_COUNT = 8;
+const BUDGET_TIMELINE_MONTH_COUNT = 7;
 
 function addMonths(date: Date, months: number) {
   return new Date(date.getFullYear(), date.getMonth() + months, 1);
@@ -98,7 +99,7 @@ function getBudgetTimeline(baseDate: Date, count: number) {
 }
 
 function getDefaultUpcomingGoalTargets(seedAmount: number) {
-  const defaultGoalAmount = seedAmount.toFixed(0);
+  const defaultGoalAmount = seedAmount > 0 ? seedAmount.toFixed(0) : "";
 
   return Object.fromEntries(
     getBudgetTimeline(new Date(), BUDGET_TIMELINE_MONTH_COUNT).map((month) => [
@@ -112,7 +113,8 @@ function getDefaultUpcomingBudgetTargets(
   initialAmount: number | null,
   fallbackAmount: number
 ) {
-  const defaultAmount = (initialAmount ?? fallbackAmount).toFixed(0);
+  const resolvedAmount = initialAmount ?? fallbackAmount;
+  const defaultAmount = resolvedAmount > 0 ? resolvedAmount.toFixed(0) : "";
 
   return Object.fromEntries(
     getBudgetTimeline(new Date(), BUDGET_TIMELINE_MONTH_COUNT).map((month) => [
@@ -156,7 +158,7 @@ function buildCategoryItemsForMonth(
         category: category.category,
         color: category.color,
         spent,
-        suggested: Math.max(Math.ceil(spent), 500),
+        suggested: spent > 0 ? Math.ceil(spent) : 0,
       };
     })
     .sort((a, b) => {
@@ -187,6 +189,12 @@ function mergeCategoryTargetsForMonth(
 }
 
 function getDefaultVisibleCategoryIds(categoryItems: CategoryBudgetItem[]) {
+  const hasLiveSpending = categoryItems.some((item) => item.spent > 0);
+
+  if (!hasLiveSpending) {
+    return [];
+  }
+
   return categoryItems.slice(0, 6).map((item) => item.id);
 }
 
@@ -256,7 +264,9 @@ export default function BudgetPlanningBoard({
   const [monthlyBudgetValue, setMonthlyBudgetValue] = useState(
     initialBudget?.amount?.toString() || ""
   );
-  const [goalValue, setGoalValue] = useState(savingsGoalSeed.toFixed(0));
+  const [goalValue, setGoalValue] = useState(
+    savingsGoalSeed > 0 ? savingsGoalSeed.toFixed(0) : ""
+  );
   const [upcomingGoalTargets, setUpcomingGoalTargets] = useState<Record<string, string>>(
     () => {
       const defaultUpcomingGoals = getDefaultUpcomingGoalTargets(savingsGoalSeed);
@@ -318,6 +328,13 @@ export default function BudgetPlanningBoard({
     effectiveBudgetAmount > 0
       ? Math.min((currentExpenses / effectiveBudgetAmount) * 100, 100)
       : 0;
+  const hasMonthlyBudgetPlan =
+    effectiveBudgetAmount > 0 ||
+    budgetTimeline.some((month) => Number(upcomingBudgetTargets[month.key] || 0) > 0);
+  const hasSavingsGoalPlan =
+    savingsGoal > 0 ||
+    budgetTimeline.some((month) => Number(upcomingGoalTargets[month.key] || 0) > 0);
+  const hasCategoryBudgetPlan = currentCategoryItems.length > 0;
 
   const persistPreferences = async ({
     nextBudgetTargets = upcomingBudgetTargets,
@@ -528,7 +545,7 @@ export default function BudgetPlanningBoard({
     const currentBudgetTarget =
       (currentMonthKey && restoredTargets[currentMonthKey]) ||
       initialBudget?.amount?.toFixed(0) ||
-      savingsGoalSeed.toFixed(0);
+      "";
 
     setUpcomingBudgetTargets(restoredTargets);
     setMonthlyBudgetValue(currentBudgetTarget);
@@ -544,13 +561,24 @@ export default function BudgetPlanningBoard({
       ),
     };
 
-    setGoalValue(savingsGoalSeed.toFixed(0));
+    setGoalValue(savingsGoalSeed > 0 ? savingsGoalSeed.toFixed(0) : "");
     setUpcomingGoalTargets(restoredGoals);
   };
 
   return (
-    <div className="grid gap-6 xl:grid-cols-12 xl:items-stretch">
-      <Card className="h-full border-violet-100 bg-white/95 xl:col-span-4 xl:h-[760px]">
+    <LazyMotion features={domAnimation}>
+      <m.div
+        className="grid gap-6 xl:grid-cols-12 xl:items-stretch"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+      <m.div
+        className="xl:col-span-4"
+        whileHover={{ y: -5 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+      <Card className="h-full border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] xl:h-[810px]">
         <CardHeader className="flex flex-col gap-3 p-5 pb-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle className="flex items-center gap-2 text-slate-950">
@@ -576,7 +604,7 @@ export default function BudgetPlanningBoard({
                   ? showDemoModeToast("editing monthly budgets")
                   : setIsEditingMonthly(true)
               }
-              className="h-8 w-8"
+              className="h-8 w-8 transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)]"
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -611,10 +639,10 @@ export default function BudgetPlanningBoard({
                 <div className="mb-3">
                   <div>
                     <p className="text-sm font-medium text-slate-950">
-                      Upcoming 7 Month Plan
+                      Upcoming 6 Month Plan
                     </p>
                     <p className="mt-1 text-xs text-violet-950/60">
-                      Set the current month first, then the next seven months.
+                      Set the current month first, then the next six months.
                     </p>
                   </div>
                 </div>
@@ -647,7 +675,11 @@ export default function BudgetPlanningBoard({
               <div className="grid gap-3 sm:grid-cols-3">
                 <StatTile
                   label="Budget"
-                  value={formatCurrency(effectiveBudgetAmount)}
+                  value={
+                    hasMonthlyBudgetPlan
+                      ? formatCurrency(effectiveBudgetAmount)
+                      : "Not set yet"
+                  }
                 />
                 <StatTile
                   label="Spent"
@@ -655,22 +687,27 @@ export default function BudgetPlanningBoard({
                 />
                 <StatTile
                   label="Remaining"
-                  value={formatCurrency(
-                    Math.max(effectiveBudgetAmount - currentExpenses, 0)
-                  )}
+                  value={
+                    hasMonthlyBudgetPlan
+                      ? formatCurrency(
+                          Math.max(effectiveBudgetAmount - currentExpenses, 0)
+                        )
+                      : "Set your budget"
+                  }
                 />
               </div>
 
               <div className="flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-4">
                 <div className="mb-4">
                   <p className="text-sm font-medium text-slate-950">
-                    Upcoming 7 Month Plan
+                    Upcoming 6 Month Plan
                   </p>
                   <p className="mt-1 text-xs text-violet-950/60">
-                    This rolling planner keeps the current month plus the next seven months ready.
+                    This rolling planner keeps the current month plus the next six months ready.
                   </p>
                 </div>
 
+                {hasMonthlyBudgetPlan ? (
                 <div className="space-y-4">
                   {budgetTimeline.map((month, index) => {
                     const plannedBudget = Number(upcomingBudgetTargets[month.key] || 0);
@@ -686,16 +723,25 @@ export default function BudgetPlanningBoard({
                         : "bg-violet-200";
 
                     return (
-                      <div key={month.key} className="space-y-2">
+                      <div
+                        key={month.key}
+                        className={`space-y-2 rounded-xl px-2 py-1.5 transition ${
+                          month.key === currentMonthKey
+                            ? "bg-violet-100/65 ring-1 ring-violet-300/55 shadow-[0_16px_34px_-28px_rgba(109,40,217,0.42)]"
+                            : "hover:bg-violet-100/40"
+                        }`}
+                      >
                         <div className="flex items-center justify-between gap-3 text-sm">
                           <span className="font-medium text-slate-950">
                             {index === 0 ? `${month.label} (Current)` : month.label}
                           </span>
                           <span className="text-violet-950/65">
-                            {formatCurrency(plannedBudget)}
+                            {plannedBudget > 0
+                              ? formatCurrency(plannedBudget)
+                              : "Not set yet"}
                           </span>
                         </div>
-                        <Progress
+                        <GlowProgress
                           value={month.key === currentMonthKey ? progressValue : 100}
                           className="h-1.5"
                           extraStyles={progressStyles}
@@ -704,14 +750,26 @@ export default function BudgetPlanningBoard({
                     );
                   })}
                 </div>
+                ) : (
+                  <EmptyBudgetState
+                    title="No monthly budget set yet"
+                    description="Start by setting your first monthly budget target. The next six months will stay ready after that."
+                  />
+                )}
               </div>
             </div>
           )}
 
         </CardContent>
       </Card>
+      </m.div>
 
-      <Card className="h-full border-violet-100 bg-white/95 xl:col-span-4 xl:h-[760px]">
+      <m.div
+        className="xl:col-span-4"
+        whileHover={{ y: -5 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+      <Card className="h-full border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] xl:h-[810px]">
         <CardHeader className="flex flex-row items-start justify-between p-5 pb-3">
           <div>
             <CardTitle className="flex items-center gap-2 text-slate-950">
@@ -742,7 +800,7 @@ export default function BudgetPlanningBoard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)]"
                 onClick={() =>
                   demoMode
                     ? showDemoModeToast("editing category budgets")
@@ -794,7 +852,7 @@ export default function BudgetPlanningBoard({
             )}
           </div>
         </CardHeader>
-        <CardContent className="flex flex-col space-y-4 overflow-hidden px-5 pb-6">
+        <CardContent className="flex flex-col space-y-4 overflow-hidden px-5 pb-8">
           {isEditingCategory ? (
             <>
               <div className="flex justify-stretch sm:justify-end">
@@ -809,7 +867,7 @@ export default function BudgetPlanningBoard({
                 </Button>
               </div>
 
-              <div className="grid max-h-[620px] gap-3 overflow-y-auto overscroll-contain px-1 py-1 pb-6 pr-2 md:grid-cols-2">
+              <div className="grid max-h-[665px] gap-3 overflow-y-auto overscroll-contain px-1 py-1 pb-10 pr-2 md:grid-cols-2">
                 {currentCategoryItems.map((item) => {
                   const target = Number(categoryTargets[item.category] || 0);
                   const spentPercent =
@@ -828,7 +886,7 @@ export default function BudgetPlanningBoard({
                   return (
                     <div
                       key={item.category}
-                      className="rounded-2xl border border-violet-100 bg-violet-50/55 p-4"
+                      className="rounded-2xl border border-violet-100 bg-violet-50/55 p-4 transition duration-300 hover:shadow-[0_18px_36px_-26px_rgba(109,40,217,0.38)]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -856,7 +914,7 @@ export default function BudgetPlanningBoard({
                           }
                           placeholder="Set category budget"
                         />
-                        <Progress
+                        <GlowProgress
                           value={spentPercent}
                           className="h-1.5"
                           extraStyles={progressStyles}
@@ -872,7 +930,8 @@ export default function BudgetPlanningBoard({
               </div>
             </>
           ) : (
-            <div className="max-h-[620px] space-y-5 overflow-y-auto overscroll-contain px-1 py-1 pr-2 pb-6">
+            hasCategoryBudgetPlan ? (
+            <div className="max-h-[665px] space-y-5 overflow-y-auto overscroll-contain px-1 py-1 pr-2 pb-10">
               {currentCategoryItems.map((item) => {
                 const target = Number(categoryTargets[item.category] || 0);
                 const spentPercent =
@@ -891,7 +950,7 @@ export default function BudgetPlanningBoard({
                 return (
                   <div
                     key={item.category}
-                    className="snap-start space-y-2 rounded-xl border border-violet-100/60 bg-white/70 px-3 py-3"
+                    className="snap-start space-y-2 rounded-xl border border-violet-100/60 bg-white/70 px-3 py-3 transition duration-300 hover:shadow-[0_16px_30px_-24px_rgba(109,40,217,0.34)]"
                   >
                     <div className="flex items-center justify-between gap-3 text-sm">
                       <span className="font-medium text-slate-950">
@@ -901,7 +960,7 @@ export default function BudgetPlanningBoard({
                         {formatCurrency(target)}
                       </span>
                     </div>
-                    <Progress
+                    <GlowProgress
                       value={spentPercent}
                       className="h-1.5"
                       extraStyles={progressStyles}
@@ -914,9 +973,16 @@ export default function BudgetPlanningBoard({
                 );
               })}
             </div>
+            ) : (
+              <EmptyBudgetState
+                title="No category budget plan yet"
+                description="Add your first category budget after you start tracking expenses or open edit mode to set categories manually."
+              />
+            )
           )}
         </CardContent>
       </Card>
+      </m.div>
 
       {isEditingCategory && isAddingCategory ? (
         <div
@@ -993,7 +1059,12 @@ export default function BudgetPlanningBoard({
         </div>
       ) : null}
 
-      <Card className="h-full border-violet-100 bg-white/95 xl:col-span-4 xl:h-[760px]">
+      <m.div
+        className="xl:col-span-4"
+        whileHover={{ y: -5 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+      <Card className="h-full border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] xl:h-[810px]">
         <CardHeader className="flex flex-row items-start justify-between p-5 pb-3">
           <div>
             <CardTitle className="flex items-center gap-2 text-slate-950">
@@ -1002,7 +1073,7 @@ export default function BudgetPlanningBoard({
             </CardTitle>
             {!isEditingGoal ? (
               <p className="mt-2 text-sm text-violet-950/60">
-                Set the current month first, then keep the next seven savings goals ready.
+                Set the current month first, then keep the next six savings goals ready.
               </p>
             ) : null}
           </div>
@@ -1016,7 +1087,7 @@ export default function BudgetPlanningBoard({
                   ? showDemoModeToast("editing savings goals")
                   : setIsEditingGoal(true)
               }
-              className="h-8 w-8"
+              className="h-8 w-8 transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)]"
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -1079,10 +1150,18 @@ export default function BudgetPlanningBoard({
                   label="Current savings"
                   value={formatCurrency(currentSavings)}
                 />
-                <StatTile label="Goal target" value={formatCurrency(savingsGoal)} />
+                <StatTile
+                  label="Goal target"
+                  value={
+                    hasSavingsGoalPlan
+                      ? formatCurrency(savingsGoal)
+                      : "Not set yet"
+                  }
+                />
               </div>
 
               <div className="flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-4">
+                {hasSavingsGoalPlan ? (
                 <div className="max-h-[500px] space-y-4 overflow-y-auto overscroll-contain pr-2 pb-4">
                   {budgetTimeline.map((month, index) => {
                     const plannedGoal = Number(upcomingGoalTargets[month.key] || 0);
@@ -1100,16 +1179,25 @@ export default function BudgetPlanningBoard({
                               : "bg-emerald-500";
 
                     return (
-                      <div key={month.key} className="space-y-2">
+                      <div
+                        key={month.key}
+                        className={`space-y-2 rounded-xl px-2 py-1.5 transition ${
+                          month.key === currentMonthKey
+                            ? "bg-violet-100/65 ring-1 ring-violet-300/55 shadow-[0_16px_34px_-28px_rgba(109,40,217,0.42)]"
+                            : "hover:bg-violet-100/40"
+                        }`}
+                      >
                         <div className="flex items-center justify-between gap-3 text-sm">
                           <span className="font-medium text-slate-950">
                             {index === 0 ? `${month.label} (Current)` : month.label}
                           </span>
                           <span className="text-violet-950/65">
-                            {formatCurrency(plannedGoal)}
+                            {plannedGoal > 0
+                              ? formatCurrency(plannedGoal)
+                              : "Not set yet"}
                           </span>
                         </div>
-                        <Progress
+                        <GlowProgress
                           value={progressValue}
                           className="h-1.5"
                           extraStyles={progressStyles}
@@ -1118,13 +1206,49 @@ export default function BudgetPlanningBoard({
                     );
                   })}
                 </div>
+                ) : (
+                  <EmptyBudgetState
+                    title="No savings goal set yet"
+                    description="Set a current-month goal first, then use this planner to extend your savings targets across the next six months."
+                  />
+                )}
               </div>
             </div>
           )}
         </CardContent>
       </Card>
+      </m.div>
 
-    </div>
+    </m.div>
+    </LazyMotion>
+  );
+}
+
+function GlowProgress({
+  value,
+  className,
+  extraStyles,
+}: {
+  value: number;
+  className?: string;
+  extraStyles?: string;
+}) {
+  return (
+    <m.div
+      className="relative overflow-hidden rounded-full"
+      initial={{ opacity: 0, scaleX: 0.86 }}
+      animate={{ opacity: 1, scaleX: 1 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      style={{ transformOrigin: "left center" }}
+    >
+      <Progress value={value} className={className} extraStyles={extraStyles} />
+      <m.div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-transparent via-white/55 to-transparent"
+        animate={{ x: ["-130%", "620%"] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: "linear" }}
+      />
+    </m.div>
   );
 }
 
@@ -1135,6 +1259,23 @@ function StatTile({ label, value }: { label: string; value: string }) {
         {label}
       </p>
       <p className="mt-2 text-xl font-semibold text-slate-950">{value}</p>
+    </div>
+  );
+}
+
+function EmptyBudgetState({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-violet-200 bg-white/70 px-6 py-8 text-center">
+      <div className="max-w-sm">
+        <p className="text-sm font-semibold text-slate-950">{title}</p>
+        <p className="mt-2 text-sm leading-6 text-violet-950/60">{description}</p>
+      </div>
     </div>
   );
 }

@@ -128,3 +128,22 @@
     @apply font-sans;
   }
 }
+
+@keyframes weeklyInsightSweep {
+  0% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(680%);
+  }
+}
+
+@keyframes kuberaFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}

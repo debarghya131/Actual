@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/currency";
@@ -48,6 +49,7 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
   }
 
   const net = selectedReport.totalIncome - selectedReport.totalExpenses;
+  const maxCategoryAmount = Math.max(...selectedReport.categories.map((c) => c.amount), 1);
   const topCategory = selectedReport.categories[0];
   const summaryLines = [
     net >= 0
@@ -60,8 +62,15 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
   ];
 
   return (
-    <div className="grid gap-5 xl:grid-cols-12 xl:items-stretch">
-      <Card className="border-violet-100 bg-white/95 xl:col-span-4 xl:min-h-[620px]">
+    <LazyMotion features={domAnimation}>
+      <m.div
+        className="grid gap-5 xl:grid-cols-12 xl:items-stretch"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+      >
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="xl:col-span-4">
+      <Card className="border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.3)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.42)] xl:min-h-[620px]">
         <CardHeader>
           <CardTitle className="text-base font-medium">Monthly Reports</CardTitle>
         </CardHeader>
@@ -73,10 +82,10 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
                 type="button"
                 onClick={() => setSelectedMonthKey(report.monthKey)}
                 className={cn(
-                  "w-full rounded-xl border px-4 py-3 text-left transition",
+                  "w-full rounded-xl border px-4 py-3 text-left transition duration-300",
                   report.monthKey === selectedReport.monthKey
-                    ? "border-violet-300 bg-violet-50"
-                    : "border-violet-100 bg-white hover:border-violet-200 hover:bg-violet-50/40"
+                    ? "border-violet-300 bg-gradient-to-r from-violet-50 to-fuchsia-50 shadow-[0_18px_42px_-28px_rgba(109,40,217,0.5)] ring-1 ring-violet-300/60"
+                    : "border-violet-100 bg-white hover:border-violet-200 hover:bg-violet-50/40 hover:shadow-[0_14px_28px_-24px_rgba(109,40,217,0.3)]"
                 )}
               >
                 <p className="text-sm font-medium text-slate-950">{report.monthLabel}</p>
@@ -88,8 +97,10 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
           </div>
         </CardContent>
       </Card>
+      </m.div>
 
-      <Card className="border-violet-100 bg-white/95 xl:col-span-5 xl:min-h-[540px]">
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="xl:col-span-5">
+      <Card className="border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.3)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.42)] xl:min-h-[540px]">
         <CardHeader>
           <CardTitle className="text-base font-medium">
             {selectedReport.monthLabel} Report
@@ -106,18 +117,47 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
             />
           </div>
 
-          <div className="rounded-xl border border-violet-100 p-4">
+          <div className="rounded-xl border border-violet-100 p-4 transition duration-300 hover:shadow-[0_14px_30px_-24px_rgba(109,40,217,0.34)]">
             <p className="text-sm font-medium text-slate-950">Expense Breakdown</p>
             {selectedReport.categories.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground">No expenses this month.</p>
             ) : (
               <div className="mt-4 space-y-3">
-                {selectedReport.categories.map((category) => (
-                  <div key={category.category} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="font-medium text-slate-900">{category.category}</span>
-                    <span className="text-violet-950/70">{formatCurrency(category.amount)}</span>
-                  </div>
-                ))}
+                {selectedReport.categories.map((category, index) => {
+                  const progressPercent = Math.max(
+                    8,
+                    Math.min((category.amount / maxCategoryAmount) * 100, 100)
+                  );
+
+                  return (
+                    <div key={category.category} className="space-y-1.5 text-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-medium text-slate-900">{category.category}</span>
+                        <span className="text-violet-950/70">{formatCurrency(category.amount)}</span>
+                      </div>
+                      <m.div
+                        className="relative h-1.5 overflow-hidden rounded-full bg-violet-100"
+                        initial={{ opacity: 0, scaleX: 0.82 }}
+                        animate={{ opacity: 1, scaleX: 1 }}
+                        transition={{ duration: 0.4, delay: index * 0.03, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ transformOrigin: "left center" }}
+                      >
+                        <m.div
+                          className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-indigo-500 shadow-[0_0_16px_rgba(139,92,246,0.42)]"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progressPercent}%` }}
+                          transition={{ duration: 0.65, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                        <m.div
+                          aria-hidden
+                          className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-transparent via-white/55 to-transparent"
+                          animate={{ x: ["-120%", "650%"] }}
+                          transition={{ duration: 2.2, repeat: Infinity, ease: "linear" }}
+                        />
+                      </m.div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -127,13 +167,21 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
           </p>
         </CardContent>
       </Card>
+      </m.div>
 
-      <Card className="border-violet-100 bg-white/95 xl:col-span-3 xl:min-h-[540px]">
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="xl:col-span-3">
+      <Card className="border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.3)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.42)] xl:min-h-[540px]">
         <CardHeader>
           <CardTitle className="text-base font-medium">AI Summary</CardTitle>
         </CardHeader>
         <CardContent className="flex h-full flex-col justify-start">
-          <div className="flex items-center gap-4 rounded-2xl border border-violet-100 bg-violet-50/35 p-4">
+          <div className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-violet-100 bg-violet-50/35 p-4 transition duration-300 hover:shadow-[0_16px_36px_-26px_rgba(109,40,217,0.42)]">
+            <m.div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-transparent via-white/55 to-transparent"
+              animate={{ x: ["-130%", "740%"] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+            />
             <Image
               src="/kuberlogo.png?v=20260519"
               alt="Kuber logo"
@@ -161,7 +209,9 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
           </div>
         </CardContent>
       </Card>
-    </div>
+      </m.div>
+    </m.div>
+    </LazyMotion>
   );
 }
 

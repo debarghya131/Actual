@@ -8,10 +8,13 @@ export async function GET(request: Request) {
   const requestToken = requestUrl.searchParams.get("token");
   const hasValidToken =
     Boolean(configuredToken) && requestToken === configuredToken;
+  const isLocalDevRequest =
+    process.env.NODE_ENV === "development" &&
+    ["localhost", "127.0.0.1"].includes(requestUrl.hostname);
   const { userId } = await auth();
 
-  // Never leave this destructive utility open to anonymous traffic in production.
-  if (process.env.NODE_ENV === "production" && !hasValidToken) {
+  // Never expose destructive seeding outside local development unless explicitly tokenized.
+  if (!hasValidToken && !isLocalDevRequest) {
     return new Response("Not found", { status: 404 });
   }
 

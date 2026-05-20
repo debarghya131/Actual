@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 
 import DashboardMobileNav from "@/components/dashboard-mobile-nav";
+import DashboardRouteTransition from "@/components/dashboard-route-transition";
 import DashboardSidebar from "@/components/dashboard-sidebar";
 import { checkUser } from "@/lib/checkUser";
 import { db } from "@/lib/prisma";
@@ -35,7 +36,7 @@ export default async function DashboardLayout({
       <div className="min-w-0 flex-1 overflow-y-auto">
         <DashboardMobileNav />
         <div className="px-4 py-4 md:px-6 md:py-6">
-          {children}
+          <DashboardRouteTransition>{children}</DashboardRouteTransition>
         </div>
       </div>
     </div>

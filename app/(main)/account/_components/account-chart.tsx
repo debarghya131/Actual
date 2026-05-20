@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import {
   Bar,
   BarChart,
@@ -15,7 +16,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -109,13 +109,13 @@ export function AccountChart({
   accounts?: AccountChartAccount[];
   transactions: AccountChartTransaction[];
 }) {
-  const [hasMounted, setHasMounted] = useState(false);
+  const hasMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const [accountId, setAccountId] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange>("3M");
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
 
   const filteredTransactions = useMemo(() => {
     const range = DATE_RANGES[dateRange];
@@ -222,8 +222,15 @@ export function AccountChart({
   }, [filteredTransactions, totals.expense, totals.income]);
 
   return (
-    <div className="space-y-6">
-      <Card className="rounded-xl border-zinc-200 shadow-sm">
+    <LazyMotion features={domAnimation}>
+      <m.div
+        className="space-y-6"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }}>
+      <Card className="rounded-[26px] border-zinc-200 bg-white/95 shadow-[0_20px_50px_-34px_rgba(109,40,217,0.22)] transition duration-300 hover:shadow-[0_28px_64px_-30px_rgba(109,40,217,0.32)]">
         <CardHeader className="flex flex-col gap-4 space-y-0 pb-7 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-base font-normal">
             Transaction Overview
@@ -231,7 +238,7 @@ export function AccountChart({
           <div className="flex flex-wrap gap-2">
             {accounts.length > 1 ? (
               <Select value={accountId} onValueChange={setAccountId}>
-                <SelectTrigger className="w-[170px]">
+                <SelectTrigger className="w-[170px] rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]">
                   <SelectValue placeholder="All Accounts" />
                 </SelectTrigger>
                 <SelectContent>
@@ -249,7 +256,7 @@ export function AccountChart({
               value={dateRange}
               onValueChange={(value) => setDateRange(value as DateRange)}
             >
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-[140px] rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]">
                 <SelectValue placeholder="Select range" />
               </SelectTrigger>
               <SelectContent>
@@ -337,8 +344,10 @@ export function AccountChart({
           </div>
         </CardContent>
       </Card>
+      </m.div>
 
-      <Card className="rounded-xl border-zinc-200 shadow-sm">
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }}>
+      <Card className="rounded-[26px] border-zinc-200 bg-white/95 shadow-[0_20px_50px_-34px_rgba(109,40,217,0.22)] transition duration-300 hover:shadow-[0_28px_64px_-30px_rgba(109,40,217,0.32)]">
         <CardHeader className="pb-5">
           <CardTitle className="text-base font-normal">
             Income & Expenses by Category
@@ -363,7 +372,9 @@ export function AccountChart({
           </div>
         </CardContent>
       </Card>
-    </div>
+      </m.div>
+      </m.div>
+    </LazyMotion>
   );
 }
 
@@ -386,7 +397,7 @@ function CategoryBreakdownColumn({
     : "Total Expenses";
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white/95 p-4">
+    <div className="rounded-[22px] border border-zinc-200 bg-white/95 p-4 shadow-[0_16px_36px_-30px_rgba(109,40,217,0.18)] transition duration-300 hover:shadow-[0_22px_44px_-28px_rgba(109,40,217,0.26)]">
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-slate-950">{title}</p>
         <p className="text-xs text-muted-foreground">
@@ -455,7 +466,12 @@ function CategoryBreakdownColumn({
 
           <div className="max-h-[260px] space-y-4 overflow-y-auto pr-2">
             {items.map((item) => (
-              <div key={item.id} className="space-y-2">
+              <m.div
+                key={item.id}
+                className="space-y-2 rounded-2xl px-2 py-1.5 transition duration-300 hover:bg-violet-50/40"
+                whileHover={{ y: -2, scale: 1.005 }}
+                transition={{ duration: 0.16, ease: "easeOut" }}
+              >
                 <div className="flex items-center justify-between gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <span
@@ -471,18 +487,21 @@ function CategoryBreakdownColumn({
                   </span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
-                  <div
+                  <m.div
                     className="h-full rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(item.share, 100)}%` }}
+                    transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
                     style={{
-                      width: `${Math.min(item.share, 100)}%`,
                       backgroundColor: item.color,
+                      boxShadow: `0 0 18px ${item.color}55`,
                     }}
                   />
                 </div>
                 <p className="text-[11px] text-muted-foreground">
                   {item.share.toFixed(1)}% of selected {title.toLowerCase()}
                 </p>
-              </div>
+              </m.div>
             ))}
           </div>
         </div>

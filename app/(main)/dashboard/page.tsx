@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { checkUser } from "@/lib/checkUser";
-import { getDashboardPreferences } from "@/lib/dashboard-preferences";
+import {
+  EMPTY_DASHBOARD_PREFERENCES,
+  getDashboardPreferences,
+} from "@/lib/dashboard-preferences";
 import { db } from "@/lib/prisma";
 import BudgetProgress from "./_components/budget-progress";
 import DashboardOverview from "./_components/transaction-overview";
@@ -65,6 +68,9 @@ export default async function DashboardPage() {
         amount: Number(rawBudget.amount),
       }
     : null;
+  const isFreshBudgetExperience =
+    !budget &&
+    rawTransactions.filter((transaction) => transaction.status === "COMPLETED").length === 0;
 
   return (
     <div className="space-y-6">
@@ -76,7 +82,11 @@ export default async function DashboardPage() {
       <DashboardOverview
         accounts={accounts}
         transactions={transactions}
-        preferences={dashboardPreferences}
+        preferences={
+          isFreshBudgetExperience
+            ? EMPTY_DASHBOARD_PREFERENCES
+            : dashboardPreferences
+        }
       />
     </div>
   );

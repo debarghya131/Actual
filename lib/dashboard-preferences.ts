@@ -7,6 +7,13 @@ export type DashboardPreferences = {
   visibleCategoryIdsByMonth: Record<string, string[]>;
 };
 
+export const EMPTY_DASHBOARD_PREFERENCES: DashboardPreferences = {
+  monthlyBudgetTargets: {},
+  savingsGoalTargets: {},
+  categoryTargetsByMonth: {},
+  visibleCategoryIdsByMonth: {},
+};
+
 type DashboardPreferencesDelegate = {
   findUnique: (args: { where: { userId: string } }) => Promise<{
     monthlyBudgetTargets: unknown;
@@ -111,12 +118,7 @@ export async function getDashboardPreferences(
     : await getDashboardPreferencesLegacy(userId);
 
   if (!row) {
-    return {
-      monthlyBudgetTargets: {},
-      savingsGoalTargets: {},
-      categoryTargetsByMonth: {},
-      visibleCategoryIdsByMonth: {},
-    };
+    return EMPTY_DASHBOARD_PREFERENCES;
   }
 
   return {
