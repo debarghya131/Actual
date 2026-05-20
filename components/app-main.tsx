@@ -11,7 +11,7 @@ export default function AppMain({ children }: { children: React.ReactNode }) {
     <main
       className={
         isDashboardRoute
-          ? "h-[calc(100vh-4.5rem)] overflow-hidden"
+          ? "min-h-[calc(100svh-4.5rem)] lg:h-[calc(100dvh-4.5rem)] lg:overflow-hidden"
           : "min-h-screen"
       }
     >

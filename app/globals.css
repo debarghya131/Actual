@@ -129,6 +129,94 @@
   }
 }
 
+@layer utilities {
+  .gradient-glow-button {
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 18px 38px -22px rgba(109, 40, 217, 0.65);
+  }
+
+  .gradient-glow-button::before {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: linear-gradient(
+      120deg,
+      transparent,
+      rgba(255, 255, 255, 0.34),
+      transparent
+    );
+    transform: translateX(-130%);
+    transition: transform 0.58s ease;
+  }
+
+  .gradient-glow-button:hover {
+    box-shadow:
+      0 20px 46px -20px rgba(109, 40, 217, 0.78),
+      0 0 32px rgba(168, 85, 247, 0.24);
+  }
+
+  .gradient-glow-button:hover::before {
+    transform: translateX(130%);
+  }
+
+  .feature-showcase-card {
+    position: relative;
+    transition:
+      transform 0.28s ease,
+      border-color 0.28s ease,
+      box-shadow 0.28s ease;
+  }
+
+  .feature-showcase-card:hover {
+    border-color: rgba(196, 181, 253, 0.95);
+    transform: translateY(-6px);
+    box-shadow:
+      0 32px 80px -42px rgba(91, 33, 182, 0.58),
+      0 0 36px rgba(168, 85, 247, 0.16);
+  }
+
+  .active-section-glow {
+    box-shadow:
+      0 18px 48px -30px rgba(109, 40, 217, 0.62),
+      0 0 0 1px rgba(167, 139, 250, 0.24),
+      0 0 26px rgba(168, 85, 247, 0.14);
+  }
+
+  .hero-stat-glow {
+    text-shadow:
+      0 0 22px rgba(16, 185, 129, 0.32),
+      0 0 44px rgba(16, 185, 129, 0.16);
+    animation: heroStatPulse 3.2s ease-in-out infinite;
+  }
+
+  .hero-text-shimmer {
+    background: linear-gradient(
+      110deg,
+      #07091a 0%,
+      #07091a 38%,
+      #6d28d9 48%,
+      #07091a 58%,
+      #07091a 100%
+    );
+    background-size: 240% 100%;
+    background-clip: text;
+    color: transparent;
+    animation: heroTextShimmer 7s ease-in-out infinite;
+  }
+
+  .hero-copy-glow {
+    transition:
+      text-shadow 0.28s ease,
+      color 0.28s ease;
+  }
+
+  .hero-copy-glow:hover {
+    color: rgb(76 29 149 / 0.86);
+    text-shadow: 0 0 22px rgba(109, 40, 217, 0.18);
+  }
+}
+
 @keyframes weeklyInsightSweep {
   0% {
     transform: translateX(-130%);
@@ -145,5 +233,61 @@
   }
   50% {
     transform: translateY(-16px);
+  }
+}
+
+@keyframes featureImageIn {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes statPulseGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 18px 42px -24px rgba(16, 185, 129, 0.46),
+      0 0 0 rgba(16, 185, 129, 0);
+  }
+  50% {
+    box-shadow:
+      0 24px 54px -22px rgba(16, 185, 129, 0.66),
+      0 0 32px rgba(16, 185, 129, 0.18);
+  }
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+@keyframes heroStatPulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 18px rgba(16, 185, 129, 0.28));
+  }
+}
+
+@keyframes heroTextShimmer {
+  0%,
+  70% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
   }
 }

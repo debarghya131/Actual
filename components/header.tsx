@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   ClerkLoaded,
   ClerkLoading,
@@ -11,7 +12,7 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
-import { CreditCard, LayoutDashboard } from "lucide-react";
+import { CreditCard, LayoutDashboard, Menu, X } from "lucide-react";
 
 import { dashboardSidebarWidthClass } from "@/components/dashboard-sidebar";
 import FinancialHealthNavScore from "@/components/financial-health-nav-score";
@@ -34,6 +35,7 @@ const dashboardQuickActions = [
 
 const Header = () => {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isDashboardNav =
     pathname.startsWith("/dashboard") || pathname.startsWith("/demo/dashboard");
   const isDemoRoute = pathname.startsWith("/demo/dashboard");
@@ -104,13 +106,13 @@ const Header = () => {
                 </Link>
               </div>
             ) : (
-              <nav className="ml-auto mr-4 hidden items-center gap-2 sm:flex">
+              <nav className="ml-auto mr-3 hidden items-center gap-2 sm:flex">
                 <FinancialHealthNavScore />
               </nav>
             )}
 
             {!isDemoRoute ? (
-              <div className="flex shrink-0 items-center">
+              <div className="ml-auto flex shrink-0 items-center sm:ml-0">
                 <ClerkLoading>{userButtonFallback}</ClerkLoading>
                 <ClerkLoaded>
                   <UserButton />
@@ -125,20 +127,29 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-violet-100 bg-white/70 backdrop-blur-xl">
-      <div className="flex h-18 w-full items-center gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="flex min-h-18 w-full items-center gap-3 px-3 min-[380px]:px-4 sm:gap-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex min-w-0 items-center">
-          <div className="flex h-16 w-[168px] items-center overflow-hidden sm:w-[222px]">
+          <div className="flex h-16 w-[min(42vw,138px)] items-center overflow-hidden sm:w-[222px]">
             <Image
               src="/logo.png"
               alt="Finance AI logo"
               width={1536}
               height={1024}
-              className="h-auto w-[194px] max-w-none object-contain origin-left sm:w-[262px]"
+              className="h-auto w-[min(50vw,162px)] max-w-none object-contain origin-left sm:w-[262px]"
               priority
               unoptimized
             />
           </div>
         </Link>
+
+        <button
+          type="button"
+          aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          className="ml-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-violet-100 bg-white/85 text-violet-800 shadow-[0_12px_28px_-22px_rgba(109,40,217,0.35)] transition hover:border-violet-200 hover:bg-violet-50 md:hidden"
+          onClick={() => setMobileMenuOpen((open) => !open)}
+        >
+          {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
 
         <Show when="signed-out">
           <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
@@ -157,7 +168,7 @@ const Header = () => {
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto hidden items-center gap-3 md:flex">
             <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
               {signInButton}
             </SignInButton>
@@ -184,7 +195,7 @@ const Header = () => {
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto hidden items-center gap-3 md:flex">
             <nav className="hidden items-center gap-3 md:flex">
               {dashboardQuickActions.map((item) => {
                 const Icon = item.icon;
@@ -219,6 +230,61 @@ const Header = () => {
           </div>
         </Show>
       </div>
+
+      {mobileMenuOpen ? (
+        <div className="border-t border-violet-100 bg-white/92 px-3 py-4 shadow-[0_18px_42px_-30px_rgba(91,33,182,0.28)] min-[380px]:px-4 md:hidden">
+          <nav className="grid gap-2">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={
+                  item.featured
+                    ? "gradient-glow-button flex min-h-12 items-center justify-center rounded-full bg-violet-700 px-4 text-sm font-semibold text-white"
+                    : "flex min-h-12 items-center justify-center rounded-full border border-violet-100 bg-white text-sm font-semibold text-violet-800 transition hover:border-violet-200 hover:bg-violet-50"
+                }
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <Show when="signed-out">
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
+                <button className="min-h-12 cursor-pointer rounded-full border border-violet-200 bg-white/90 px-4 text-sm font-semibold text-violet-700">
+                  Login
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
+                <button className="gradient-glow-button min-h-12 cursor-pointer rounded-full bg-violet-700 px-4 text-sm font-semibold text-white">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </div>
+          </Show>
+
+          <Show when="signed-in">
+            <div className="mt-3 grid gap-2">
+              {dashboardQuickActions.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex min-h-12 items-center justify-center gap-2 rounded-full border border-violet-100 bg-white text-sm font-semibold text-violet-800"
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </Show>
+        </div>
+      ) : null}
     </header>
   );
 };

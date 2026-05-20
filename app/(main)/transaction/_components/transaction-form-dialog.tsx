@@ -70,10 +70,14 @@ export function TransactionFormDialog({
   return (
     <>
       <LazyMotion features={domAnimation}>
-        <m.div whileHover={{ y: -2 }} transition={{ duration: 0.18, ease: "easeOut" }}>
+        <m.div
+          className="w-full sm:w-auto"
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+        >
           <Button
             type="button"
-            className="h-10 gap-2 rounded-xl bg-slate-950 px-4 text-white shadow-[0_16px_34px_-18px_rgba(15,23,42,0.75)] transition duration-300 hover:bg-slate-900 hover:shadow-[0_20px_42px_-18px_rgba(109,40,217,0.55)]"
+            className="h-12 w-full gap-2 rounded-xl bg-slate-950 px-4 text-white shadow-[0_16px_34px_-18px_rgba(15,23,42,0.75)] transition duration-300 hover:bg-slate-900 hover:shadow-[0_20px_42px_-18px_rgba(109,40,217,0.55)] sm:h-10 sm:w-auto"
             onClick={() => {
               if (demoMode) {
                 showDemoModeToast("adding a transaction");

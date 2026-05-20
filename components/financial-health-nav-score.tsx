@@ -63,8 +63,8 @@ export default function FinancialHealthNavScore() {
 
   if (!data) {
     return (
-      <div className="inline-flex h-10 min-w-24 items-center justify-center rounded-md border border-violet-100 bg-white px-4 text-sm font-medium text-violet-700">
-        <HeartPulse className="mr-2 h-4 w-4 shrink-0" />
+      <div className="inline-flex h-10 min-w-20 items-center justify-center rounded-md border border-violet-100 bg-white px-3 text-sm font-medium text-violet-700 sm:min-w-24 sm:px-4">
+        <HeartPulse className="mr-1.5 h-4 w-4 shrink-0 sm:mr-2" />
         ...
       </div>
     );
@@ -76,15 +76,15 @@ export default function FinancialHealthNavScore() {
         <TooltipTrigger asChild>
           <button
             type="button"
-            className="inline-flex h-10 items-center gap-2 rounded-md border border-violet-200 bg-violet-50 px-4 text-sm font-medium text-violet-900 transition hover:border-violet-300 hover:bg-violet-100/70"
+            className="inline-flex h-10 items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 px-3 text-sm font-medium text-violet-900 transition hover:border-violet-300 hover:bg-violet-100/70 sm:gap-2 sm:px-4"
           >
             <HeartPulse className="h-4 w-4 shrink-0" />
             <span>{data.isReady ? data.score : "--"}</span>
             <span className="text-violet-950/50">/100</span>
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" sideOffset={12} className="max-w-sm rounded-3xl p-0">
-          <div className="w-[320px] rounded-[24px] border border-violet-200/70 bg-white p-6 text-center shadow-[0_22px_60px_-34px_rgba(91,33,182,0.24)]">
+        <TooltipContent side="bottom" sideOffset={12} className="max-w-[calc(100vw-2rem)] rounded-3xl p-0">
+          <div className="w-[min(320px,calc(100vw-2rem))] rounded-[24px] border border-violet-200/70 bg-white p-5 text-center shadow-[0_22px_60px_-34px_rgba(91,33,182,0.24)] sm:p-6">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
               <HeartPulse className="h-7 w-7" />
             </div>

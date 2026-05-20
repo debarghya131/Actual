@@ -96,11 +96,11 @@ export async function TransactionCreateScreen({
   const weeklyInsight = buildWeeklyInsight(transactions);
 
   return (
-    <section className="min-h-full w-full px-4 pb-8 pt-0 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-[1680px] rounded-[28px] border border-violet-100/90 bg-white/92 p-6 shadow-[0_22px_60px_-34px_rgba(91,33,182,0.18)] backdrop-blur-xl sm:p-8">
+    <section className="min-h-full w-full pb-6 pt-0 sm:pb-8">
+      <div className="mx-auto w-full max-w-[1680px] rounded-2xl border border-violet-100/90 bg-white/92 p-4 shadow-[0_22px_60px_-34px_rgba(91,33,182,0.18)] backdrop-blur-xl sm:rounded-[28px] sm:p-8">
         <section className="space-y-5">
-          <div className="flex flex-col gap-4 border-b border-violet-100 pb-6 sm:flex-row sm:items-start sm:justify-between">
-            <div>
+          <div className="flex flex-col gap-4 border-b border-violet-100 pb-5 sm:flex-row sm:items-start sm:justify-between sm:pb-6">
+            <div className="min-w-0">
               <h2 className="text-lg font-semibold text-slate-950">
                 Transaction History
               </h2>
@@ -116,10 +116,14 @@ export async function TransactionCreateScreen({
           </div>
 
           {weeklyInsight ? (
-            <div className="relative overflow-hidden rounded-[22px] border border-emerald-200/80 bg-gradient-to-r from-emerald-50 via-white to-violet-50 px-4 py-3 shadow-[0_18px_40px_-26px_rgba(16,185,129,0.38)]">
+            <div className="relative overflow-hidden rounded-[22px] border border-emerald-200/80 bg-gradient-to-r from-emerald-50 via-white to-violet-50 px-4 py-3 shadow-[0_18px_40px_-26px_rgba(16,185,129,0.38)] ring-1 ring-emerald-200/70 animate-[statPulseGlow_3.2s_ease-in-out_infinite]">
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-y-0 -left-10 w-20 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-[weeklyInsightSweep_2.4s_linear_infinite]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-10 -top-12 h-28 w-28 rounded-full bg-emerald-300/25 blur-3xl"
               />
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>

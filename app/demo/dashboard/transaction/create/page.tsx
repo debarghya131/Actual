@@ -11,11 +11,11 @@ export default function DemoTransactionCreatePage() {
   }));
 
   return (
-    <section className="min-h-full w-full px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-[1680px] rounded-[28px] border border-violet-100/90 bg-white/92 p-6 shadow-[0_22px_60px_-34px_rgba(91,33,182,0.18)] sm:p-8">
+    <section className="min-h-full w-full py-4 sm:py-6">
+      <div className="mx-auto w-full max-w-[1680px] rounded-2xl border border-violet-100/90 bg-white/92 p-4 shadow-[0_22px_60px_-34px_rgba(91,33,182,0.18)] sm:rounded-[28px] sm:p-8">
         <section className="space-y-5">
-          <div className="flex flex-col gap-4 border-b border-violet-100 pb-6 sm:flex-row sm:items-start sm:justify-between">
-            <div>
+          <div className="flex flex-col gap-4 border-b border-violet-100 pb-5 sm:flex-row sm:items-start sm:justify-between sm:pb-6">
+            <div className="min-w-0">
               <h2 className="text-lg font-semibold text-slate-950">
                 Transaction History
               </h2>

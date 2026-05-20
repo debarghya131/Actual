@@ -10,9 +10,11 @@ export default function AppFooter() {
   }
 
   return (
-    <footer className="border-t border-violet-100 bg-violet-50/70 py-12">
+    <footer className="border-t border-violet-100 bg-violet-50/70 px-4 py-10 sm:px-6 sm:py-12">
       <div className="container mx-auto text-center text-violet-950/60">
-        <p>Made With 💜 by Debarghya Bandyopadhyay</p>
+        <p className="break-words text-sm leading-6 sm:text-base">
+          Made With 💜 by Debarghya Bandyopadhyay
+        </p>
       </div>
     </footer>
   );

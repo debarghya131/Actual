@@ -237,7 +237,7 @@ export function AddTransactionForm({
   }, [isRecurring, recurringInterval, setValue]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full min-w-0 space-y-6">
       {/* Receipt Scanner - Only show in create mode */}
       {!editMode && !demoMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
 
@@ -254,7 +254,7 @@ export function AddTransactionForm({
           value={type}
           disabled={demoMode}
         >
-          <SelectTrigger className="w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)]">
+          <SelectTrigger className="min-h-12 w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)] sm:min-h-10">
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
@@ -277,7 +277,7 @@ export function AddTransactionForm({
             placeholder="0.00"
             {...register("amount")}
             disabled={demoMode}
-            className="rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)]"
+            className="min-h-12 rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)] sm:min-h-10"
           />
           {errors.amount && (
             <p className="text-sm text-red-500">{errors.amount.message}</p>
@@ -296,7 +296,7 @@ export function AddTransactionForm({
             value={accountId}
             disabled={demoMode}
           >
-            <SelectTrigger className="w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)]">
+            <SelectTrigger className="min-h-12 w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)] sm:min-h-10">
               <SelectValue placeholder="Select account" />
             </SelectTrigger>
             <SelectContent>
@@ -336,7 +336,7 @@ export function AddTransactionForm({
           value={category}
           disabled={demoMode}
         >
-          <SelectTrigger className="w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)]">
+          <SelectTrigger className="min-h-12 w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)] sm:min-h-10">
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
@@ -360,7 +360,7 @@ export function AddTransactionForm({
             <Button
               variant="outline"
               className={cn(
-                "w-full rounded-xl border-violet-100 pl-3 text-left font-normal transition duration-300 hover:border-violet-200 hover:bg-violet-50/30 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)]",
+                "min-h-12 w-full rounded-xl border-violet-100 pl-3 text-left font-normal transition duration-300 hover:border-violet-200 hover:bg-violet-50/30 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)] sm:min-h-10",
                 !date && "text-muted-foreground"
               )}
               disabled={demoMode}
@@ -399,7 +399,7 @@ export function AddTransactionForm({
           placeholder="Enter description"
           {...register("description")}
           disabled={demoMode}
-          className="rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)]"
+          className="min-h-12 rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)] sm:min-h-10"
         />
         {errors.description && (
           <p className="text-sm text-red-500">{errors.description.message}</p>
@@ -407,14 +407,15 @@ export function AddTransactionForm({
       </div>
 
       {/* Recurring Toggle */}
-      <div className="flex flex-row items-center justify-between rounded-2xl border border-violet-100 p-4 transition duration-300 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.16)]">
-        <div className="space-y-0.5">
+      <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-violet-100 p-4 transition duration-300 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.16)] min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
+        <div className="min-w-0 space-y-0.5">
           <label className="text-base font-medium">Recurring Transaction</label>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm leading-6 text-muted-foreground">
             Set up a recurring schedule for this transaction
           </div>
         </div>
         <Switch
+          className="self-start min-[420px]:self-auto"
           checked={isRecurring}
           onCheckedChange={(checked) => {
             setValue("isRecurring", checked, {
@@ -455,7 +456,7 @@ export function AddTransactionForm({
             value={recurringInterval}
             disabled={demoMode}
           >
-            <SelectTrigger className="w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)]">
+            <SelectTrigger className="min-h-12 w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-20px_rgba(109,40,217,0.18)] sm:min-h-10">
               <SelectValue placeholder="Select interval" />
             </SelectTrigger>
             <SelectContent
@@ -482,14 +483,14 @@ export function AddTransactionForm({
         <Button
           type="button"
           variant="outline"
-          className="w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:bg-violet-50 hover:shadow-[0_14px_30px_-20px_rgba(109,40,217,0.18)]"
+          className="min-h-12 w-full rounded-xl border-violet-100 transition duration-300 hover:border-violet-200 hover:bg-violet-50 hover:shadow-[0_14px_30px_-20px_rgba(109,40,217,0.18)] sm:min-h-10"
           onClick={onCancel ?? (() => router.back())}
         >
           Cancel
         </Button>
         <Button
           type="submit"
-          className="w-full rounded-xl bg-slate-950 shadow-[0_16px_34px_-18px_rgba(15,23,42,0.75)] transition duration-300 hover:bg-slate-900 hover:shadow-[0_20px_42px_-18px_rgba(109,40,217,0.55)]"
+          className="min-h-12 w-full rounded-xl bg-slate-950 shadow-[0_16px_34px_-18px_rgba(15,23,42,0.75)] transition duration-300 hover:bg-slate-900 hover:shadow-[0_20px_42px_-18px_rgba(109,40,217,0.55)] sm:min-h-10"
           disabled={transactionLoading || demoMode}
         >
           {transactionLoading ? (

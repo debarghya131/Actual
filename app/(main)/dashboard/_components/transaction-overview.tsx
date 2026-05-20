@@ -158,16 +158,16 @@ export function DashboardOverview({
   return (
     <LazyMotion features={domAnimation}>
       <m.section
-        className="space-y-6"
+        className="min-w-0 space-y-5 md:space-y-6"
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="space-y-3">
+        <div className="min-w-0 space-y-3">
           <h2 className="px-1 text-base font-normal text-slate-950">
             This Month Overview
           </h2>
-          <div className="grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid min-w-0 items-stretch gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4 xl:gap-6">
             <StatCard
               title="Overall Income"
               icon={TrendingUp}
@@ -190,17 +190,17 @@ export function DashboardOverview({
             />
 
             <m.div whileHover={{ y: -5 }} transition={{ duration: 0.2, ease: "easeOut" }}>
-              <Card className="border-violet-100 bg-white/95 shadow-[0_18px_44px_-32px_rgba(109,40,217,0.26)] transition duration-300 hover:shadow-[0_24px_56px_-28px_rgba(109,40,217,0.38)]">
-                <CardContent className="flex min-h-[104px] flex-col justify-center p-4">
+              <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_18px_44px_-32px_rgba(109,40,217,0.26)] transition duration-300 hover:shadow-[0_24px_56px_-28px_rgba(109,40,217,0.38)]">
+                <CardContent className="flex min-h-28 flex-col justify-center p-4">
                   <div className="flex items-center gap-2 text-sm font-medium text-violet-900">
                     <Target className="h-4 w-4 text-violet-700" />
                     Goal Progress
                   </div>
-                  <div className="mt-1.5 flex items-end justify-between gap-3">
-                    <p className="text-[2rem] font-semibold tracking-tight text-slate-950">
+                  <div className="mt-2 flex flex-col gap-1 min-[420px]:flex-row min-[420px]:items-end min-[420px]:justify-between min-[420px]:gap-3">
+                    <p className="text-[clamp(1.75rem,9vw,2rem)] font-semibold tracking-tight text-slate-950">
                       {savingsGoalProgress.toFixed(1)}%
                     </p>
-                    <p className="text-right text-xs font-medium text-violet-700">
+                    <p className="max-w-full text-xs font-medium leading-5 text-violet-700 min-[420px]:max-w-40 min-[420px]:text-right">
                       {savingsGoalTarget > 0
                         ? `Current month goal ${formatCurrency(savingsGoalTarget)}`
                         : "No current month goal"}
@@ -236,7 +236,7 @@ export function DashboardOverview({
                         }}
                       />
                     </m.div>
-                    <div className="flex items-center justify-between text-[11px]">
+                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px]">
                       <span className="font-medium text-emerald-600">
                         {formatCurrency(currentSavings)} saved
                       </span>
@@ -253,20 +253,20 @@ export function DashboardOverview({
           </div>
         </div>
 
-        <div className="grid items-start gap-6 xl:grid-cols-5">
+        <div className="grid min-w-0 items-start gap-4 md:gap-6 xl:grid-cols-5">
           <m.div
-            className="xl:col-span-3"
+            className="min-w-0 xl:col-span-3"
             whileHover={{ y: -4 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
-            <Card className="h-full border-violet-100 bg-white/95 shadow-[0_20px_46px_-34px_rgba(109,40,217,0.24)] transition duration-300 hover:shadow-[0_28px_62px_-30px_rgba(109,40,217,0.34)]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-4">
+            <Card className="h-full min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_46px_-34px_rgba(109,40,217,0.24)] transition duration-300 hover:shadow-[0_28px_62px_-30px_rgba(109,40,217,0.34)]">
+              <CardHeader className="flex flex-col items-stretch gap-3 space-y-0 p-4 pb-3 min-[520px]:flex-row min-[520px]:items-center min-[520px]:justify-between sm:p-5 sm:pb-4">
                 <CardTitle className="text-base font-normal">
                   Recent Transactions
                 </CardTitle>
                 {accounts.length > 0 ? (
                   <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-                    <SelectTrigger className="w-[140px] transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-18px_rgba(109,40,217,0.28)]">
+                    <SelectTrigger className="min-h-11 w-full transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-18px_rgba(109,40,217,0.28)] min-[520px]:w-[140px]">
                       <SelectValue placeholder="Select account" />
                     </SelectTrigger>
                     <SelectContent>
@@ -279,8 +279,8 @@ export function DashboardOverview({
                   </Select>
                 ) : null}
               </CardHeader>
-              <CardContent className="px-5 pb-5">
-                <div className="max-h-[340px] space-y-3 overflow-y-auto pr-2">
+              <CardContent className="px-3 pb-4 sm:px-5 sm:pb-5">
+                <div className="max-h-[28rem] space-y-2.5 overflow-y-auto pr-1 sm:max-h-[340px] sm:space-y-3 sm:pr-2">
                   {recentTransactions.length === 0 ? (
                     <p className="py-4 text-center text-muted-foreground">
                       No recent transactions
@@ -291,7 +291,7 @@ export function DashboardOverview({
                         key={transaction.id}
                         whileHover={{ y: -2, scale: 1.005 }}
                         transition={{ duration: 0.16, ease: "easeOut" }}
-                        className="flex items-center justify-between gap-4 rounded-2xl border border-transparent px-3 py-2.5 transition duration-300 hover:border-violet-100 hover:bg-violet-50/50 hover:shadow-[0_14px_32px_-24px_rgba(109,40,217,0.28)]"
+                        className="flex flex-col gap-2 rounded-xl border border-transparent px-3 py-2.5 transition duration-300 hover:border-violet-100 hover:bg-violet-50/50 hover:shadow-[0_14px_32px_-24px_rgba(109,40,217,0.28)] min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-4 sm:rounded-2xl"
                       >
                         <div className="min-w-0 space-y-0.5">
                           <p className="truncate text-sm font-medium leading-none">
@@ -303,7 +303,7 @@ export function DashboardOverview({
                         </div>
                         <div
                           className={cn(
-                            "flex shrink-0 items-center text-sm font-medium",
+                            "flex shrink-0 items-center text-sm font-medium min-[420px]:justify-end",
                             transaction.type === "EXPENSE"
                               ? "text-red-500"
                               : "text-green-500",
@@ -325,17 +325,17 @@ export function DashboardOverview({
           </m.div>
 
           <m.div
-            className="xl:col-span-2"
+            className="min-w-0 xl:col-span-2"
             whileHover={{ y: -4 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
-            <Card className="h-full border-violet-100 bg-white/95 shadow-[0_20px_46px_-34px_rgba(109,40,217,0.24)] transition duration-300 hover:shadow-[0_28px_62px_-30px_rgba(109,40,217,0.34)]">
-              <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 p-5 pb-4">
+            <Card className="h-full min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_46px_-34px_rgba(109,40,217,0.24)] transition duration-300 hover:shadow-[0_28px_62px_-30px_rgba(109,40,217,0.34)]">
+              <CardHeader className="flex flex-col items-stretch gap-3 space-y-0 p-4 pb-3 min-[520px]:flex-row min-[520px]:items-center min-[520px]:justify-between sm:p-5 sm:pb-4">
                 <CardTitle className="text-base font-normal">
                   Monthly Expense Breakdown
                 </CardTitle>
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="w-[155px] transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-18px_rgba(109,40,217,0.28)]">
+                  <SelectTrigger className="min-h-11 w-full transition duration-300 hover:border-violet-200 hover:shadow-[0_12px_28px_-18px_rgba(109,40,217,0.28)] min-[520px]:w-[155px]">
                     <SelectValue placeholder="Select month" />
                   </SelectTrigger>
                   <SelectContent>
@@ -347,13 +347,13 @@ export function DashboardOverview({
                   </SelectContent>
                 </Select>
               </CardHeader>
-              <CardContent className="px-5 pb-5">
+              <CardContent className="px-3 pb-4 sm:px-5 sm:pb-5">
                 {expenseBreakdown.length === 0 ? (
                   <p className="py-4 text-center text-muted-foreground">
                     No expenses for this month
                   </p>
                 ) : (
-                  <div className="max-h-[340px] space-y-3 overflow-y-auto pr-2">
+                  <div className="max-h-[28rem] space-y-2.5 overflow-y-auto pr-1 sm:max-h-[340px] sm:space-y-3 sm:pr-2">
                     {expenseBreakdown.map((expense) => {
                       const usagePercent =
                         expense.target > 0 ? (expense.amount / expense.target) * 100 : 0;
@@ -375,11 +375,11 @@ export function DashboardOverview({
                           key={expense.category}
                           whileHover={{ y: -2, scale: 1.005 }}
                           transition={{ duration: 0.16, ease: "easeOut" }}
-                          className="space-y-2 rounded-2xl border border-transparent px-3 py-2.5 transition duration-300 hover:border-violet-100 hover:bg-violet-50/45 hover:shadow-[0_14px_32px_-24px_rgba(109,40,217,0.24)]"
+                          className="space-y-2 rounded-xl border border-transparent px-3 py-2.5 transition duration-300 hover:border-violet-100 hover:bg-violet-50/45 hover:shadow-[0_14px_32px_-24px_rgba(109,40,217,0.24)] sm:rounded-2xl"
                         >
-                          <div className="flex items-center justify-between gap-4 text-sm">
-                            <span className="font-medium">{expense.label}</span>
-                            <span className="text-muted-foreground">
+                          <div className="flex items-start justify-between gap-3 text-sm">
+                            <span className="min-w-0 break-words font-medium">{expense.label}</span>
+                            <span className="shrink-0 text-right text-muted-foreground">
                               {formatCurrency(expense.amount)}
                             </span>
                           </div>
@@ -407,7 +407,7 @@ export function DashboardOverview({
                               }}
                             />
                           </m.div>
-                          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
                             <span>
                               {expense.target > 0
                                 ? `Target ${formatCurrency(expense.target)}`
@@ -449,14 +449,14 @@ function StatCard({
   value,
 }: StatCardProps) {
   return (
-    <m.div whileHover={{ y: -5 }} transition={{ duration: 0.2, ease: "easeOut" }}>
-      <Card className="border-violet-100 bg-white/95 shadow-[0_18px_44px_-32px_rgba(109,40,217,0.26)] transition duration-300 hover:shadow-[0_24px_56px_-28px_rgba(109,40,217,0.38)]">
-        <CardContent className="flex min-h-24 flex-col justify-center p-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-violet-900">
+    <m.div className="min-w-0" whileHover={{ y: -5 }} transition={{ duration: 0.2, ease: "easeOut" }}>
+      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_18px_44px_-32px_rgba(109,40,217,0.26)] transition duration-300 hover:shadow-[0_24px_56px_-28px_rgba(109,40,217,0.38)]">
+        <CardContent className="flex min-h-28 flex-col justify-center p-4">
+          <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-violet-900">
             <Icon className={cn("h-4 w-4", iconClassName)} />
-            {title}
+            <span className="min-w-0 truncate">{title}</span>
           </div>
-          <p className="mt-2 text-[2rem] font-semibold tracking-tight text-slate-950">
+          <p className="mt-2 break-words text-[clamp(1.75rem,9vw,2rem)] font-semibold tracking-tight text-slate-950">
             {value}
           </p>
         </CardContent>

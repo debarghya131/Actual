@@ -224,21 +224,21 @@ export function AccountChart({
   return (
     <LazyMotion features={domAnimation}>
       <m.div
-        className="space-y-6"
+        className="min-w-0 space-y-5 md:space-y-6"
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
-      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }}>
-      <Card className="rounded-[26px] border-zinc-200 bg-white/95 shadow-[0_20px_50px_-34px_rgba(109,40,217,0.22)] transition duration-300 hover:shadow-[0_28px_64px_-30px_rgba(109,40,217,0.32)]">
-        <CardHeader className="flex flex-col gap-4 space-y-0 pb-7 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-base font-normal">
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="min-w-0">
+      <Card className="min-w-0 rounded-2xl border-zinc-200 bg-white/95 shadow-[0_20px_50px_-34px_rgba(109,40,217,0.22)] transition duration-300 hover:shadow-[0_28px_64px_-30px_rgba(109,40,217,0.32)] sm:rounded-[26px]">
+        <CardHeader className="flex flex-col gap-4 space-y-0 p-4 pb-5 min-[420px]:p-5 min-[420px]:pb-6 md:flex-row md:items-center md:justify-between">
+          <CardTitle className="text-base font-normal leading-snug">
             Transaction Overview
           </CardTitle>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid w-full min-w-0 grid-cols-1 gap-2 min-[520px]:grid-cols-2 md:w-auto md:grid-cols-[minmax(10rem,1fr)_minmax(9rem,0.85fr)]">
             {accounts.length > 1 ? (
               <Select value={accountId} onValueChange={setAccountId}>
-                <SelectTrigger className="w-[170px] rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]">
+                <SelectTrigger className="min-h-12 w-full rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]">
                   <SelectValue placeholder="All Accounts" />
                 </SelectTrigger>
                 <SelectContent>
@@ -256,7 +256,7 @@ export function AccountChart({
               value={dateRange}
               onValueChange={(value) => setDateRange(value as DateRange)}
             >
-              <SelectTrigger className="w-[140px] rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]">
+              <SelectTrigger className="min-h-12 w-full rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]">
                 <SelectValue placeholder="Select range" />
               </SelectTrigger>
               <SelectContent>
@@ -269,24 +269,24 @@ export function AccountChart({
             </Select>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="mb-6 flex justify-around text-sm">
-            <div className="text-center">
+        <CardContent className="min-w-0 px-4 pb-4 min-[420px]:px-5 min-[420px]:pb-5">
+          <div className="mb-5 grid min-w-0 grid-cols-1 gap-3 text-sm min-[560px]:grid-cols-3 md:mb-6">
+            <div className="min-w-0 rounded-xl border border-zinc-100 bg-zinc-50/70 p-3 text-left min-[560px]:text-center">
               <p className="text-muted-foreground">Total Income</p>
-              <p className="text-lg font-bold text-green-500">
+              <p className="mt-1 break-words text-[clamp(1rem,5vw,1.125rem)] font-bold leading-snug text-green-500">
                 {formatCurrency(totals.income)}
               </p>
             </div>
-            <div className="text-center">
+            <div className="min-w-0 rounded-xl border border-zinc-100 bg-zinc-50/70 p-3 text-left min-[560px]:text-center">
               <p className="text-muted-foreground">Total Expenses</p>
-              <p className="text-lg font-bold text-red-500">
+              <p className="mt-1 break-words text-[clamp(1rem,5vw,1.125rem)] font-bold leading-snug text-red-500">
                 {formatCurrency(totals.expense)}
               </p>
             </div>
-            <div className="text-center">
+            <div className="min-w-0 rounded-xl border border-zinc-100 bg-zinc-50/70 p-3 text-left min-[560px]:text-center">
               <p className="text-muted-foreground">Net</p>
               <p
-                className={`text-lg font-bold ${
+                className={`mt-1 break-words text-[clamp(1rem,5vw,1.125rem)] font-bold leading-snug ${
                   totals.income - totals.expense >= 0
                     ? "text-green-500"
                     : "text-red-500"
@@ -297,64 +297,69 @@ export function AccountChart({
             </div>
           </div>
 
-          <div className="h-[300px]">
-            {hasMounted ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={filteredData}
-                  margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => formatCurrency(value)}
-                  />
-                  <Tooltip
-                    content={<OverviewBarTooltip />}
-                    cursor={false}
-                    wrapperStyle={{ zIndex: 20 }}
-                    allowEscapeViewBox={{ x: true, y: true }}
-                  />
-                  <Legend />
-                  <Bar
-                    dataKey="expense"
-                    name="Expense"
-                    fill="#ef4444"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="income"
-                    name="Income"
-                    fill="#22c55e"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full rounded-xl border border-zinc-100 bg-zinc-50/70" />
-            )}
+          <div className="-mx-1 min-w-0 overflow-x-auto overflow-y-hidden px-1 pb-2 md:mx-0 md:overflow-visible md:px-0 md:pb-0">
+            <div className="h-[clamp(16rem,58vw,21rem)] min-w-[42rem] md:min-w-0">
+              {hasMounted ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={filteredData}
+                    margin={{ top: 10, right: 4, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      interval="preserveStartEnd"
+                      minTickGap={18}
+                    />
+                    <YAxis
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      width={72}
+                      tickFormatter={(value) => formatCurrency(value)}
+                    />
+                    <Tooltip
+                      content={<OverviewBarTooltip />}
+                      cursor={false}
+                      wrapperStyle={{ zIndex: 20 }}
+                      allowEscapeViewBox={{ x: true, y: true }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="expense"
+                      name="Expense"
+                      fill="#ef4444"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="income"
+                      name="Income"
+                      fill="#22c55e"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full rounded-xl border border-zinc-100 bg-zinc-50/70" />
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
       </m.div>
 
-      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }}>
-      <Card className="rounded-[26px] border-zinc-200 bg-white/95 shadow-[0_20px_50px_-34px_rgba(109,40,217,0.22)] transition duration-300 hover:shadow-[0_28px_64px_-30px_rgba(109,40,217,0.32)]">
-        <CardHeader className="pb-5">
-          <CardTitle className="text-base font-normal">
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="min-w-0">
+      <Card className="min-w-0 rounded-2xl border-zinc-200 bg-white/95 shadow-[0_20px_50px_-34px_rgba(109,40,217,0.22)] transition duration-300 hover:shadow-[0_28px_64px_-30px_rgba(109,40,217,0.32)] sm:rounded-[26px]">
+        <CardHeader className="p-4 pb-4 min-[420px]:p-5 min-[420px]:pb-5">
+          <CardTitle className="text-base font-normal leading-snug">
             Income & Expenses by Category
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 lg:grid-cols-2">
+        <CardContent className="min-w-0 px-4 pb-4 min-[420px]:px-5 min-[420px]:pb-5">
+          <div className="grid min-w-0 gap-4 lg:grid-cols-2 lg:gap-6">
             <CategoryBreakdownColumn
               title="Income Categories"
               emptyMessage="No income categories for this range"
@@ -397,10 +402,10 @@ function CategoryBreakdownColumn({
     : "Total Expenses";
 
   return (
-    <div className="rounded-[22px] border border-zinc-200 bg-white/95 p-4 shadow-[0_16px_36px_-30px_rgba(109,40,217,0.18)] transition duration-300 hover:shadow-[0_22px_44px_-28px_rgba(109,40,217,0.26)]">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="text-sm font-medium text-slate-950">{title}</p>
-        <p className="text-xs text-muted-foreground">
+    <div className="min-w-0 rounded-2xl border border-zinc-200 bg-white/95 p-3 shadow-[0_16px_36px_-30px_rgba(109,40,217,0.18)] transition duration-300 hover:shadow-[0_22px_44px_-28px_rgba(109,40,217,0.26)] min-[420px]:p-4 sm:rounded-[22px]">
+      <div className="mb-4 flex min-w-0 flex-col gap-1 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
+        <p className="min-w-0 break-words text-sm font-medium text-slate-950">{title}</p>
+        <p className="shrink-0 text-xs text-muted-foreground">
           {items.length} {items.length === 1 ? "category" : "categories"}
         </p>
       </div>
@@ -410,8 +415,8 @@ function CategoryBreakdownColumn({
           {emptyMessage}
         </p>
       ) : (
-        <div className="space-y-5">
-          <div className="h-[220px]">
+        <div className="min-w-0 space-y-5">
+          <div className="h-[clamp(12rem,52vw,14rem)] min-w-0">
             {hasMounted ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -421,8 +426,8 @@ function CategoryBreakdownColumn({
                     nameKey="category"
                     cx="50%"
                     cy="50%"
-                    innerRadius={64}
-                    outerRadius={92}
+                    innerRadius="48%"
+                    outerRadius="70%"
                     paddingAngle={2}
                     stroke="none"
                     label={false}
@@ -445,17 +450,17 @@ function CategoryBreakdownColumn({
             )}
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-              <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+          <div className="grid min-w-0 gap-3 min-[520px]:grid-cols-2">
+            <div className="min-w-0 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+              <p className="break-words text-xs uppercase tracking-[0.16em] text-muted-foreground">
                 {totalLabel}
               </p>
-              <p className={`mt-1 text-lg font-semibold ${valueClassName}`}>
+              <p className={`mt-1 break-words text-[clamp(1rem,5vw,1.125rem)] font-semibold leading-snug ${valueClassName}`}>
                 {formatCurrency(totalAmount)}
               </p>
             </div>
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-              <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            <div className="min-w-0 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+              <p className="break-words text-xs uppercase tracking-[0.16em] text-muted-foreground">
                 Categories Used
               </p>
               <p className="mt-1 text-lg font-semibold text-slate-950">
@@ -464,25 +469,25 @@ function CategoryBreakdownColumn({
             </div>
           </div>
 
-          <div className="max-h-[260px] space-y-4 overflow-y-auto pr-2">
+          <div className="max-h-[min(22rem,60vh)] min-w-0 space-y-4 overflow-y-auto pr-1 min-[420px]:pr-2">
             {items.map((item) => (
               <m.div
                 key={item.id}
-                className="space-y-2 rounded-2xl px-2 py-1.5 transition duration-300 hover:bg-violet-50/40"
+                className="min-w-0 space-y-2 rounded-2xl px-1.5 py-1.5 transition duration-300 hover:bg-violet-50/40 min-[420px]:px-2"
                 whileHover={{ y: -2, scale: 1.005 }}
                 transition={{ duration: 0.16, ease: "easeOut" }}
               >
-                <div className="flex items-center justify-between gap-4 text-sm">
-                  <div className="flex items-center gap-2">
+                <div className="flex min-w-0 flex-col gap-1 text-sm min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-4">
+                  <div className="flex min-w-0 items-center gap-2">
                     <span
-                      className="h-2.5 w-2.5 rounded-full"
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="font-medium text-slate-900">
+                    <span className="min-w-0 break-words font-medium text-slate-900">
                       {item.category}
                     </span>
                   </div>
-                  <span className={valueClassName}>
+                  <span className={`break-words font-medium min-[420px]:shrink-0 ${valueClassName}`}>
                     {formatCurrency(item.amount)}
                   </span>
                 </div>

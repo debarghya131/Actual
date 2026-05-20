@@ -568,22 +568,22 @@ export default function BudgetPlanningBoard({
   return (
     <LazyMotion features={domAnimation}>
       <m.div
-        className="grid gap-6 xl:grid-cols-12 xl:items-stretch"
+        className="grid min-w-0 grid-cols-1 gap-4 md:gap-5 xl:grid-cols-[repeat(3,minmax(0,1fr))] xl:items-stretch xl:gap-5 2xl:gap-6"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
       <m.div
-        className="xl:col-span-4"
+        className="min-w-0"
         whileHover={{ y: -5 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
       >
-      <Card className="h-full border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] xl:h-[810px]">
-        <CardHeader className="flex flex-col gap-3 p-5 pb-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2 text-slate-950">
+      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] 2xl:min-h-[50rem]">
+        <CardHeader className="flex flex-col gap-3 p-4 pb-3 min-[420px]:p-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <CardTitle className="flex min-w-0 items-center gap-2 text-base leading-6 text-slate-950">
               <Wallet className="h-4 w-4 text-violet-700" />
-              Monthly Budget Set (All Accounts)
+              <span className="min-w-0 break-words">Monthly Budget Set (All Accounts)</span>
             </CardTitle>
             <p className="mt-2 text-sm text-violet-950/60">
               Set one total monthly spending limit and compare it with live expenses across all accounts.
@@ -604,19 +604,20 @@ export default function BudgetPlanningBoard({
                   ? showDemoModeToast("editing monthly budgets")
                   : setIsEditingMonthly(true)
               }
-              className="h-8 w-8 transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)]"
+              className="h-12 w-12 self-end transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)] sm:h-10 sm:w-10"
             >
               <Pencil className="h-4 w-4" />
             </Button>
           ) : null}
         </CardHeader>
-        <CardContent className="flex h-full flex-col space-y-5 px-5 pb-5">
+        <CardContent className="flex min-w-0 flex-col space-y-5 px-4 pb-4 min-[420px]:px-5 min-[420px]:pb-5 2xl:h-full">
           {isEditingMonthly ? (
             <div className="space-y-4">
               <div className="flex items-center justify-end gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="h-12 w-12 sm:h-10 sm:w-10"
                   onClick={handleMonthlySave}
                   disabled={isUpdatingMonthly || isSavingPreferences}
                 >
@@ -625,6 +626,7 @@ export default function BudgetPlanningBoard({
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="h-12 w-12 sm:h-10 sm:w-10"
                   onClick={() => {
                     restoreBudgetTargets();
                     setIsEditingMonthly(false);
@@ -635,7 +637,7 @@ export default function BudgetPlanningBoard({
                 </Button>
               </div>
 
-              <div className="rounded-2xl border border-violet-100 bg-violet-50/45 p-4 pb-6">
+              <div className="rounded-2xl border border-violet-100 bg-violet-50/45 p-3 pb-5 min-[420px]:p-4 min-[420px]:pb-6">
                 <div className="mb-3">
                   <div>
                     <p className="text-sm font-medium text-slate-950">
@@ -647,11 +649,11 @@ export default function BudgetPlanningBoard({
                   </div>
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid min-w-0 gap-3 md:grid-cols-2">
                   {budgetTimeline.map((month, index) => (
                     <div
                       key={month.key}
-                      className="rounded-2xl border border-violet-100 bg-white p-4"
+                      className="min-w-0 rounded-2xl border border-violet-100 bg-white p-3 min-[420px]:p-4"
                     >
                       <p className="text-sm font-medium text-slate-950">
                         {index === 0 ? `${month.label} (Current)` : month.label}
@@ -663,7 +665,7 @@ export default function BudgetPlanningBoard({
                           handleUpcomingBudgetChange(month.key, e.target.value)
                         }
                         placeholder="Set month budget"
-                        className="mt-3"
+                        className="mt-3 min-h-12 sm:min-h-10"
                       />
                     </div>
                   ))}
@@ -672,7 +674,7 @@ export default function BudgetPlanningBoard({
             </div>
           ) : (
             <div className="flex h-full flex-col space-y-4">
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid min-w-0 gap-3 min-[520px]:grid-cols-3">
                 <StatTile
                   label="Budget"
                   value={
@@ -697,7 +699,7 @@ export default function BudgetPlanningBoard({
                 />
               </div>
 
-              <div className="flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-4">
+              <div className="min-w-0 flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-3 min-[420px]:p-4">
                 <div className="mb-4">
                   <p className="text-sm font-medium text-slate-950">
                     Upcoming 6 Month Plan
@@ -708,7 +710,7 @@ export default function BudgetPlanningBoard({
                 </div>
 
                 {hasMonthlyBudgetPlan ? (
-                <div className="space-y-4">
+                <div className="min-w-0 space-y-4">
                   {budgetTimeline.map((month, index) => {
                     const plannedBudget = Number(upcomingBudgetTargets[month.key] || 0);
                     const progressValue =
@@ -731,11 +733,11 @@ export default function BudgetPlanningBoard({
                             : "hover:bg-violet-100/40"
                         }`}
                       >
-                        <div className="flex items-center justify-between gap-3 text-sm">
-                          <span className="font-medium text-slate-950">
+                        <div className="flex min-w-0 flex-col gap-1 text-sm min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
+                          <span className="min-w-0 break-words font-medium text-slate-950">
                             {index === 0 ? `${month.label} (Current)` : month.label}
                           </span>
-                          <span className="text-violet-950/65">
+                          <span className="shrink-0 text-violet-950/65">
                             {plannedBudget > 0
                               ? formatCurrency(plannedBudget)
                               : "Not set yet"}
@@ -765,27 +767,41 @@ export default function BudgetPlanningBoard({
       </m.div>
 
       <m.div
-        className="xl:col-span-4"
+        className="min-w-0"
         whileHover={{ y: -5 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
       >
-      <Card className="h-full border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] xl:h-[810px]">
-        <CardHeader className="flex flex-row items-start justify-between p-5 pb-3">
-          <div>
-            <CardTitle className="flex items-center gap-2 text-slate-950">
+      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] 2xl:min-h-[50rem]">
+        <CardHeader className="flex flex-col gap-3 p-4 pb-3 min-[420px]:p-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <CardTitle className="flex min-w-0 items-center gap-2 text-[0.95rem] leading-6 text-slate-950 min-[1500px]:text-base">
               <PiggyBank className="h-4 w-4 text-violet-700" />
-              Category-wise Budget Set
+              <span className="min-w-0 break-words">
+                Category-wise Budget Set
+              </span>
             </CardTitle>
-            <p className="mt-2 text-sm text-violet-950/60">
-              Plan category caps based on actual monthly spending patterns.
-            </p>
+            {isEditingCategory ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-3 min-h-12 w-full gap-2 border-violet-200 text-violet-700 hover:bg-violet-50 hover:text-violet-800 min-[420px]:w-auto"
+                onClick={() => setIsAddingCategory(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Add Category
+              </Button>
+            ) : (
+              <p className="mt-2 text-sm text-violet-950/60">
+                Plan category caps based on actual monthly spending patterns.
+              </p>
+            )}
           </div>
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
             <Select
               value={selectedCategoryMonth}
               onValueChange={handleCategoryMonthChange}
             >
-              <SelectTrigger className="w-full sm:w-[170px]">
+              <SelectTrigger className="min-h-12 w-full sm:min-h-10 sm:w-[11rem]">
                 <SelectValue placeholder="Select month" />
               </SelectTrigger>
               <SelectContent>
@@ -800,7 +816,7 @@ export default function BudgetPlanningBoard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)]"
+                className="ml-auto h-12 w-12 transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)] sm:ml-0 sm:h-10 sm:w-10"
                 onClick={() =>
                   demoMode
                     ? showDemoModeToast("editing category budgets")
@@ -814,6 +830,7 @@ export default function BudgetPlanningBoard({
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="h-12 w-12 sm:h-10 sm:w-10"
                   onClick={handleCategorySave}
                   disabled={isSavingPreferences}
                 >
@@ -822,6 +839,7 @@ export default function BudgetPlanningBoard({
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="h-12 w-12 sm:h-10 sm:w-10"
                   onClick={() => {
                     const monthItems = buildCategoryItemsForMonth(
                       selectedCategoryMonth,
@@ -852,22 +870,10 @@ export default function BudgetPlanningBoard({
             )}
           </div>
         </CardHeader>
-        <CardContent className="flex flex-col space-y-4 overflow-hidden px-5 pb-8">
+        <CardContent className="flex min-w-0 flex-col space-y-4 px-4 pb-5 min-[420px]:px-5 2xl:max-h-[44rem] 2xl:overflow-hidden">
           {isEditingCategory ? (
             <>
-              <div className="flex justify-stretch sm:justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full gap-2 border-violet-200 text-violet-700 hover:bg-violet-50 hover:text-violet-800 sm:w-auto"
-                  onClick={() => setIsAddingCategory(true)}
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Category
-                </Button>
-              </div>
-
-              <div className="grid max-h-[665px] gap-3 overflow-y-auto overscroll-contain px-1 py-1 pb-10 pr-2 md:grid-cols-2">
+              <div className="grid min-w-0 grid-cols-1 gap-3 px-1 py-1 md:grid-cols-[repeat(2,minmax(0,1fr))] xl:grid-cols-1 2xl:max-h-[39rem] 2xl:overflow-y-auto 2xl:overscroll-contain 2xl:pb-10 2xl:pr-2 min-[1800px]:grid-cols-[repeat(2,minmax(0,1fr))]">
                 {currentCategoryItems.map((item) => {
                   const target = Number(categoryTargets[item.category] || 0);
                   const spentPercent =
@@ -886,10 +892,10 @@ export default function BudgetPlanningBoard({
                   return (
                     <div
                       key={item.category}
-                      className="rounded-2xl border border-violet-100 bg-violet-50/55 p-4 transition duration-300 hover:shadow-[0_18px_36px_-26px_rgba(109,40,217,0.38)]"
+                      className="min-w-0 rounded-2xl border border-violet-100 bg-violet-50/55 p-3 transition duration-300 hover:shadow-[0_18px_36px_-26px_rgba(109,40,217,0.38)] min-[420px]:p-4"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
+                      <div className="flex min-w-0 items-start justify-between gap-3">
+                        <div className="min-w-0">
                           <p className="text-sm font-medium text-slate-950">
                             {item.category}
                           </p>
@@ -913,15 +919,20 @@ export default function BudgetPlanningBoard({
                             handleCategoryTargetChange(item.category, e.target.value)
                           }
                           placeholder="Set category budget"
+                          className="min-h-12 sm:min-h-10"
                         />
                         <GlowProgress
                           value={spentPercent}
                           className="h-1.5"
                           extraStyles={progressStyles}
                         />
-                        <div className="flex items-center justify-between text-[11px] text-violet-950/60">
-                          <span>Target {formatCurrency(target)}</span>
-                          <span>{spentPercent.toFixed(0)}% used</span>
+                        <div className="flex min-w-0 flex-col gap-1 text-[11px] text-violet-950/60 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
+                          <span className="min-w-0 break-words">
+                            Target {formatCurrency(target)}
+                          </span>
+                          <span className="shrink-0">
+                            {spentPercent.toFixed(0)}% used
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -931,7 +942,7 @@ export default function BudgetPlanningBoard({
             </>
           ) : (
             hasCategoryBudgetPlan ? (
-            <div className="max-h-[665px] space-y-5 overflow-y-auto overscroll-contain px-1 py-1 pr-2 pb-10">
+            <div className="min-w-0 space-y-4 px-1 py-1 2xl:max-h-[39rem] 2xl:overflow-y-auto 2xl:overscroll-contain 2xl:pb-10 2xl:pr-2">
               {currentCategoryItems.map((item) => {
                 const target = Number(categoryTargets[item.category] || 0);
                 const spentPercent =
@@ -952,11 +963,11 @@ export default function BudgetPlanningBoard({
                     key={item.category}
                     className="snap-start space-y-2 rounded-xl border border-violet-100/60 bg-white/70 px-3 py-3 transition duration-300 hover:shadow-[0_16px_30px_-24px_rgba(109,40,217,0.34)]"
                   >
-                    <div className="flex items-center justify-between gap-3 text-sm">
-                      <span className="font-medium text-slate-950">
+                    <div className="flex min-w-0 flex-col gap-1 text-sm min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
+                      <span className="min-w-0 break-words font-medium text-slate-950">
                         {item.category}
                       </span>
-                      <span className="text-violet-950/65">
+                      <span className="shrink-0 text-violet-950/65">
                         {formatCurrency(target)}
                       </span>
                     </div>
@@ -965,9 +976,9 @@ export default function BudgetPlanningBoard({
                       className="h-1.5"
                       extraStyles={progressStyles}
                     />
-                    <div className="flex items-center justify-between text-[11px] text-violet-950/60">
-                      <span>Spent {formatCurrency(item.spent)} this month</span>
-                      <span>{spentPercent.toFixed(0)}% used</span>
+                    <div className="flex min-w-0 flex-col gap-1 text-[11px] text-violet-950/60 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
+                      <span className="min-w-0 break-words">Spent {formatCurrency(item.spent)} this month</span>
+                      <span className="shrink-0">{spentPercent.toFixed(0)}% used</span>
                     </div>
                   </div>
                 );
@@ -987,10 +998,10 @@ export default function BudgetPlanningBoard({
       {isEditingCategory && isAddingCategory ? (
         <div
           aria-modal="true"
-          className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/35 px-4 py-6 backdrop-blur-sm"
+          className="fixed inset-0 z-40 flex items-end justify-center bg-slate-950/35 px-3 py-4 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6"
           role="dialog"
         >
-          <div className="w-full max-w-md rounded-2xl border border-violet-100 bg-white p-5 shadow-2xl">
+          <div className="max-h-[calc(100vh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-violet-100 bg-white p-4 shadow-2xl min-[420px]:p-5">
             <div className="mb-4">
               <h3 className="text-base font-semibold text-slate-950">
                 Add Category
@@ -1009,7 +1020,7 @@ export default function BudgetPlanningBoard({
                   value={selectedCategoryToAdd}
                   onValueChange={setSelectedCategoryToAdd}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="min-h-12 w-full sm:min-h-10">
                     <SelectValue
                       placeholder={
                         hiddenCategoryItems.length > 0
@@ -1034,10 +1045,10 @@ export default function BudgetPlanningBoard({
                 </Select>
               </div>
 
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex flex-col-reverse gap-2 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-end">
                 <Button
                   type="button"
-                  className="bg-slate-950 text-white hover:bg-slate-900"
+                  className="min-h-12 bg-slate-950 text-white hover:bg-slate-900"
                   onClick={handleAddCategory}
                   disabled={hiddenCategoryItems.length === 0 || !selectedCategoryToAdd}
                 >
@@ -1046,6 +1057,7 @@ export default function BudgetPlanningBoard({
                 <Button
                   type="button"
                   variant="ghost"
+                  className="min-h-12"
                   onClick={() => {
                     setSelectedCategoryToAdd("");
                     setIsAddingCategory(false);
@@ -1060,16 +1072,16 @@ export default function BudgetPlanningBoard({
       ) : null}
 
       <m.div
-        className="xl:col-span-4"
+        className="min-w-0"
         whileHover={{ y: -5 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
       >
-      <Card className="h-full border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] xl:h-[810px]">
-        <CardHeader className="flex flex-row items-start justify-between p-5 pb-3">
-          <div>
-            <CardTitle className="flex items-center gap-2 text-slate-950">
+      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] 2xl:min-h-[50rem]">
+        <CardHeader className="flex flex-col gap-3 p-4 pb-3 min-[420px]:p-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <CardTitle className="flex min-w-0 items-center gap-2 text-base leading-6 text-slate-950">
               <Target className="h-4 w-4 text-violet-700" />
-              Goal Saving
+              <span className="min-w-0 break-words">Goal Saving</span>
             </CardTitle>
             {!isEditingGoal ? (
               <p className="mt-2 text-sm text-violet-950/60">
@@ -1087,15 +1099,16 @@ export default function BudgetPlanningBoard({
                   ? showDemoModeToast("editing savings goals")
                   : setIsEditingGoal(true)
               }
-              className="h-8 w-8 transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)]"
+              className="h-12 w-12 self-end transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)] sm:h-10 sm:w-10"
             >
               <Pencil className="h-4 w-4" />
             </Button>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-end gap-2">
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-12 w-12 sm:h-10 sm:w-10"
                 onClick={handleGoalSave}
                 disabled={isSavingPreferences}
               >
@@ -1104,6 +1117,7 @@ export default function BudgetPlanningBoard({
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-12 w-12 sm:h-10 sm:w-10"
                 onClick={() => {
                   restoreGoalTargets();
                   setIsEditingGoal(false);
@@ -1115,18 +1129,18 @@ export default function BudgetPlanningBoard({
             </div>
           )}
         </CardHeader>
-        <CardContent className="flex h-full flex-col space-y-4 px-5 pb-5">
+        <CardContent className="flex min-w-0 flex-col space-y-4 px-4 pb-4 min-[420px]:px-5 min-[420px]:pb-5 2xl:h-full">
           {isEditingGoal ? (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-violet-100 bg-violet-50/45 p-4">
-                <div className="space-y-4 pr-2 pb-4">
+              <div className="rounded-2xl border border-violet-100 bg-violet-50/45 p-3 min-[420px]:p-4">
+                <div className="min-w-0 space-y-4 pb-4 2xl:pr-2">
                   {budgetTimeline.map((month, index) => (
                     <div key={month.key} className="space-y-2">
-                      <div className="flex items-center justify-between gap-3 text-sm">
-                        <span className="font-medium text-slate-950">
+                      <div className="flex min-w-0 flex-col gap-1 text-sm min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
+                        <span className="min-w-0 break-words font-medium text-slate-950">
                           {index === 0 ? `${month.label} (Current)` : month.label}
                         </span>
-                        <span className="text-violet-950/65">
+                        <span className="shrink-0 text-violet-950/65">
                           {formatCurrency(Number(upcomingGoalTargets[month.key] || 0))}
                         </span>
                       </div>
@@ -1137,6 +1151,7 @@ export default function BudgetPlanningBoard({
                           handleUpcomingGoalChange(month.key, e.target.value)
                         }
                         placeholder="Set savings goal"
+                        className="min-h-12 sm:min-h-10"
                       />
                     </div>
                   ))}
@@ -1145,7 +1160,7 @@ export default function BudgetPlanningBoard({
             </div>
           ) : (
             <div className="flex h-full flex-col space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid min-w-0 gap-3 min-[520px]:grid-cols-2">
                 <StatTile
                   label="Current savings"
                   value={formatCurrency(currentSavings)}
@@ -1160,9 +1175,9 @@ export default function BudgetPlanningBoard({
                 />
               </div>
 
-              <div className="flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-4">
+              <div className="min-w-0 flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-3 min-[420px]:p-4">
                 {hasSavingsGoalPlan ? (
-                <div className="max-h-[500px] space-y-4 overflow-y-auto overscroll-contain pr-2 pb-4">
+                <div className="min-w-0 space-y-4 pb-4 2xl:max-h-[31rem] 2xl:overflow-y-auto 2xl:overscroll-contain 2xl:pr-2">
                   {budgetTimeline.map((month, index) => {
                     const plannedGoal = Number(upcomingGoalTargets[month.key] || 0);
                     const progressValue =
@@ -1187,11 +1202,11 @@ export default function BudgetPlanningBoard({
                             : "hover:bg-violet-100/40"
                         }`}
                       >
-                        <div className="flex items-center justify-between gap-3 text-sm">
-                          <span className="font-medium text-slate-950">
+                        <div className="flex min-w-0 flex-col gap-1 text-sm min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
+                          <span className="min-w-0 break-words font-medium text-slate-950">
                             {index === 0 ? `${month.label} (Current)` : month.label}
                           </span>
-                          <span className="text-violet-950/65">
+                          <span className="shrink-0 text-violet-950/65">
                             {plannedGoal > 0
                               ? formatCurrency(plannedGoal)
                               : "Not set yet"}
@@ -1254,11 +1269,13 @@ function GlowProgress({
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-violet-100 bg-violet-50/55 p-4">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-violet-700">
+    <div className="min-w-0 rounded-2xl border border-violet-100 bg-violet-50/55 p-3 min-[420px]:p-4">
+      <p className="break-words text-xs font-medium uppercase tracking-[0.12em] text-violet-700">
         {label}
       </p>
-      <p className="mt-2 text-xl font-semibold text-slate-950">{value}</p>
+      <p className="mt-2 break-words text-lg font-semibold leading-snug text-slate-950 sm:text-xl">
+        {value}
+      </p>
     </div>
   );
 }
@@ -1271,7 +1288,7 @@ function EmptyBudgetState({
   description: string;
 }) {
   return (
-    <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-violet-200 bg-white/70 px-6 py-8 text-center">
+    <div className="flex min-h-52 items-center justify-center rounded-2xl border border-dashed border-violet-200 bg-white/70 px-4 py-8 text-center min-[420px]:px-6">
       <div className="max-w-sm">
         <p className="text-sm font-semibold text-slate-950">{title}</p>
         <p className="mt-2 text-sm leading-6 text-violet-950/60">{description}</p>

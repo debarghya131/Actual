@@ -42,10 +42,10 @@ export function BudgetProgress({
       >
         <Card
           size="sm"
-          className="gap-2 border-violet-100/80 bg-white/95 py-3 shadow-[0_18px_44px_-32px_rgba(109,40,217,0.26)] transition duration-300 hover:shadow-[0_24px_56px_-28px_rgba(109,40,217,0.36)]"
+          className="min-w-0 gap-2 border-violet-100/80 bg-white/95 py-3 shadow-[0_18px_44px_-32px_rgba(109,40,217,0.26)] transition duration-300 hover:shadow-[0_24px_56px_-28px_rgba(109,40,217,0.36)]"
         >
-          <CardHeader className="flex flex-row items-start justify-between space-y-0 p-3 pb-1">
-            <div className="flex-1">
+          <CardHeader className="flex flex-col gap-3 space-y-0 p-3 pb-1 min-[520px]:flex-row min-[520px]:items-start min-[520px]:justify-between">
+            <div className="min-w-0 flex-1">
               <CardTitle className="text-sm font-medium">
                 Monthly Budget (All Accounts)
               </CardTitle>
@@ -59,7 +59,7 @@ export function BudgetProgress({
             </div>
             <Link
               href={manageHref}
-              className="rounded-full px-3 py-1 text-xs font-medium text-violet-700 transition duration-300 hover:bg-violet-50 hover:text-violet-900 hover:shadow-[0_10px_28px_-14px_rgba(109,40,217,0.5)]"
+              className="inline-flex min-h-10 items-center justify-center rounded-full px-3 py-1 text-xs font-medium text-violet-700 transition duration-300 hover:bg-violet-50 hover:text-violet-900 hover:shadow-[0_10px_28px_-14px_rgba(109,40,217,0.5)] min-[520px]:min-h-0"
             >
               {manageLabel}
             </Link>
@@ -96,7 +96,7 @@ export function BudgetProgress({
                     }}
                   />
                 </m.div>
-                <p className="text-xs text-muted-foreground text-right">
+                <p className="text-right text-xs text-muted-foreground">
                   {percentUsed > 100
                     ? `${percentUsed.toFixed(1)}% overused`
                     : `${percentUsed.toFixed(1)}% used`}

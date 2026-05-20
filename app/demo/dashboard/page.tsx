@@ -30,7 +30,7 @@ export default function DemoDashboardPage() {
     .reduce((total, transaction) => total + transaction.amount, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-5 md:space-y-6">
       <BudgetProgress
         initialBudget={demoBudget}
         currentExpenses={currentExpenses}

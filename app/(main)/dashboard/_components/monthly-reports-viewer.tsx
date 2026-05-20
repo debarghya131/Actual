@@ -64,17 +64,17 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
   return (
     <LazyMotion features={domAnimation}>
       <m.div
-        className="grid gap-5 xl:grid-cols-12 xl:items-stretch"
+        className="grid min-w-0 grid-cols-1 gap-4 md:gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)_minmax(0,0.75fr)] xl:items-stretch"
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
       >
-      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="xl:col-span-4">
-      <Card className="border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.3)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.42)] xl:min-h-[620px]">
-        <CardHeader>
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="min-w-0">
+      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.3)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.42)] xl:min-h-[620px]">
+        <CardHeader className="p-4 pb-3 min-[420px]:p-5">
           <CardTitle className="text-base font-medium">Monthly Reports</CardTitle>
         </CardHeader>
-        <CardContent className="h-[540px] overflow-y-auto pr-2">
+        <CardContent className="px-4 pb-4 min-[420px]:px-5 xl:max-h-[540px] xl:overflow-y-auto xl:pr-3">
           <div className="space-y-3">
             {reports.map((report) => (
               <button
@@ -82,13 +82,13 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
                 type="button"
                 onClick={() => setSelectedMonthKey(report.monthKey)}
                 className={cn(
-                  "w-full rounded-xl border px-4 py-3 text-left transition duration-300",
+                  "min-h-16 w-full rounded-xl border px-3 py-3 text-left transition duration-300 min-[420px]:px-4",
                   report.monthKey === selectedReport.monthKey
                     ? "border-violet-300 bg-gradient-to-r from-violet-50 to-fuchsia-50 shadow-[0_18px_42px_-28px_rgba(109,40,217,0.5)] ring-1 ring-violet-300/60"
                     : "border-violet-100 bg-white hover:border-violet-200 hover:bg-violet-50/40 hover:shadow-[0_14px_28px_-24px_rgba(109,40,217,0.3)]"
                 )}
               >
-                <p className="text-sm font-medium text-slate-950">{report.monthLabel}</p>
+                <p className="break-words text-sm font-medium text-slate-950">{report.monthLabel}</p>
                 <p className="mt-1 text-xs text-violet-950/70">
                   {formatCurrency(report.totalExpenses)} spent • {report.transactionCount} txns
                 </p>
@@ -99,15 +99,15 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
       </Card>
       </m.div>
 
-      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="xl:col-span-5">
-      <Card className="border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.3)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.42)] xl:min-h-[540px]">
-        <CardHeader>
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="min-w-0">
+      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.3)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.42)] xl:min-h-[540px]">
+        <CardHeader className="p-4 pb-3 min-[420px]:p-5">
           <CardTitle className="text-base font-medium">
             {selectedReport.monthLabel} Report
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-3">
+        <CardContent className="min-w-0 space-y-5 px-4 pb-4 min-[420px]:px-5 min-[420px]:pb-5">
+          <div className="grid min-w-0 gap-3 min-[560px]:grid-cols-3">
             <StatTile label="Income" value={formatCurrency(selectedReport.totalIncome)} />
             <StatTile label="Expenses" value={formatCurrency(selectedReport.totalExpenses)} />
             <StatTile
@@ -117,7 +117,7 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
             />
           </div>
 
-          <div className="rounded-xl border border-violet-100 p-4 transition duration-300 hover:shadow-[0_14px_30px_-24px_rgba(109,40,217,0.34)]">
+          <div className="min-w-0 rounded-xl border border-violet-100 p-3 transition duration-300 hover:shadow-[0_14px_30px_-24px_rgba(109,40,217,0.34)] min-[420px]:p-4">
             <p className="text-sm font-medium text-slate-950">Expense Breakdown</p>
             {selectedReport.categories.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground">No expenses this month.</p>
@@ -130,10 +130,10 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
                   );
 
                   return (
-                    <div key={category.category} className="space-y-1.5 text-sm">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-medium text-slate-900">{category.category}</span>
-                        <span className="text-violet-950/70">{formatCurrency(category.amount)}</span>
+                    <div key={category.category} className="min-w-0 space-y-1.5 text-sm">
+                      <div className="flex min-w-0 flex-col gap-1 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
+                        <span className="min-w-0 break-words font-medium text-slate-900">{category.category}</span>
+                        <span className="shrink-0 text-violet-950/70">{formatCurrency(category.amount)}</span>
                       </div>
                       <m.div
                         className="relative h-1.5 overflow-hidden rounded-full bg-violet-100"
@@ -169,13 +169,13 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
       </Card>
       </m.div>
 
-      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="xl:col-span-3">
-      <Card className="border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.3)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.42)] xl:min-h-[540px]">
-        <CardHeader>
+      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="min-w-0">
+      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.3)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.42)] xl:min-h-[540px]">
+        <CardHeader className="p-4 pb-3 min-[420px]:p-5">
           <CardTitle className="text-base font-medium">AI Summary</CardTitle>
         </CardHeader>
-        <CardContent className="flex h-full flex-col justify-start">
-          <div className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-violet-100 bg-violet-50/35 p-4 transition duration-300 hover:shadow-[0_16px_36px_-26px_rgba(109,40,217,0.42)]">
+        <CardContent className="flex min-w-0 flex-col justify-start px-4 pb-4 min-[420px]:px-5 min-[420px]:pb-5 xl:h-full">
+          <div className="relative flex min-w-0 flex-col items-start gap-3 overflow-hidden rounded-2xl border border-violet-100 bg-violet-50/35 p-3 transition duration-300 hover:shadow-[0_16px_36px_-26px_rgba(109,40,217,0.42)] min-[420px]:flex-row min-[420px]:items-center min-[420px]:gap-4 min-[420px]:p-4 xl:flex-col xl:items-start min-[1800px]:flex-row min-[1800px]:items-center">
             <m.div
               aria-hidden
               className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-transparent via-white/55 to-transparent"
@@ -189,20 +189,20 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
               height={64}
               unoptimized
               sizes="64px"
-              className="h-16 w-16 rounded-sm object-contain"
+              className="h-14 w-14 shrink-0 rounded-sm object-contain min-[420px]:h-16 min-[420px]:w-16"
               style={{ imageRendering: "auto" }}
             />
-            <div>
-              <p className="text-lg font-semibold text-slate-950">Kubera Summary</p>
+            <div className="min-w-0">
+              <p className="break-words text-lg font-semibold leading-snug text-slate-950">Kubera Summary</p>
               <p className="mt-1 text-sm text-violet-950/65">
                 Focused monthly financial takeaway.
               </p>
             </div>
           </div>
 
-          <div className="mt-5 space-y-3 rounded-2xl border border-violet-100 bg-white p-4">
+          <div className="mt-4 space-y-3 rounded-2xl border border-violet-100 bg-white p-3 min-[420px]:mt-5 min-[420px]:p-4">
             {summaryLines.map((line) => (
-              <p key={line} className="text-sm leading-7 text-violet-950/72">
+              <p key={line} className="break-words text-sm leading-7 text-violet-950/72">
                 {line}
               </p>
             ))}
@@ -225,9 +225,9 @@ function StatTile({
   valueClassName?: string;
 }) {
   return (
-    <div className="rounded-xl border border-violet-100 bg-violet-50/40 p-4">
-      <p className="text-xs font-semibold tracking-[0.2em] text-violet-700 uppercase">{label}</p>
-      <p className={cn("mt-2 text-xl font-semibold text-slate-950", valueClassName)}>{value}</p>
+    <div className="min-w-0 rounded-xl border border-violet-100 bg-violet-50/40 p-3 min-[420px]:p-4">
+      <p className="break-words text-xs font-semibold tracking-[0.16em] text-violet-700 uppercase">{label}</p>
+      <p className={cn("mt-2 break-words text-lg font-semibold leading-snug text-slate-950 min-[420px]:text-xl", valueClassName)}>{value}</p>
     </div>
   );
 }

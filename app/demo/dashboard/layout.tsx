@@ -17,11 +17,18 @@ export default function DemoDashboardLayout({
   }));
 
   return (
-    <div className="flex h-full bg-[linear-gradient(180deg,_#fcfaff_0%,_#f6f0ff_100%)] lg:gap-6">
+    <div className="flex min-h-full bg-[linear-gradient(180deg,_#fcfaff_0%,_#f6f0ff_100%)] lg:h-full lg:gap-6">
       <DashboardSidebar accounts={accounts} basePath="/demo/dashboard" demoMode />
-      <div className="min-w-0 flex-1 overflow-y-auto">
-        <DashboardMobileNav basePath="/demo/dashboard" />
-        <div className="px-4 py-4 md:px-6 md:py-6">{children}</div>
+      <div className="min-w-0 flex-1 lg:overflow-y-auto">
+        <DashboardMobileNav
+          accounts={accounts}
+          basePath="/demo/dashboard"
+          demoMode
+          showHealthScore={false}
+        />
+        <div className="mx-auto w-full max-w-[104rem] px-3 py-4 min-[380px]:px-4 md:px-6 md:py-6">
+          {children}
+        </div>
       </div>
     </div>
   );

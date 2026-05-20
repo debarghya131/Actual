@@ -277,7 +277,7 @@ export function TransactionTable({
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -291,7 +291,7 @@ export function TransactionTable({
             />
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-2 min-[520px]:grid-cols-2 lg:flex lg:flex-wrap">
             {accounts.length > 1 ? (
               <Select
                 value={accountFilter || "all"}
@@ -301,7 +301,7 @@ export function TransactionTable({
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="h-11 w-[160px] rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]">
+                <SelectTrigger className="h-11 w-full rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)] lg:w-[160px]">
                   <SelectValue placeholder="All Accounts" />
                 </SelectTrigger>
                 <SelectContent>
@@ -322,7 +322,7 @@ export function TransactionTable({
                 setCurrentPage(1);
               }}
             >
-              <SelectTrigger className="h-11 w-[130px] rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]">
+              <SelectTrigger className="h-11 w-full rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)] lg:w-[130px]">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -338,7 +338,7 @@ export function TransactionTable({
                 setCurrentPage(1);
               }}
             >
-              <SelectTrigger className="h-11 w-[130px] rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]">
+              <SelectTrigger className="h-11 w-full rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)] lg:w-[130px]">
                 <SelectValue placeholder="All Transactions" />
               </SelectTrigger>
               <SelectContent>
@@ -352,7 +352,7 @@ export function TransactionTable({
                 variant="destructive"
                 size="sm"
                 onClick={handleBulkDelete}
-                className="h-11 rounded-2xl px-4 shadow-[0_14px_30px_-22px_rgba(239,68,68,0.35)] transition duration-300 hover:shadow-[0_18px_38px_-20px_rgba(239,68,68,0.46)]"
+                className="h-11 rounded-2xl px-4 shadow-[0_14px_30px_-22px_rgba(239,68,68,0.35)] transition duration-300 hover:shadow-[0_18px_38px_-20px_rgba(239,68,68,0.46)] min-[520px]:col-span-2 lg:col-span-1"
               >
                 <Trash className="mr-2 h-4 w-4" />
                 Delete Selected ({selectedIds.length})
@@ -365,7 +365,7 @@ export function TransactionTable({
                 size="icon"
                 onClick={handleClearFilters}
                 title="Clear filters"
-                className="h-11 w-11 rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:bg-violet-50 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)]"
+                className="h-11 w-full rounded-2xl border-violet-100 bg-white/90 transition duration-300 hover:border-violet-200 hover:bg-violet-50 hover:shadow-[0_14px_30px_-22px_rgba(109,40,217,0.18)] lg:w-11"
               >
                 <X className="h-4 w-5" />
               </Button>
@@ -373,12 +373,118 @@ export function TransactionTable({
           </div>
         </div>
 
+        <div className="grid gap-3 md:hidden">
+          {paginatedTransactions.length === 0 ? (
+            <div className="rounded-2xl border border-violet-100 bg-white/95 px-4 py-10 text-center text-sm text-muted-foreground">
+              No transactions found
+            </div>
+          ) : (
+            paginatedTransactions.map((transaction) => (
+              <m.div
+                key={transaction.id}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.16, ease: "easeOut" }}
+                className="rounded-2xl border border-violet-100 bg-white/95 p-4 shadow-[0_18px_42px_-34px_rgba(109,40,217,0.24)]"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="break-words text-sm font-semibold text-slate-950">
+                      {transaction.description || "Untitled Transaction"}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {format(new Date(transaction.date), "PP")}
+                    </p>
+                  </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="h-10 w-10 shrink-0 rounded-full p-0 transition duration-300 hover:bg-violet-50"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() =>
+                          demoMode
+                            ? showDemoModeToast("editing transactions")
+                            : router.push(
+                                `${basePath}/transaction/create?edit=${transaction.id}`,
+                              )
+                        }
+                      >
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => handleDeleteTransaction(transaction.id)}
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span
+                    style={{
+                      background: categoryColors[transaction.category],
+                    }}
+                    className="rounded-lg px-2.5 py-1 text-xs font-medium text-white shadow-[0_10px_24px_-18px_rgba(15,23,42,0.45)]"
+                  >
+                    {transaction.category}
+                  </span>
+                  {transaction.isRecurring ? (
+                    <Badge
+                      variant="secondary"
+                      className="gap-1 rounded-full border border-violet-200 bg-violet-100/80 text-violet-700"
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                      {transaction.recurringInterval
+                        ? RECURRING_INTERVALS[transaction.recurringInterval]
+                        : "Recurring"}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="gap-1 rounded-full">
+                      <Clock className="h-3 w-3" />
+                      One-time
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="mt-4 flex items-center justify-between gap-3 border-t border-violet-100 pt-3">
+                  <label className="flex items-center gap-2 text-xs text-violet-950/60">
+                    <Checkbox
+                      checked={selectedIds.includes(transaction.id)}
+                      onCheckedChange={() => handleSelect(transaction.id)}
+                      disabled={demoMode}
+                    />
+                    Select
+                  </label>
+                  <p
+                    className={cn(
+                      "text-right text-base font-semibold",
+                      transaction.type === "EXPENSE" ? "text-red-500" : "text-green-500",
+                    )}
+                  >
+                    {transaction.type === "EXPENSE" ? "-" : "+"}
+                    {formatCurrency(transaction.amount)}
+                  </p>
+                </div>
+              </m.div>
+            ))
+          )}
+        </div>
+
         <m.div
           whileHover={{ y: -2 }}
           transition={{ duration: 0.18, ease: "easeOut" }}
-          className="overflow-hidden rounded-[22px] border border-violet-100 bg-white/95 shadow-[0_22px_50px_-36px_rgba(109,40,217,0.22)] transition duration-300 hover:shadow-[0_28px_62px_-32px_rgba(109,40,217,0.3)]"
+          className="hidden overflow-x-auto overflow-y-hidden rounded-[22px] border border-violet-100 bg-white/95 shadow-[0_22px_50px_-36px_rgba(109,40,217,0.22)] transition duration-300 hover:shadow-[0_28px_62px_-32px_rgba(109,40,217,0.3)] md:block"
         >
-          <Table>
+          <Table className="min-w-[860px]">
             <TableHeader>
               <TableRow className="bg-violet-50/35">
                 <TableHead className="w-[50px]">

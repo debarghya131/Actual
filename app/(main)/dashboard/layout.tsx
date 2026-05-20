@@ -31,11 +31,11 @@ export default async function DashboardLayout({
   }));
 
   return (
-    <div className="flex h-full bg-[linear-gradient(180deg,_#fcfaff_0%,_#f6f0ff_100%)] lg:gap-6">
+    <div className="flex min-h-full bg-[linear-gradient(180deg,_#fcfaff_0%,_#f6f0ff_100%)] lg:h-full lg:gap-6">
       <DashboardSidebar accounts={accounts} />
-      <div className="min-w-0 flex-1 overflow-y-auto">
-        <DashboardMobileNav />
-        <div className="px-4 py-4 md:px-6 md:py-6">
+      <div className="min-w-0 flex-1 lg:overflow-y-auto">
+        <DashboardMobileNav accounts={accounts} />
+        <div className="mx-auto w-full max-w-[104rem] px-3 py-4 min-[380px]:px-4 md:px-6 md:py-6">
           <DashboardRouteTransition>{children}</DashboardRouteTransition>
         </div>
       </div>

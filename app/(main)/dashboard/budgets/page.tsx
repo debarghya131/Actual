@@ -74,7 +74,7 @@ export default async function BudgetsPage() {
 
   return (
     <section className="min-h-full w-full">
-      <div className="w-full rounded-[28px] border border-violet-100/90 bg-white/92 p-6 shadow-[0_22px_60px_-34px_rgba(91,33,182,0.18)] sm:p-8">
+      <div className="w-full rounded-2xl border border-violet-100/90 bg-white/92 p-3 shadow-[0_22px_60px_-34px_rgba(91,33,182,0.18)] min-[420px]:p-4 sm:rounded-3xl sm:p-5 lg:p-6 xl:p-8">
         <BudgetPlanningBoard
           initialBudget={
             budget

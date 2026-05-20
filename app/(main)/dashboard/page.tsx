@@ -73,7 +73,7 @@ export default async function DashboardPage() {
     rawTransactions.filter((transaction) => transaction.status === "COMPLETED").length === 0;
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-5 md:space-y-6">
       <BudgetProgress
         initialBudget={budget}
         currentExpenses={currentExpenses}

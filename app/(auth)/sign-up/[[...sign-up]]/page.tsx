@@ -17,13 +17,13 @@ const Page = async ({
   const redirectUrl = redirect_url || "/dashboard";
 
   return (
-    <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center p-6">
+    <div className="flex min-h-[calc(100vh-10rem)] items-center justify-center px-3 py-8 min-[420px]:px-4 sm:p-6">
       <SignUp
         forceRedirectUrl={redirectUrl}
         fallbackRedirectUrl={redirectUrl}
         appearance={{
           elements: {
-            rootBox: "w-full",
+            rootBox: "w-full max-w-md",
             card: "rounded-3xl border border-violet-100 bg-white/92 shadow-[0_30px_90px_-40px_rgba(91,33,182,0.4)]",
             headerTitle: "text-slate-950",
             headerSubtitle: "text-violet-950/60",
