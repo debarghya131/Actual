@@ -38,23 +38,28 @@ const rateLimitConfigs = {
 
 type RateLimitAction = keyof typeof rateLimitConfigs;
 
-const clients = Object.fromEntries(
-  Object.entries(rateLimitConfigs).map(([action, config]) => [
-    action,
-    arcjet({
-      key: process.env.ARCJET_KEY ?? "",
-      characteristics: ["userId"],
-      rules: [
-        tokenBucket({
-          mode: "LIVE",
-          refillRate: config.refillRate,
-          interval: DAILY_INTERVAL_SECONDS,
-          capacity: config.capacity,
-        }),
-      ],
-    }),
-  ]),
-) as Record<RateLimitAction, ReturnType<typeof arcjet>>;
+function createRateLimitClient(config: RateLimitConfig) {
+  return arcjet({
+    key: process.env.ARCJET_KEY ?? "",
+    characteristics: ["userId"] as const,
+    rules: [
+      tokenBucket({
+        mode: "LIVE",
+        refillRate: config.refillRate,
+        interval: DAILY_INTERVAL_SECONDS,
+        capacity: config.capacity,
+      }),
+    ],
+  });
+}
+
+const clients: Record<RateLimitAction, ReturnType<typeof createRateLimitClient>> = {
+  createTransaction: createRateLimitClient(rateLimitConfigs.createTransaction),
+  scanReceipt: createRateLimitClient(rateLimitConfigs.scanReceipt),
+  chatWithKubera: createRateLimitClient(rateLimitConfigs.chatWithKubera),
+  createAccount: createRateLimitClient(rateLimitConfigs.createAccount),
+  updateBudget: createRateLimitClient(rateLimitConfigs.updateBudget),
+};
 
 export async function enforceRateLimit(action: RateLimitAction, userId: string) {
   const req = await request();
