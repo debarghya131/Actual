@@ -52,6 +52,24 @@ const Header = () => {
     </button>
   );
 
+  const signInLink = (
+    <Link
+      href="/sign-in"
+      className="inline-flex h-10 items-center justify-center rounded-full border border-violet-200 bg-white/80 px-4 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:text-violet-900 sm:px-5"
+    >
+      Login
+    </Link>
+  );
+
+  const signUpLink = (
+    <Link
+      href="/sign-up"
+      className="inline-flex h-10 items-center justify-center rounded-full bg-violet-700 px-4 text-sm font-medium text-white transition hover:bg-violet-800 sm:px-5"
+    >
+      Sign Up
+    </Link>
+  );
+
   const userButtonFallback = (
     <div className="h-10 w-10 animate-pulse rounded-full bg-violet-100 ring-1 ring-violet-200" />
   );
@@ -151,7 +169,7 @@ const Header = () => {
           {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        <Show when="signed-out">
+        <ClerkLoading>
           <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
             {navItems.map((item) => (
               <Link
@@ -169,66 +187,91 @@ const Header = () => {
           </nav>
 
           <div className="ml-auto hidden items-center gap-3 md:flex">
-            <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
-              {signInButton}
-            </SignInButton>
-            <SignUpButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
-              {signUpButton}
-            </SignUpButton>
+            {signInLink}
+            {signUpLink}
           </div>
-        </Show>
+        </ClerkLoading>
 
-        <Show when="signed-in">
-          <nav className="hidden flex-1 items-center justify-center gap-8 lg:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={
-                  item.featured
-                    ? "rounded-full bg-violet-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-800"
-                    : "text-sm font-medium text-violet-700/80 transition hover:text-violet-900"
-                }
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="ml-auto hidden items-center gap-3 md:flex">
-            <nav className="hidden items-center gap-3 md:flex">
-              {dashboardQuickActions.map((item) => {
-                const Icon = item.icon;
-                const isActive =
-                  item.href === "/dashboard"
-                    ? pathname === "/dashboard"
-                    : pathname.startsWith(item.href);
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={
-                      item.featured
-                        ? "inline-flex h-10 items-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-medium text-white transition hover:bg-slate-900"
-                        : isActive
-                          ? "inline-flex h-10 items-center gap-2 rounded-md border border-violet-200 bg-white px-4 text-sm font-medium text-slate-950 shadow-sm"
-                          : "inline-flex h-10 items-center gap-2 rounded-md border border-violet-100 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50"
-                    }
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+        <ClerkLoaded>
+          <Show when="signed-out">
+            <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={
+                    item.featured
+                      ? "rounded-full bg-violet-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-800"
+                      : "text-sm font-medium text-violet-700/80 transition hover:text-violet-900"
+                  }
+                >
+                  {item.label}
+                </Link>
+              ))}
             </nav>
 
-            <ClerkLoading>{userButtonFallback}</ClerkLoading>
-            <ClerkLoaded>
-              <UserButton />
-            </ClerkLoaded>
-          </div>
-        </Show>
+            <div className="ml-auto hidden items-center gap-3 md:flex">
+              <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
+                {signInButton}
+              </SignInButton>
+              <SignUpButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
+                {signUpButton}
+              </SignUpButton>
+            </div>
+          </Show>
+
+          <Show when="signed-in">
+            <nav className="hidden flex-1 items-center justify-center gap-8 lg:flex">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={
+                    item.featured
+                      ? "rounded-full bg-violet-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-800"
+                      : "text-sm font-medium text-violet-700/80 transition hover:text-violet-900"
+                  }
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="ml-auto hidden items-center gap-3 md:flex">
+              <nav className="hidden items-center gap-3 md:flex">
+                {dashboardQuickActions.map((item) => {
+                  const Icon = item.icon;
+                  const isActive =
+                    item.href === "/dashboard"
+                      ? pathname === "/dashboard"
+                      : pathname.startsWith(item.href);
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={
+                        item.featured
+                          ? "inline-flex h-10 items-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-medium text-white transition hover:bg-slate-900"
+                          : isActive
+                            ? "inline-flex h-10 items-center gap-2 rounded-md border border-violet-200 bg-white px-4 text-sm font-medium text-slate-950 shadow-sm"
+                            : "inline-flex h-10 items-center gap-2 rounded-md border border-violet-100 bg-white px-4 text-sm font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50"
+                      }
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              <ClerkLoading>{userButtonFallback}</ClerkLoading>
+              <ClerkLoaded>
+                <UserButton />
+              </ClerkLoaded>
+            </div>
+          </Show>
+        </ClerkLoaded>
       </div>
 
       {mobileMenuOpen ? (
