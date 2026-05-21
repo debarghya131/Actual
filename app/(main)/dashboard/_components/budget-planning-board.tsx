@@ -63,6 +63,9 @@ type BudgetPlanningBoardProps = {
 
 const BUDGET_TIMELINE_MONTH_COUNT = 7;
 
+const withDemoModeHint = (message: string) =>
+  `${message} Explore Try Demo mode.`;
+
 function addMonths(date: Date, months: number) {
   return new Date(date.getFullYear(), date.getMonth() + months, 1);
 }
@@ -388,8 +391,14 @@ export default function BudgetPlanningBoard({
       setUpcomingBudgetTargets(nextTargets);
       setIsEditingMonthly(false);
       toast.success("Monthly budget updated");
-    } catch {
-      toast.error("Failed to update monthly budget");
+    } catch (error) {
+      toast.error(
+        withDemoModeHint(
+          error instanceof Error
+            ? error.message
+            : "Failed to update monthly budget"
+        )
+      );
     }
   };
 
@@ -421,8 +430,12 @@ export default function BudgetPlanningBoard({
       setUpcomingGoalTargets(nextGoals);
       setIsEditingGoal(false);
       toast.success("Savings goal saved");
-    } catch {
-      toast.error("Failed to save savings goal");
+    } catch (error) {
+      toast.error(
+        withDemoModeHint(
+          error instanceof Error ? error.message : "Failed to save savings goal"
+        )
+      );
     }
   };
 
@@ -458,8 +471,14 @@ export default function BudgetPlanningBoard({
       setIsEditingCategory(false);
       setIsAddingCategory(false);
       toast.success("Category budget plan saved");
-    } catch {
-      toast.error("Failed to save category budget plan");
+    } catch (error) {
+      toast.error(
+        withDemoModeHint(
+          error instanceof Error
+            ? error.message
+            : "Failed to save category budget plan"
+        )
+      );
     }
   };
 

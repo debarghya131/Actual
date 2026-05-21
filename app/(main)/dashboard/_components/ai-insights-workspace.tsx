@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import useFetch from "@/hooks/use-fetch";
 import { showDemoModeToast } from "@/lib/demo-mode";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type InsightMode = "chat" | "insights";
 type ChatMessage = {
@@ -24,6 +25,9 @@ const starterPrompts = [
   "How should I improve my monthly budget?",
   "How can I save more consistently each month?",
 ];
+
+const withDemoModeHint = (message: string) =>
+  `${message} Explore Try Demo mode.`;
 
 const insightThemes = [
   {
@@ -230,7 +234,14 @@ function ChatView({ demoMode = false }: { demoMode?: boolean }) {
         ...nextMessages,
         { role: "assistant", content: result.reply },
       ]);
-    } catch {
+    } catch (error) {
+      toast.error(
+        withDemoModeHint(
+          error instanceof Error
+            ? error.message
+            : "I couldn’t answer that right now. Please try again in a moment."
+        )
+      );
       setMessages([
         ...nextMessages,
         {

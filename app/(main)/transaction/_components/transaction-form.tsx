@@ -86,6 +86,10 @@ export function AddTransactionForm({
   onSuccess,
   demoMode = false,
 }: AddTransactionFormProps) {
+  const withDemoModeHint = useCallback(
+    (message: string) => `${message} Explore Try Demo mode.`,
+    []
+  );
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("edit");
@@ -128,12 +132,14 @@ export function AddTransactionForm({
     loading: createTransactionLoading,
     fn: createTransactionFn,
     data: createTransactionResult,
+    error: createTransactionError,
   } = useFetch(createTransaction);
 
   const {
     loading: updateTransactionLoading,
     fn: updateTransactionFn,
     data: updateTransactionResult,
+    error: updateTransactionError,
   } = useFetch(updateTransaction);
 
   const transactionLoading = editMode
@@ -202,6 +208,14 @@ export function AddTransactionForm({
       }
     }
   }, [editMode, onSuccess, reset, router, transactionLoading, transactionResult]);
+
+  useEffect(() => {
+    const actionError = editMode ? updateTransactionError : createTransactionError;
+
+    if (actionError) {
+      toast.error(withDemoModeHint(actionError.message));
+    }
+  }, [createTransactionError, editMode, updateTransactionError, withDemoModeHint]);
 
   const type = useWatch({ control, name: "type" });
   const accountId = useWatch({ control, name: "accountId" });

@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/arcjet";
 import {
   getDashboardPreferences,
   saveDashboardPreferences,
@@ -79,6 +80,8 @@ export async function updateBudget(amount: number) {
 
     if (!user) throw new Error("User not found");
 
+    await enforceRateLimit("updateBudget", userId);
+
     // Update or create budget
     const budget = await db.budget.upsert({
       where: {
@@ -147,6 +150,8 @@ export async function updateBudgetDashboardPreferences(
     });
 
     if (!user) throw new Error("User not found");
+
+    await enforceRateLimit("updateBudget", userId);
 
     await saveDashboardPreferences(user.id, preferences);
 

@@ -28,6 +28,8 @@ import { Switch } from "@/components/ui/switch";
 import { createAccount } from "@/app/actions/dashboard";
 import { accountSchema } from "@/app/lib/schema";
 
+const withDemoModeHint = (message) => `${message} Explore Try Demo mode.`;
+
 export function CreateAccountDrawer({ children }) {
   const [open, setOpen] = useState(false);
   const [isDefault, setIsDefault] = useState(false);
@@ -59,8 +61,12 @@ export function CreateAccountDrawer({ children }) {
       reset();
       setIsDefault(false);
       setOpen(false);
-    } catch {
-      toast.error("Failed to create account");
+    } catch (error) {
+      toast.error(
+        withDemoModeHint(
+          error instanceof Error ? error.message : "Failed to create account"
+        )
+      );
     }
   };
 

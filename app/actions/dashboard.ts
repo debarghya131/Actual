@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 import { AccountType } from "@/lib/generated/prisma/enums";
+import { enforceRateLimit } from "@/lib/arcjet";
 import { checkUser } from "@/lib/checkUser";
 import { db } from "@/lib/prisma";
 
@@ -76,6 +77,7 @@ export async function getUserAccounts() {
 
 export async function createAccount(data: CreateAccountInput) {
   const user = await getCurrentDbUser();
+  await enforceRateLimit("createAccount", user.clerkUserId);
 
   const name = data.name.trim();
   const balance = Number(data.balance);

@@ -3,8 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import aj from "@/lib/arcjet";
-import { request } from "@arcjet/next";
+import { enforceRateLimit } from "@/lib/arcjet";
 import type { Prisma } from "@/lib/generated/prisma/client";
 
 type RecurringInterval = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
@@ -77,32 +76,7 @@ export async function createTransaction(data: TransactionInput) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
-
-    // Get request data for ArcJet
-    const req = await request();
-
-    // Check rate limit
-    const decision = await aj.protect(req, {
-      userId,
-      requested: 1, // Specify how many tokens to consume
-    });
-
-    if (decision.isDenied()) {
-      if (decision.reason.isRateLimit()) {
-        const { remaining, reset } = decision.reason;
-        console.error({
-          code: "RATE_LIMIT_EXCEEDED",
-          details: {
-            remaining,
-            resetInSeconds: reset,
-          },
-        });
-
-        throw new Error("Too many requests. Please try again later.");
-      }
-
-      throw new Error("Request blocked");
-    }
+    await enforceRateLimit("createTransaction", userId);
 
     const user = await db.user.findUnique({
       where: { clerkUserId: userId },
@@ -330,6 +304,8 @@ export async function scanReceipt(file: File) {
     if (!userId) {
       throw new Error("Unauthorized");
     }
+
+    await enforceRateLimit("scanReceipt", userId);
 
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {

@@ -5,6 +5,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { endOfMonth, format, startOfMonth, subDays } from "date-fns";
 
 import { defaultCategories } from "@/data/categories";
+import { enforceRateLimit } from "@/lib/arcjet";
 import { db } from "@/lib/prisma";
 
 type KuberaChatMessage = {
@@ -203,6 +204,8 @@ export async function chatWithKubera({
   if (!clerkUserId) {
     throw new Error("Unauthorized");
   }
+
+  await enforceRateLimit("chatWithKubera", clerkUserId);
 
   const user = await db.user.findUnique({
     where: { clerkUserId },
