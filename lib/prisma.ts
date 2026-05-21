@@ -10,9 +10,10 @@ if (!connectionString) {
 
 const databaseUrl = new URL(connectionString);
 
-if (process.env.NODE_ENV !== "production") {
-  databaseUrl.searchParams.set("sslmode", "no-verify");
-}
+// The pg adapter is stricter about certificate validation than Prisma's
+// standard engine path. Supabase pooled/direct URLs can otherwise fail with
+// "self-signed certificate in certificate chain" on serverless hosts.
+databaseUrl.searchParams.set("sslmode", "no-verify");
 
 const globalForPrisma = globalThis as {
   __financePrisma__?: PrismaClient;

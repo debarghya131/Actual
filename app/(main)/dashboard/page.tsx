@@ -1,13 +1,12 @@
 import { redirect } from "next/navigation";
 
+import DashboardOverviewClient from "./_components/dashboard-overview-client";
 import { checkUser } from "@/lib/checkUser";
 import {
   EMPTY_DASHBOARD_PREFERENCES,
   getDashboardPreferences,
 } from "@/lib/dashboard-preferences";
 import { db } from "@/lib/prisma";
-import BudgetProgress from "./_components/budget-progress";
-import DashboardOverview from "./_components/transaction-overview";
 
 export default async function DashboardPage() {
   const user = await checkUser();
@@ -73,21 +72,16 @@ export default async function DashboardPage() {
     rawTransactions.filter((transaction) => transaction.status === "COMPLETED").length === 0;
 
   return (
-    <div className="min-w-0 space-y-5 md:space-y-6">
-      <BudgetProgress
-        initialBudget={budget}
-        currentExpenses={currentExpenses}
-      />
-
-      <DashboardOverview
-        accounts={accounts}
-        transactions={transactions}
-        preferences={
-          isFreshBudgetExperience
-            ? EMPTY_DASHBOARD_PREFERENCES
-            : dashboardPreferences
-        }
-      />
-    </div>
+    <DashboardOverviewClient
+      budget={budget}
+      currentExpenses={currentExpenses}
+      accounts={accounts}
+      transactions={transactions}
+      preferences={
+        isFreshBudgetExperience
+          ? EMPTY_DASHBOARD_PREFERENCES
+          : dashboardPreferences
+      }
+    />
   );
 }
