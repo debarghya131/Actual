@@ -74,6 +74,21 @@ const Header = () => {
     <div className="h-10 w-10 animate-pulse rounded-full bg-violet-100 ring-1 ring-violet-200" />
   );
 
+  const mobileDashboardActions = (
+    <div className="flex items-center gap-2">
+      <Link
+        href="/dashboard"
+        className="inline-flex h-10 items-center justify-center rounded-full border border-violet-200 bg-white/90 px-4 text-sm font-medium text-violet-800"
+      >
+        Dashboard
+      </Link>
+      <ClerkLoading>{userButtonFallback}</ClerkLoading>
+      <ClerkLoaded>
+        <UserButton />
+      </ClerkLoaded>
+    </div>
+  );
+
   if (isDashboardNav) {
     return (
       <header className="sticky top-0 z-50 border-b border-violet-100 bg-white/85 backdrop-blur-xl">
@@ -273,6 +288,33 @@ const Header = () => {
           </Show>
         </ClerkLoaded>
       </div>
+
+      <ClerkLoaded>
+        {!mobileMenuOpen ? (
+          <div className="border-t border-violet-100 bg-white/85 px-3 py-3 min-[380px]:px-4 md:hidden">
+            <Show when="signed-out">
+              <div className="grid grid-cols-2 gap-2">
+                <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
+                  <button className="min-h-11 cursor-pointer rounded-full border border-violet-200 bg-white/90 px-4 text-sm font-semibold text-violet-700">
+                    Login
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
+                  <button className="gradient-glow-button min-h-11 cursor-pointer rounded-full bg-violet-700 px-4 text-sm font-semibold text-white">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </div>
+            </Show>
+
+            <Show when="signed-in">
+              <div className="flex items-center justify-between gap-3">
+                {mobileDashboardActions}
+              </div>
+            </Show>
+          </div>
+        ) : null}
+      </ClerkLoaded>
 
       {mobileMenuOpen ? (
         <div className="border-t border-violet-100 bg-white/92 px-3 py-4 shadow-[0_18px_42px_-30px_rgba(91,33,182,0.28)] min-[380px]:px-4 md:hidden">
