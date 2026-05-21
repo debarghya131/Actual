@@ -27,6 +27,26 @@ export const checkUser = async () => {
       throw new Error("Authenticated user is missing a primary email address.");
     }
 
+    const existingUserByEmail = await db.user.findUnique({
+      where: {
+        email: primaryEmail,
+      },
+    });
+
+    if (existingUserByEmail) {
+      return await db.user.update({
+        where: {
+          id: existingUserByEmail.id,
+        },
+        data: {
+          clerkUserId: user.id,
+          name,
+          imageUrl: user.imageUrl,
+          email: primaryEmail,
+        },
+      });
+    }
+
     return await db.user.create({
       data: {
         clerkUserId: user.id,
