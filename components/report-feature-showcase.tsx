@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 const reportSlides = [
   {
-    image: "/report/report1.png",
+    image: "/report/report1.webp",
     title: "Monthly Reports Dashboard",
     description:
       "Review past months with income, expenses, net savings, category breakdowns, transaction counts, and a monthly Kubera takeaway.",
@@ -24,7 +24,7 @@ const reportSlides = [
       "Turn monthly numbers into a short financial summary that highlights surplus, biggest expense category, and tracked transaction volume.",
   },
   {
-    image: "/report/report3.png",
+    image: "/report/report3.webp",
     title: "Monthly Report Email",
     description:
       "Send an automatic monthly email with total income, expenses, available balance, savings rate, top categories, and practical insights.",

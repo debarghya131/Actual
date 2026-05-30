@@ -12,13 +12,13 @@ import { cn } from "@/lib/utils";
 
 const aiSlides = [
   {
-    image: "/ai/ai6.png",
+    image: "/ai/ai6.webp",
     title: "Meet Kubera",
     description:
       "Introduce the AI finance guide with a warm Kubera identity before users move into chat, insights, and guided money decisions.",
   },
   {
-    image: "/ai/ai1.png",
+    image: "/ai/ai1.webp",
     title: "Kubera Chat Workspace",
     description:
       "Give users a guided finance assistant for questions about spending, savings, budgets, and category-wise analysis.",

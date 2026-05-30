@@ -41,11 +41,10 @@ export default function Home() {
             <div className="text-center">
               <div className="mx-auto flex aspect-square w-[min(68vw,11rem)] items-center justify-center rounded-full border border-amber-200/20 bg-stone-950/60 p-2 shadow-[0_0_0_8px_rgba(250,204,21,0.04),0_24px_70px_-36px_rgba(217,163,59,0.55)] sm:w-60 md:w-full md:max-w-60">
                 <Image
-                  src="/creator.png"
+                  src="/creator.webp"
                   alt="Debarghya Bandyopadhyay"
                   width={280}
                   height={340}
-                  unoptimized
                   className="h-full w-full rounded-full object-cover"
                 />
               </div>
@@ -66,18 +65,12 @@ export default function Home() {
               </p>
               <p className="mt-4 max-w-4xl text-base leading-7 text-stone-200/86 sm:mt-5 sm:leading-8">
                 Hi friends, I am Debarghya Bandyopadhyay, the creator of
-                Actual. You can contact me at{" "}
-                <a
-                  href="mailto:bandyopadhyaydebarghya066@gmail.com"
-                  className="break-all font-semibold text-amber-300 transition hover:text-amber-200"
-                >
-                  bandyopadhyaydebarghya066@gmail.com
-                </a>
-                . I am pursuing B.Tech from Netaji Subhas Engineering College,
-                Kolkata, and completed my Diploma from Technique Polytechnic
-                Institute, Hooghly. Actual is built from my interest in personal
-                finance, practical web development, and tools that make everyday
-                money decisions easier.
+                Actual. I love building modern web applications and SaaS
+                products using AI-assisted workflows, rapid prototyping, and
+                technologies like React.js, Next.js, Node.js, MongoDB,
+                TypeScript, and Python. Actual is built from my interest in
+                personal finance, practical web development, and tools that
+                make everyday money decisions easier.
               </p>
 
               <div className="mt-6 grid gap-3 sm:mt-7 md:grid-cols-2 md:gap-4">
@@ -100,7 +93,13 @@ export default function Home() {
               </div>
 
               <div className="mt-6 sm:mt-7">
-                <p className="text-xs font-semibold tracking-[0.2em] text-amber-300/70 uppercase sm:tracking-[0.28em]">
+                <h3 className="font-serif text-[clamp(1.45rem,7vw,2.15rem)] font-semibold leading-tight text-stone-50">
+                  Be My Friend
+                </h3>
+                <p className="mt-3 max-w-2xl text-base leading-7 text-stone-200/82 sm:leading-8">
+                  I always like to make new friends. Follow me on
+                </p>
+                <p className="mt-6 text-xs font-semibold tracking-[0.2em] text-amber-300/70 uppercase sm:tracking-[0.28em]">
                   Connect On
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2.5 sm:gap-3">
@@ -173,37 +172,25 @@ export default function Home() {
               </h2>
               <div className="mt-6 max-w-3xl space-y-4 text-base leading-7 text-stone-200/82 sm:mt-8 sm:space-y-5 sm:leading-8">
                 <p>
-                  The main motivation behind developing this project comes from
-                  my personal experience during my diploma college life. When I
-                  moved away from home for higher studies and started living in
-                  a mess or hostel, I faced many difficulties managing my daily
-                  expenses and savings. My father used to send money every
-                  month for my education and living expenses, but many times I
-                  did not understand where all the money was being spent.
+                  The main motivation for this project comes from my personal
+                  experience during my diploma college life. After moving away
+                  from home and living in a hostel, I found it difficult to
+                  manage my monthly expenses and savings. Although my father
+                  regularly sent money for my education and living costs, I
+                  often could not track where the money was being spent.
                 </p>
                 <p>
-                  As a student living away from home for the first time,
-                  managing expenses such as food, market shopping, gas bills,
-                  room rent, semester fees, travel, and emergency costs became
-                  very difficult. Along with academic pressure, assignments,
-                  exams, and study schedules, maintaining proper financial
-                  records manually was complex and time-consuming.
+                  Managing expenses such as food, rent, travel, fees, and
+                  emergencies became challenging alongside academic
+                  responsibilities. I realized that many students face similar
+                  issues due to a lack of budgeting and expense-tracking habits.
                 </p>
                 <p>
-                  I realized that many students face the same problem during
-                  their college life. Most students do not have proper knowledge
-                  of budgeting, expense tracking, or financial planning. Small
-                  daily expenses gradually become large monthly expenses without
-                  students noticing it.
-                </p>
-                <p>
-                  This problem inspired me to develop an AI-Powered Personal
-                  Finance Analytics system that can help students and
-                  individuals track their expenses, analyze spending habits,
-                  manage budgets, and receive smart financial insights using
-                  Artificial Intelligence and Data Analytics. The project aims
-                  to simplify personal finance management and help users make
-                  better financial decisions in their daily lives.
+                  To address this problem, I developed an AI-Powered Personal
+                  Finance Analytics System. The system helps users track
+                  expenses, analyze spending patterns, manage budgets, and
+                  receive smart financial insights, making personal finance
+                  management simpler and more effective.
                 </p>
               </div>
             </div>
@@ -213,11 +200,10 @@ export default function Home() {
                 <div className="absolute h-[64%] w-[64%] rounded-full border border-amber-200/10" />
                 <div className="absolute h-[44%] w-[44%] rounded-full border border-amber-200/15" />
                 <Image
-                  src="/kuberlogo.png?v=20260519"
+                  src="/kuberlogo.webp"
                   alt="Kubera finance guide"
                   width={160}
                   height={160}
-                  unoptimized
                   className="relative h-[54%] w-[54%] object-contain drop-shadow-[0_22px_45px_rgba(217,163,59,0.34)]"
                 />
               </div>

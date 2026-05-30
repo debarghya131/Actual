@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 const transactionSlides = [
   {
-    image: "/transaction/transaction1.png",
+    image: "/transaction/transaction1.webp",
     title: "Transaction History",
     description:
       "Review every income and expense in a structured table with search, filters, category labels, recurring status, and pagination.",
@@ -24,7 +24,7 @@ const transactionSlides = [
       "Start a new transaction quickly from a clear primary action placed directly in the transaction workspace.",
   },
   {
-    image: "/transaction/transaction3.png",
+    image: "/transaction/transaction3.webp",
     title: "Bulk Transaction Controls",
     description:
       "Select multiple records at once and delete them together when cleanup or correction is needed.",
@@ -48,7 +48,7 @@ const transactionSlides = [
       "Use the receipt scanner entry point to pull transaction details from a receipt image and reduce manual typing.",
   },
   {
-    image: "/transaction/transaction7.png",
+    image: "/transaction/transaction7.webp",
     title: "Receipt Upload Picker",
     description:
       "Choose a receipt image from the local file picker so Actual can process the uploaded purchase data.",

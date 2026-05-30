@@ -72,11 +72,10 @@ export default function AiInsightsWorkspace({
             transition={{ duration: 4.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
           >
             <Image
-              src="/kuberlogo.png?v=20260519"
+              src="/kuberlogo.webp"
               alt="Kubera logo"
               width={180}
               height={180}
-              unoptimized
               sizes="180px"
               className="h-[78%] w-[78%] object-contain"
             />

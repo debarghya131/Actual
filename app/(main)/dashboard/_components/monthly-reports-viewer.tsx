@@ -183,11 +183,10 @@ export default function MonthlyReportsViewer({ reports }: MonthlyReportsViewerPr
               transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
             />
             <Image
-              src="/kuberlogo.png?v=20260519"
+              src="/kuberlogo.webp"
               alt="Kuber logo"
               width={64}
               height={64}
-              unoptimized
               sizes="64px"
               className="h-14 w-14 shrink-0 rounded-sm object-contain min-[420px]:h-16 min-[420px]:w-16"
               style={{ imageRendering: "auto" }}

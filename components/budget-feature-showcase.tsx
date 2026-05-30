@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 const budgetSlides = [
   {
-    image: "/budget/budget1.png",
+    image: "/budget/budget1.webp",
     title: "Budget Planning Workspace",
     description:
       "Manage total monthly budget, category caps, and savings goals together so spending limits and targets stay visible in one place.",

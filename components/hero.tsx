@@ -88,11 +88,10 @@ export default function Hero() {
         <div className="relative flex flex-col items-center [animation:kuberaFloat_4.8s_ease-in-out_infinite]">
           <div className="absolute inset-x-6 top-10 h-32 rounded-full bg-amber-300/25 blur-3xl sm:h-44" />
           <Image
-            src="/kuberlogo.png?v=20260519"
+            src="/kuberlogo.webp"
             alt="Kubera logo"
             width={280}
             height={280}
-            unoptimized
             priority
             sizes="(min-width: 1024px) 288px, (min-width: 640px) 256px, 192px"
             className="relative h-44 w-44 object-contain drop-shadow-[0_30px_45px_rgba(109,40,217,0.22)] min-[380px]:h-48 min-[380px]:w-48 sm:h-64 sm:w-64 lg:h-72 lg:w-72"

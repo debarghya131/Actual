@@ -18,7 +18,7 @@ const overviewSlides = [
       "Let visitors open a read-only demo instantly, so they can explore Actual before creating an account.",
   },
   {
-    image: "/overview/overview2.png",
+    image: "/overview/overview2.webp",
     title: "Complete Overview Dashboard",
     description:
       "Show monthly budget status, income, expenses, saving rate, goal progress, recent transactions, and category spending in one focused dashboard.",
