@@ -77,7 +77,7 @@ export function TransactionFormDialog({
         >
           <Button
             type="button"
-            className="h-12 w-full gap-2 rounded-xl bg-slate-950 px-4 text-white shadow-[0_16px_34px_-18px_rgba(15,23,42,0.75)] transition duration-300 hover:bg-slate-900 hover:shadow-[0_20px_42px_-18px_rgba(109,40,217,0.55)] sm:h-10 sm:w-auto"
+            className="h-12 w-full gap-2 rounded-xl bg-fuchsia-600 px-4 text-white shadow-[0_16px_34px_-18px_rgba(192,38,211,0.75)] transition duration-300 hover:bg-fuchsia-700 hover:shadow-[0_20px_42px_-18px_rgba(217,70,239,0.55)] sm:h-10 sm:w-auto"
             onClick={() => {
               if (demoMode) {
                 showDemoModeToast("adding a transaction");

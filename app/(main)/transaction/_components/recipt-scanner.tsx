@@ -92,7 +92,7 @@ export function ReceiptScanner({ onScanComplete }: ReceiptScannerProps) {
           <Button
             type="button"
             variant="outline"
-            className="min-h-12 w-full whitespace-normal rounded-xl border-0 bg-linear-to-r from-orange-500 via-pink-500 to-purple-500 px-3 py-2 text-center leading-5 text-white shadow-[0_18px_40px_-22px_rgba(236,72,153,0.48)] transition duration-300 hover:text-white hover:shadow-[0_24px_52px_-20px_rgba(109,40,217,0.55)] sm:min-h-10"
+            className="min-h-12 w-full whitespace-normal rounded-xl border-0 bg-linear-to-r from-yellow-400 via-amber-400 to-yellow-500 px-3 py-2 text-center leading-5 text-slate-950 shadow-[0_18px_40px_-22px_rgba(245,158,11,0.56)] transition duration-300 hover:text-slate-950 hover:shadow-[0_24px_52px_-20px_rgba(234,179,8,0.62)] sm:min-h-10"
             onClick={() => fileInputRef.current?.click()}
             disabled={scanReceiptLoading}
           >
