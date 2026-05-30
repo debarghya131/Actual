@@ -1,5 +1,7 @@
 ## Actual - AI Powered Personal Finance Analytics 💰
 
+Actual is an AI-powered personal finance analytics platform that helps users track expenses, manage budgets, analyze spending habits, and receive intelligent financial insights for better money decisions.
+
 ## 🚀 Live Demo
 
 🌐 https://actual.debarghya.org
