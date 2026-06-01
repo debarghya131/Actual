@@ -10,7 +10,6 @@ Actual is an AI-powered personal finance analytics platform that helps users tra
   <a href="https://actual.debarghya.org/demo"><img src="public/readme-try-demo.svg" alt="Try Demo" align="middle" /></a> 👈
 </p>
 
-<br>
 
 🌐 https://actual.debarghya.org
 
