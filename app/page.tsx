@@ -104,7 +104,7 @@ export default function Home() {
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2.5 sm:gap-3">
                   <a
-                    href="mailto:bandyopadhyaydebarghya066@gmail.com"
+                    href="mailto:debarghyabandyopadhyay191@gmail.com"
                     aria-label="Email Debarghya Bandyopadhyay"
                     className="flex h-12 min-w-12 items-center justify-center rounded-full border border-stone-100/15 bg-white/6 px-4 text-sm font-semibold text-stone-100 transition hover:border-amber-300/45 hover:bg-amber-300/10 hover:text-amber-200 sm:h-11 sm:min-w-11"
                   >
@@ -145,7 +145,9 @@ export default function Home() {
                     </svg>
                   </a>
                   <a
-                    href="#about"
+                    href="https://portfolio.debarghya.org"
+                    target="_blank"
+                    rel="noreferrer"
                     className="flex h-12 min-w-12 items-center justify-center gap-2 rounded-full border border-stone-100/15 bg-white/6 px-5 text-sm font-semibold text-stone-100 transition hover:border-amber-300/45 hover:bg-amber-300/10 hover:text-amber-200 sm:h-11"
                   >
                     <Globe className="h-4 w-4" />
