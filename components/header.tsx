@@ -16,6 +16,7 @@ import { CreditCard, LayoutDashboard, Menu, X } from "lucide-react";
 
 import { dashboardSidebarWidthClass } from "@/components/dashboard-sidebar";
 import FinancialHealthNavScore from "@/components/financial-health-nav-score";
+import SiteViewCounter from "@/components/site-view-counter";
 
 const navItems = [
   { href: "#features", label: "Features" },
@@ -94,37 +95,41 @@ const Header = () => {
       <header className="sticky top-0 z-50 border-b border-violet-100 bg-white/85 backdrop-blur-xl">
         <div className="flex h-18 w-full items-center">
           <div
-            className={`hidden h-full shrink-0 border-r border-violet-100 px-5 lg:flex lg:items-center ${dashboardSidebarWidthClass}`}
+            className={`hidden h-full shrink-0 items-center gap-1.5 border-r border-violet-100 px-3 lg:flex ${dashboardSidebarWidthClass}`}
           >
             <Link href="/" className="flex min-w-0 items-center">
-              <div className="flex h-14 w-[152px] items-center overflow-hidden sm:w-[196px]">
+              <div className="flex h-14 w-[136px] items-center overflow-hidden">
                 <Image
                   src="/logo.png"
                   alt="Finance AI logo"
                   width={1536}
                   height={1024}
-                  className="h-auto w-[176px] max-w-none object-contain origin-left sm:w-[232px]"
+                  className="h-auto w-[160px] max-w-none object-contain origin-left"
                   priority
                   unoptimized
                 />
               </div>
             </Link>
+            <SiteViewCounter />
           </div>
 
           <div className="flex min-w-0 flex-1 items-center px-4 sm:px-6 lg:px-10">
-            <Link href="/" className="flex min-w-0 items-center lg:hidden">
-              <div className="flex h-14 w-[152px] items-center overflow-hidden sm:w-[196px]">
-                <Image
-                  src="/logo.png"
-                  alt="Finance AI logo"
-                  width={1536}
-                  height={1024}
-                  className="h-auto w-[176px] max-w-none object-contain origin-left sm:w-[232px]"
-                  priority
-                  unoptimized
-                />
-              </div>
-            </Link>
+            <div className="flex min-w-0 items-center gap-1.5 lg:hidden">
+              <Link href="/" className="flex min-w-0 items-center">
+                <div className="flex h-14 w-[120px] items-center overflow-hidden sm:w-[152px]">
+                  <Image
+                    src="/logo.png"
+                    alt="Finance AI logo"
+                    width={1536}
+                    height={1024}
+                    className="h-auto w-[144px] max-w-none object-contain origin-left sm:w-[176px]"
+                    priority
+                    unoptimized
+                  />
+                </div>
+              </Link>
+              <SiteViewCounter />
+            </div>
 
             {isDemoRoute ? (
               <div className="ml-auto mr-4 hidden items-center gap-3 sm:flex">
@@ -161,19 +166,22 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-violet-100 bg-white/70 backdrop-blur-xl">
       <div className="flex min-h-18 w-full items-center gap-3 px-3 min-[380px]:px-4 sm:gap-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex min-w-0 items-center">
-          <div className="flex h-16 w-[min(42vw,138px)] items-center overflow-hidden sm:w-[222px]">
-            <Image
-              src="/logo.png"
-              alt="Finance AI logo"
-              width={1536}
-              height={1024}
-              className="h-auto w-[min(50vw,162px)] max-w-none object-contain origin-left sm:w-[262px]"
-              priority
-              unoptimized
-            />
-          </div>
-        </Link>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <Link href="/" className="flex min-w-0 items-center">
+            <div className="flex h-16 w-[min(34vw,118px)] items-center overflow-hidden sm:w-[190px]">
+              <Image
+                src="/logo.png"
+                alt="Finance AI logo"
+                width={1536}
+                height={1024}
+                className="h-auto w-[min(42vw,142px)] max-w-none object-contain origin-left sm:w-[224px]"
+                priority
+                unoptimized
+              />
+            </div>
+          </Link>
+          <SiteViewCounter />
+        </div>
 
         <button
           type="button"
