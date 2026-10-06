@@ -37,21 +37,7 @@ I realized many students face the same problem because they lack simple tools fo
 
 ### 1. 3-Tier Client-Server Architecture
 
-Actual supports two user flows: **Demo Mode** for quick exploration and **Authenticated Mode** for real personal finance management.
-
-```text
-DEMO MODE
-
-User
-  ↓
-Next.js Demo Pages
-  ↓
-Demo Dashboard UI
-  ↓
-Static / Sample Finance Data
-  ↓
-Charts, Reports, Budgets, AI Preview
-```
+Actual uses an authenticated client-server flow for personal finance management.
 
 ```text
 AUTHENTICATED MODE
@@ -73,113 +59,243 @@ PostgreSQL Database
 - **Server Layer:** Server Actions, API routes, Clerk authentication, Arcjet rate limiting, and Inngest background jobs handle secure business logic.
 - **Database Layer:** PostgreSQL stores real user data such as accounts, transactions, budgets, and dashboard preferences through Prisma ORM.
 
-### 2. Workflow Diagram
-
-#### Demo Login / Try Demo Flow
+### 2. System Workflow Diagram
 
 ```mermaid
-flowchart TD
-    A[User Visits Actual] --> B[Click Try Demo]
-    B --> C[Demo Dashboard Routes]
-    C --> D[Load Sample Finance Data]
-    D --> E[Overview Dashboard]
-    D --> F[Budget Planning]
-    D --> G[Analytics]
-    D --> H[Reports]
-    D --> I[AI Insights Preview]
-    E --> J[Explore Without Real Account]
-    F --> J
-    G --> J
-    H --> J
-    I --> J
+flowchart TB
+    USER([User]) --> LANDING[Actual Landing Page]
+    LANDING --> LOGIN[Sign In or Sign Up]
+    LOGIN --> CLERK[Clerk Authentication]
+    CLERK --> ACCESS{Authenticated?}
+    ACCESS -->|No| LOGIN
+    ACCESS -->|Yes| PROXY[Next.js Proxy Route Protection]
+    PROXY --> DASHBOARD[Protected Dashboard]
+
+    DASHBOARD --> MODULES[Finance Modules]
+    MODULES --> ACCOUNTS[Accounts and Transactions]
+    MODULES --> BUDGETS[Budgets and Planning]
+    MODULES --> ANALYTICS[Analytics, Reports and Health Score]
+    MODULES --> AI[AI Insights and Receipt Scanner]
+
+    ACCOUNTS --> SERVER[Server Components, Actions and API Routes]
+    BUDGETS --> SERVER
+    ANALYTICS --> SERVER
+    AI --> SERVER
+
+    SERVER --> AUTHZ[User Sync, Authentication and Ownership Checks]
+    AUTHZ --> LOGIC[Finance Business Logic]
+    AUTHZ -. Rate-limited operations .-> ARCJET[Arcjet Rate Limiting]
+    ARCJET --> LOGIC
+
+    LOGIC --> PRISMA[Prisma ORM]
+    PRISMA --> DATABASE[(PostgreSQL Database)]
+
+    LOGIC -->|Kubera and financial insights| GEMINI[Gemini API]
+    LOGIC -->|Receipt image extraction| GROQ[Groq Vision API]
+
+    INNGEST[Inngest Scheduler] --> RECURRING[Process Recurring Transactions]
+    INNGEST --> ALERTS[Check Budget Alerts]
+    INNGEST --> REPORTS[Generate Monthly Reports]
+
+    RECURRING --> PRISMA
+    ALERTS --> PRISMA
+    REPORTS --> PRISMA
+    REPORTS --> GEMINI
+    ALERTS --> RESEND[Resend Email]
+    REPORTS --> RESEND
 ```
 
-#### Authenticated Login Flow
+### 3. Data Flow Diagram (DFD)
+
+The context diagram shows the system boundary and the external services that exchange data with Actual.
+
+#### Level 0 — System Context
 
 ```mermaid
-flowchart TD
-    A[User Visits Actual] --> B[Login / Sign Up]
-    B --> C[Clerk Authentication]
-    C --> D{Authenticated?}
-    D -->|No| E[Redirect to Sign In]
-    D -->|Yes| F[Protected Dashboard]
+flowchart TB
+    USER[User] -->|Identity details, finance records, budgets, receipts and questions| SYSTEM([0.0 Actual Personal Finance Analytics])
+    SYSTEM -->|Dashboard views, charts, reports, health score and guidance| USER
 
-    F --> G[Server Actions / API Routes]
-    G --> H[Validate User Access]
-    H --> I[Arcjet Rate Limit Check]
-    I --> J[Prisma ORM]
-    J --> K[(PostgreSQL Database)]
+    SYSTEM <-->|Identity and session data| CLERK[Clerk]
+    SYSTEM <-->|Finance records, preferences and site metrics| DATABASE[(PostgreSQL)]
+    SYSTEM <-->|Finance prompts and generated insights| GEMINI[Gemini API]
+    SYSTEM <-->|Receipt images and extracted receipt data| GROQ[Groq Vision API]
 
-    G --> L[Accounts]
-    G --> M[Transactions]
-    G --> N[Budgets]
-    G --> O[Reports & Analytics]
-    G --> P[Financial Health Score]
-    G --> Q[AI Finance Assistant]
-    G --> R[Receipt Scanner]
-
-    Q --> S[Gemini API]
-    R --> T[Groq Vision API]
-
-    U[Inngest Background Jobs] --> V[Recurring Transactions]
-    U --> W[Budget Alerts]
-    U --> X[Monthly Reports]
-    V --> J
-    W --> Y[Resend Email]
-    X --> Y
+    INNGEST[Inngest] -->|Scheduled job triggers| SYSTEM
+    SYSTEM -->|Budget alerts and monthly report content| RESEND[Resend]
+    RESEND -->|Email notifications and reports| USER
 ```
+
+The detailed diagrams separate user-driven activity from scheduled automation so each data path remains readable.
+
+#### Level 1A — Interactive Application Data Flow
+
+```mermaid
+flowchart TB
+    USER[User] <-->|Pages, forms, filters and results| UI([Next.js Application UI])
+
+    UI -->|Sign-in or sign-up request| AUTH([1.0 Authenticate and Sync User])
+    AUTH <-->|Identity and session data| CLERK[Clerk]
+    AUTH <-->|Create or retrieve application user| D1[(D1 Users)]
+
+    UI <-->|Account details and balances| ACCOUNT([2.0 Manage Accounts])
+    ACCOUNT <-->|Account records and default account| D2[(D2 Accounts)]
+
+    UI <-->|Create, edit, filter or delete transactions| TRANSACTION([3.0 Manage Transactions])
+    TRANSACTION <-->|Income, expenses and recurrence data| D3[(D3 Transactions)]
+    TRANSACTION -->|Apply balance changes| D2
+    UI -->|Receipt image| TRANSACTION
+    TRANSACTION -->|Image extraction request| GROQ[Groq Vision API]
+    GROQ -->|Amount, date, merchant and category| TRANSACTION
+
+    UI <-->|Budget and planning settings| BUDGET([4.0 Manage Budgets and Preferences])
+    BUDGET <-->|Budget and dashboard preferences| D4[(D4 Budgets and Preferences)]
+    D3 -->|Current spending totals| BUDGET
+
+    UI <-->|Charts, reports and financial health| ANALYTICS([5.0 Analyze Financial Health])
+    D2 -->|Balances and account totals| ANALYTICS
+    D3 -->|Income, expenses and categories| ANALYTICS
+    D4 -->|Budget targets and goals| ANALYTICS
+
+    UI -->|Finance question and recent chat| KUBERA([6.0 Generate AI Finance Guidance])
+    D2 -->|Total account balance| KUBERA
+    D3 -->|Current month and 90-day activity| KUBERA
+    KUBERA <-->|Financial context and generated answer| GEMINI[Gemini API]
+    KUBERA -->|Personalized guidance| UI
+
+    UI -->|Landing-page visit| METRICS([7.0 Record Site View])
+    METRICS <-->|Read or increment view count| D5[(D5 Site Metrics)]
+    METRICS -->|Current view count| UI
+```
+
+#### Level 1B — Background Automation Data Flow
+
+```mermaid
+flowchart TB
+    INNGEST[Inngest Scheduler] -->|Daily trigger| RECURRING([8.0 Process Recurring Transactions])
+    D3[(D3 Transactions)] -->|Due recurring transaction| RECURRING
+    RECURRING -->|Create completed occurrence and schedule next date| D3
+    RECURRING -->|Adjust account balance| D2[(D2 Accounts)]
+
+    INNGEST -->|Every six hours| ALERTS([9.0 Check Budget Alerts])
+    D1[(D1 Users)] -->|Recipient name and email| ALERTS
+    D3 -->|Current-month expenses| ALERTS
+    D4[(D4 Budgets and Preferences)] -->|Budget amount and last alert time| ALERTS
+    ALERTS -->|Update last alert time| D4
+    ALERTS -->|Budget warning email| RESEND[Resend]
+
+    INNGEST -->|First day of each month| REPORTS([10.0 Generate Monthly Reports])
+    D1 -->|User and email details| REPORTS
+    D2 -->|Account count and total balance| REPORTS
+    D3 -->|Previous-month income and expenses| REPORTS
+    REPORTS <-->|Monthly statistics and generated insights| GEMINI[Gemini API]
+    REPORTS -->|Personalized monthly report| RESEND
+
+    RESEND -->|Budget alert or monthly report| USER[User Email Inbox]
+```
+
+| Data store | Information stored |
+| --- | --- |
+| `D1 Users` | Clerk user ID, email, name, and profile image |
+| `D2 Accounts` | Account name, type, balance, and default-account state |
+| `D3 Transactions` | Income, expenses, categories, dates, status, and recurring schedules |
+| `D4 Budgets and Preferences` | Monthly budget, savings goals, category targets, and dashboard visibility settings |
+| `D5 Site Metrics` | Persistent landing-page view count |
+
+All authenticated finance processes validate the Clerk user and data ownership before accessing PostgreSQL. Arcjet rate limits sensitive operations such as account creation, transaction creation, budget updates, receipt scanning, and Kubera requests.
 
 ## 📁 Folder Structure
 
 ```text
 actual/
-├── app/                  # Next.js App Router pages, layouts, API routes, and server actions
-│   ├── (auth)/           # Clerk sign-in and sign-up routes
-│   ├── (main)/           # Protected dashboard, account, transaction, budget, reports, analytics pages
-│   ├── actions/          # Server Actions for accounts, transactions, budgets, AI, and emails
-│   ├── api/              # API routes for Inngest, seed, and financial health
-│   └── demo/             # Demo mode pages
-├── components/           # Shared React components and dashboard UI
-│   └── ui/               # Reusable UI components
-├── data/                 # Categories and landing page data
-├── emails/               # React email templates
-├── hooks/                # Custom React hooks
-├── lib/                  # Prisma, auth helpers, Arcjet, Inngest, utilities, demo data
-├── prisma/               # Prisma schema and database migrations
-├── public/               # Logos, screenshots, and feature images
-├── proxy.ts              # Clerk route protection and request proxy
-├── next.config.ts        # Next.js configuration
-└── package.json          # Scripts and dependencies
+├── app/                              # Next.js App Router application
+│   ├── (auth)/                       # Clerk authentication route group
+│   │   ├── sign-in/[[...sign-in]]/   # Sign-in page
+│   │   └── sign-up/[[...sign-up]]/   # Sign-up page
+│   ├── (main)/                       # Authenticated application route group
+│   │   ├── account/[id]/             # Account route and account UI components
+│   │   ├── dashboard/                # Main dashboard and shared dashboard layout
+│   │   │   ├── _components/          # Overview, budget, report, and AI workspaces
+│   │   │   ├── ai-insights/          # Kubera finance assistant
+│   │   │   ├── analytics/            # Income and expense analytics
+│   │   │   ├── budgets/              # Budget planning and savings goals
+│   │   │   ├── financial-health/     # Financial health score
+│   │   │   ├── reports/              # Monthly financial reports
+│   │   │   └── transaction/create/   # Dashboard transaction creation route
+│   │   └── transaction/              # Transaction list, form, scanner, and create route
+│   ├── actions/                      # Account, transaction, budget, AI, seed, and email actions
+│   ├── api/
+│   │   ├── financial-health/         # Financial health JSON endpoint
+│   │   ├── inngest/                  # Inngest serve endpoint
+│   │   ├── seed/                     # Guarded transaction seed endpoint
+│   │   └── views/                    # Persistent site-view counter
+│   ├── demo/dashboard/               # Static dashboard preview routes
+│   ├── lib/schema.ts                 # Zod form-validation schemas
+│   ├── globals.css                   # Global Tailwind styles
+│   ├── layout.tsx                    # Root providers, header, footer, and toaster
+│   └── page.tsx                      # Public landing page
+├── components/                       # Shared layout, navigation, and showcase components
+│   └── ui/                           # Reusable shadcn/Radix UI primitives
+├── data/                             # Transaction categories and landing-page content
+├── emails/template.tsx               # Budget alert and monthly report email templates
+├── hooks/use-fetch.ts                # Async action state hook
+├── lib/
+│   ├── inngest/                      # Inngest client and scheduled/background functions
+│   ├── generated/prisma/             # Generated Prisma client; not committed
+│   ├── arcjet.ts                     # Per-user rate limiting
+│   ├── checkUser.ts                  # Clerk-to-database user synchronization
+│   ├── dashboard-preferences.ts      # Dashboard preference persistence
+│   ├── demo-data.ts                  # Static data used by demo routes
+│   ├── financial-health.ts           # Financial health scoring logic
+│   └── prisma.ts                     # PostgreSQL Prisma client
+├── prisma/
+│   ├── migrations/                   # Versioned PostgreSQL schema migrations
+│   └── schema.prisma                 # Database models, relations, enums, and indexes
+├── public/                           # Logos and feature screenshots grouped by feature
+│   ├── ai/
+│   ├── analysis/
+│   ├── budget/
+│   ├── overview/
+│   ├── report/
+│   └── transaction/
+├── proxy.ts                          # Clerk middleware and protected-route matching
+├── next.config.ts                    # Next.js and Server Action configuration
+├── prisma.config.ts                  # Prisma configuration and database URL loading
+├── tsconfig.json                     # Strict TypeScript configuration
+└── package.json                      # Scripts and application dependencies
 ```
+
+Generated and machine-local directories such as `.next/`, `node_modules/`, and `lib/generated/prisma/`, along with `.env*` files, are intentionally excluded from version control.
 
 ## 🗄️ Database Design
 
 ### 1. Database Schema / Entity Relationship Diagram (ERD)
 
-The database uses PostgreSQL with Prisma ORM. The main entities are `User`, `Account`, `Transaction`, `Budget`, and `DashboardPreferences`.
+The database uses PostgreSQL through Prisma ORM. Five related models store identities and user-owned finance data, while `SiteMetric` independently stores application-wide counters.
 
-| Table / Model | Purpose | Main Fields |
+| Prisma model | PostgreSQL table | Purpose |
 | --- | --- | --- |
-| `User` | Stores authenticated user details from Clerk | `id`, `clerkUserId`, `email`, `name`, `imageUrl` |
-| `Account` | Stores user bank/cash accounts | `id`, `name`, `type`, `balance`, `isDefault`, `userId` |
-| `Transaction` | Stores income and expense records | `id`, `type`, `amount`, `date`, `category`, `accountId`, `userId` |
-| `Budget` | Stores monthly budget information | `id`, `amount`, `lastAlertSent`, `userId` |
-| `DashboardPreferences` | Stores dashboard and budget planning preferences | `userId`, `monthlyBudgetTargets`, `savingsGoalTargets`, `categoryTargetsByMonth` |
+| `User` | `users` | Maps a Clerk identity to the user's finance data |
+| `Account` | `accounts` | Stores current and savings accounts, balances, and default-account state |
+| `Transaction` | `transactions` | Stores income, expenses, categories, receipt references, and recurring schedules |
+| `Budget` | `budgets` | Stores one monthly budget and its most recent alert time per user |
+| `DashboardPreferences` | `dashboard_preferences` | Stores month-specific budgets, savings goals, category targets, and visibility settings |
+| `SiteMetric` | `site_metrics` | Stores independent application counters such as total site views |
 
 ```mermaid
 erDiagram
     USER ||--o{ ACCOUNT : owns
-    USER ||--o{ TRANSACTION : creates
-    USER ||--o{ BUDGET : has
-    USER ||--o| DASHBOARD_PREFERENCES : stores
+    USER ||--o{ TRANSACTION : records
+    USER ||--o| BUDGET : sets
+    USER ||--o| DASHBOARD_PREFERENCES : configures
     ACCOUNT ||--o{ TRANSACTION : contains
 
     USER {
         string id PK
         string clerkUserId UK
         string email UK
-        string name
-        string imageUrl
+        string name "nullable"
+        string imageUrl "nullable"
         datetime createdAt
         datetime updatedAt
     }
@@ -187,7 +303,7 @@ erDiagram
     ACCOUNT {
         string id PK
         string name
-        enum type
+        AccountType type
         decimal balance
         boolean isDefault
         string userId FK
@@ -197,17 +313,17 @@ erDiagram
 
     TRANSACTION {
         string id PK
-        enum type
+        TransactionType type
         decimal amount
-        string description
+        string description "nullable"
         datetime date
         string category
-        string receiptUrl
+        string receiptUrl "nullable"
         boolean isRecurring
-        enum recurringInterval
-        datetime nextRecurringDate
-        datetime lastProcessed
-        enum status
+        RecurringInterval recurringInterval "nullable"
+        datetime nextRecurringDate "nullable"
+        datetime lastProcessed "nullable"
+        TransactionStatus status
         string userId FK
         string accountId FK
         datetime createdAt
@@ -217,14 +333,14 @@ erDiagram
     BUDGET {
         string id PK
         decimal amount
-        datetime lastAlertSent
-        string userId FK
+        datetime lastAlertSent "nullable"
+        string userId FK, UK
         datetime createdAt
         datetime updatedAt
     }
 
     DASHBOARD_PREFERENCES {
-        string userId PK
+        string userId PK, FK
         json monthlyBudgetTargets
         json savingsGoalTargets
         json categoryTargetsByMonth
@@ -232,7 +348,24 @@ erDiagram
         datetime createdAt
         datetime updatedAt
     }
+
+    SITE_METRIC {
+        string key PK
+        int value
+        datetime updatedAt
+    }
 ```
+
+`DashboardPreferences.userId` is both its primary key and a foreign key to `User`. `Budget.userId` is unique, so a user can have at most one budget record. `SiteMetric` has no user relationship because it stores global counters.
+
+| Enum | Allowed values |
+| --- | --- |
+| `AccountType` | `CURRENT`, `SAVINGS` |
+| `TransactionType` | `INCOME`, `EXPENSE` |
+| `TransactionStatus` | `PENDING`, `COMPLETED`, `FAILED` |
+| `RecurringInterval` | `DAILY`, `WEEKLY`, `MONTHLY`, `YEARLY` |
+
+Deleting a user cascades to their accounts, transactions, budget, and dashboard preferences. Deleting an account also cascades to its transactions. Database indexes support user transaction history, recurring-transaction processing, and default-account lookup; a partial unique index ensures that each user has at most one default account.
 
 ## 🖼️ Screenshots
 
@@ -449,11 +582,17 @@ npm run lint
 
 ## 👨‍💻 Author Details
 
+<img src="public/creator.webp" alt="Debarghya Bandyopadhyay" width="120" />
+
 **Debarghya Bandyopadhyay**
 
 ## 🤝 Be My Friend
 
 I always like to make new friends. Follow me on:
+
+
+
+[![Portfolio](https://img.shields.io/badge/Portfolio-portfolio.debarghya.org-7C3AED?style=for-the-badge&logo=vercel&logoColor=white)](https://portfolio.debarghya.org)
 
 
 
@@ -466,10 +605,6 @@ I always like to make new friends. Follow me on:
 
 
 [![GitHub](https://img.shields.io/badge/GitHub-debarghya131-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/debarghya131)
-
-
-
-[![Portfolio](https://img.shields.io/badge/Portfolio-portfolio.debarghya.org-7C3AED?style=for-the-badge&logo=vercel&logoColor=white)](https://portfolio.debarghya.org)
 
 
 
