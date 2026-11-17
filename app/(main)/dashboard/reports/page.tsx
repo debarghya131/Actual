@@ -93,10 +93,8 @@ export default async function ReportsPage() {
     }));
 
   return (
-    <section className="min-h-full w-full px-3 py-4 min-[420px]:px-4 sm:px-5 sm:py-6 lg:px-6 xl:px-8">
-      <div className="w-full space-y-6">
-        <MonthlyReportsViewer reports={reports} />
-      </div>
-    </section>
+    <div className="flex h-full min-h-full w-full flex-1 flex-col min-w-0 lg:min-h-0">
+      <MonthlyReportsViewer reports={reports} />
+    </div>
   );
 }

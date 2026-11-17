@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { LayoutDashboard, Menu, X } from "lucide-react";
 
 import { dashboardNavItems } from "@/components/dashboard-sidebar";
 import FinancialHealthNavScore from "@/components/financial-health-nav-score";
@@ -33,14 +33,29 @@ export default function DashboardMobileNav({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border-b border-violet-100 bg-white/92 px-3 py-3 min-[380px]:px-4 lg:hidden">
+    <div className="sticky top-[4.5rem] z-40 border-b border-violet-100 bg-white/95 px-3 py-3 shadow-[0_8px_20px_-18px_rgba(109,40,217,0.3)] backdrop-blur lg:hidden min-[380px]:px-4">
       <div className="flex items-center justify-between gap-3">
         {showHealthScore ? (
           <div className="min-w-0">
-            <FinancialHealthNavScore />
+            <FinancialHealthNavScore demoMode={demoMode} />
           </div>
         ) : (
-          <div />
+          <Link
+            href={basePath}
+            className="flex min-w-0 items-center gap-2.5 rounded-xl py-1 text-slate-950"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+              <LayoutDashboard className="h-5 w-5" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold leading-5">
+                Actual
+              </span>
+              <span className="block truncate text-xs leading-4 text-violet-950/60">
+                {demoMode ? "Demo workspace" : "Dashboard"}
+              </span>
+            </span>
+          </Link>
         )}
 
         <button
@@ -55,7 +70,7 @@ export default function DashboardMobileNav({
       </div>
 
       {open ? (
-        <div className="mt-3 max-h-[calc(100vh-9rem)] min-w-0 overflow-y-auto pr-1">
+        <div className="mt-3 max-h-[calc(100dvh-9rem)] min-w-0 overflow-y-auto pr-1">
           <nav className="grid min-w-0 gap-2">
             {dashboardNavItems.map((item) => {
               const href = `${basePath}${item.segment}`;

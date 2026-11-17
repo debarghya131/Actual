@@ -1,8 +1,9 @@
 import { TransactionTable } from "@/app/(main)/account/_components/transaction-table";
 import { TransactionFormDialog } from "@/app/(main)/transaction/_components/transaction-form-dialog";
-import { demoAccounts, demoCategories, demoTransactions } from "@/lib/demo-data";
+import { demoAccounts, demoCategories, getDemoTransactions } from "@/lib/demo-data";
 
 export default function DemoTransactionCreatePage() {
+  const demoTransactions = getDemoTransactions();
   const accounts = demoAccounts.map((account) => ({
     id: account.id,
     name: account.name,

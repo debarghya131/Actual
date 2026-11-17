@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 
 import MonthlyReportsViewer from "@/app/(main)/dashboard/_components/monthly-reports-viewer";
-import { demoTransactions } from "@/lib/demo-data";
+import { getDemoTransactions } from "@/lib/demo-data";
 
 type MonthlyReportAccumulator = {
   monthKey: string;
@@ -25,6 +25,7 @@ function toCategoryLabel(category: string | null) {
 }
 
 export default function DemoReportsPage() {
+  const demoTransactions = getDemoTransactions();
   const reportMap = demoTransactions.reduce<Record<string, MonthlyReportAccumulator>>(
     (acc, transaction) => {
       const transactionDate = new Date(transaction.date);
@@ -75,10 +76,8 @@ export default function DemoReportsPage() {
     }));
 
   return (
-    <section className="min-h-full w-full px-3 py-4 min-[420px]:px-4 sm:px-5 sm:py-6 lg:px-6 xl:px-8">
-      <div className="w-full space-y-6">
-        <MonthlyReportsViewer reports={reports} />
-      </div>
-    </section>
+    <div className="flex h-full min-h-full w-full flex-1 flex-col min-w-0 lg:min-h-0">
+      <MonthlyReportsViewer reports={reports} />
+    </div>
   );
 }

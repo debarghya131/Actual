@@ -2,12 +2,15 @@ import BudgetPlanningBoard from "@/app/(main)/dashboard/_components/budget-plann
 import {
   demoBudget,
   demoCategories,
-  demoDashboardPreferences,
-  demoTransactions,
+  DEMO_REFERENCE_DATE,
+  getDemoDashboardPreferences,
+  getDemoTransactions,
 } from "@/lib/demo-data";
 
 export default function DemoBudgetsPage() {
-  const currentMonth = new Date();
+  const currentMonth = DEMO_REFERENCE_DATE;
+  const demoTransactions = getDemoTransactions();
+  const demoDashboardPreferences = getDemoDashboardPreferences();
 
   const currentExpenses = demoTransactions
     .filter((transaction) => {
@@ -34,25 +37,24 @@ export default function DemoBudgetsPage() {
     .reduce((total, transaction) => total + transaction.amount, 0);
 
   return (
-    <section className="min-h-full w-full">
-      <div className="w-full rounded-[28px] border border-violet-100/90 bg-white/92 p-6 shadow-[0_22px_60px_-34px_rgba(91,33,182,0.18)] sm:p-8">
-        <BudgetPlanningBoard
-          initialBudget={demoBudget}
-          currentExpenses={currentExpenses}
-          currentIncome={currentIncome}
-          savingsGoalSeed={5000}
-          categoryDefinitions={demoCategories
-            .filter((category) => category.type === "EXPENSE")
-            .map((category) => ({
-              id: category.id,
-              category: category.name,
-              color: category.color,
-            }))}
-          completedTransactions={demoTransactions}
-          initialPreferences={demoDashboardPreferences}
-          demoMode
-        />
-      </div>
-    </section>
+    <div className="flex h-full min-h-full w-full flex-1 flex-col min-w-0 lg:min-h-0">
+      <BudgetPlanningBoard
+        initialBudget={demoBudget}
+        currentExpenses={currentExpenses}
+        currentIncome={currentIncome}
+        savingsGoalSeed={5000}
+        categoryDefinitions={demoCategories
+          .filter((category) => category.type === "EXPENSE")
+          .map((category) => ({
+            id: category.id,
+            category: category.name,
+            color: category.color,
+          }))}
+        completedTransactions={demoTransactions}
+        initialPreferences={demoDashboardPreferences}
+        referenceDate={DEMO_REFERENCE_DATE.toISOString()}
+        demoMode
+      />
+    </div>
   );
 }

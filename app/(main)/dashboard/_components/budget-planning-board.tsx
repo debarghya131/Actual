@@ -23,6 +23,7 @@ import {
 import useFetch from "@/hooks/use-fetch";
 import { formatCurrency } from "@/lib/currency";
 import { showDemoModeToast } from "@/lib/demo-mode";
+import { cn } from "@/lib/utils";
 
 type CategoryBudgetDefinition = {
   id: string;
@@ -58,6 +59,7 @@ type BudgetPlanningBoardProps = {
     categoryTargetsByMonth: Record<string, Record<string, string>>;
     visibleCategoryIdsByMonth: Record<string, string[]>;
   };
+  referenceDate?: string;
   demoMode?: boolean;
 };
 
@@ -101,11 +103,11 @@ function getBudgetTimeline(baseDate: Date, count: number) {
   });
 }
 
-function getDefaultUpcomingGoalTargets(seedAmount: number) {
+function getDefaultUpcomingGoalTargets(seedAmount: number, baseDate: Date) {
   const defaultGoalAmount = seedAmount > 0 ? seedAmount.toFixed(0) : "";
 
   return Object.fromEntries(
-    getBudgetTimeline(new Date(), BUDGET_TIMELINE_MONTH_COUNT).map((month) => [
+    getBudgetTimeline(baseDate, BUDGET_TIMELINE_MONTH_COUNT).map((month) => [
       month.key,
       defaultGoalAmount,
     ])
@@ -114,13 +116,14 @@ function getDefaultUpcomingGoalTargets(seedAmount: number) {
 
 function getDefaultUpcomingBudgetTargets(
   initialAmount: number | null,
-  fallbackAmount: number
+  fallbackAmount: number,
+  baseDate: Date,
 ) {
   const resolvedAmount = initialAmount ?? fallbackAmount;
   const defaultAmount = resolvedAmount > 0 ? resolvedAmount.toFixed(0) : "";
 
   return Object.fromEntries(
-    getBudgetTimeline(new Date(), BUDGET_TIMELINE_MONTH_COUNT).map((month) => [
+    getBudgetTimeline(baseDate, BUDGET_TIMELINE_MONTH_COUNT).map((month) => [
       month.key,
       defaultAmount,
     ])
@@ -225,11 +228,15 @@ export default function BudgetPlanningBoard({
   categoryDefinitions,
   completedTransactions,
   initialPreferences,
+  referenceDate,
   demoMode = false,
 }: BudgetPlanningBoardProps) {
-  const today = new Date();
+  const today = referenceDate ? new Date(referenceDate) : new Date();
   const budgetTimeline = getBudgetTimeline(today, BUDGET_TIMELINE_MONTH_COUNT);
   const currentMonthKey = budgetTimeline[0]!.key;
+  const [mobileBudgetSection, setMobileBudgetSection] = useState<
+    "monthly" | "categories" | "goals"
+  >("monthly");
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const allCategoryDefinitions = categoryDefinitions;
@@ -272,13 +279,13 @@ export default function BudgetPlanningBoard({
   );
   const [upcomingGoalTargets, setUpcomingGoalTargets] = useState<Record<string, string>>(
     () => {
-      const defaultUpcomingGoals = getDefaultUpcomingGoalTargets(savingsGoalSeed);
+      const defaultUpcomingGoals = getDefaultUpcomingGoalTargets(savingsGoalSeed, today);
 
       return {
         ...defaultUpcomingGoals,
         ...pickTimelineMonthValues(
           initialPreferences.savingsGoalTargets,
-          getBudgetTimeline(new Date(), BUDGET_TIMELINE_MONTH_COUNT).map(
+          getBudgetTimeline(today, BUDGET_TIMELINE_MONTH_COUNT).map(
             (month) => month.key
           )
         ),
@@ -296,14 +303,15 @@ export default function BudgetPlanningBoard({
     () => {
       const defaultUpcomingTargets = getDefaultUpcomingBudgetTargets(
         initialBudget?.amount ?? null,
-        savingsGoalSeed
+        savingsGoalSeed,
+        today,
       );
 
       return {
         ...defaultUpcomingTargets,
         ...pickTimelineMonthValues(
           initialPreferences.monthlyBudgetTargets,
-          getBudgetTimeline(new Date(), BUDGET_TIMELINE_MONTH_COUNT).map(
+          getBudgetTimeline(today, BUDGET_TIMELINE_MONTH_COUNT).map(
             (month) => month.key
           )
         ),
@@ -552,7 +560,8 @@ export default function BudgetPlanningBoard({
   const restoreBudgetTargets = () => {
     const defaultUpcomingTargets = getDefaultUpcomingBudgetTargets(
       initialBudget?.amount ?? null,
-      savingsGoalSeed
+      savingsGoalSeed,
+      today,
     );
     const restoredTargets = {
       ...defaultUpcomingTargets,
@@ -571,7 +580,7 @@ export default function BudgetPlanningBoard({
   };
 
   const restoreGoalTargets = () => {
-    const defaultUpcomingGoals = getDefaultUpcomingGoalTargets(savingsGoalSeed);
+    const defaultUpcomingGoals = getDefaultUpcomingGoalTargets(savingsGoalSeed, today);
     const restoredGoals = {
       ...defaultUpcomingGoals,
       ...pickTimelineMonthValues(
@@ -587,28 +596,54 @@ export default function BudgetPlanningBoard({
   return (
     <LazyMotion features={domAnimation}>
       <m.div
-        className="grid min-w-0 grid-cols-1 gap-4 md:gap-5 xl:grid-cols-[repeat(3,minmax(0,1fr))] xl:items-stretch xl:gap-5 2xl:gap-6"
-        initial={{ opacity: 0, y: 16 }}
+        className="grid min-w-0 flex-1 grid-cols-1 gap-3.5 sm:gap-4 md:gap-5 xl:grid-cols-3 xl:items-stretch xl:h-full xl:min-h-0"
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
+      <div className="col-span-full grid grid-cols-3 gap-1 rounded-2xl border border-violet-100 bg-white/90 p-1 shadow-2xs xl:hidden shrink-0">
+        {([
+          ["monthly", "Monthly", Wallet],
+          ["categories", "Categories", PiggyBank],
+          ["goals", "Goals", Target],
+        ] as const).map(([section, label, Icon]) => (
+          <button
+            key={section}
+            type="button"
+            aria-pressed={mobileBudgetSection === section}
+            onClick={() => setMobileBudgetSection(section)}
+            className={cn(
+              "flex min-h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl px-1.5 text-xs font-semibold leading-tight transition",
+              mobileBudgetSection === section
+                ? "bg-violet-700 text-white shadow-xs"
+                : "text-violet-800 hover:bg-violet-50"
+            )}
+          >
+            <Icon className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{label}</span>
+          </button>
+        ))}
+      </div>
       <m.div
-        className="min-w-0"
-        whileHover={{ y: -5 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
+        className={cn(
+          "min-w-0 xl:h-full xl:min-h-0 flex flex-col",
+          mobileBudgetSection === "monthly" ? "flex" : "hidden xl:flex"
+        )}
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
       >
-      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] 2xl:min-h-[50rem]">
-        <CardHeader className="flex flex-col gap-3 p-4 pb-3 min-[420px]:p-5 sm:flex-row sm:items-start sm:justify-between">
+      <Card className="flex flex-1 min-h-0 flex-col overflow-hidden border border-violet-100/90 bg-white/95 shadow-[0_16px_40px_-24px_rgba(109,40,217,0.18)] backdrop-blur-md rounded-2xl sm:rounded-3xl transition duration-300 hover:border-violet-200">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-violet-50/90 px-3.5 py-3 sm:px-4 sm:py-3.5 shrink-0 space-y-0">
           <div className="min-w-0">
-            <CardTitle className="flex min-w-0 items-center gap-2 text-base leading-6 text-slate-950">
-              <Wallet className="h-4 w-4 text-violet-700" />
-              <span className="min-w-0 break-words">Monthly Budget Set (All Accounts)</span>
+            <CardTitle className="flex min-w-0 items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 leading-tight">
+              <Wallet className="h-4 w-4 text-violet-700 shrink-0" />
+              <span className="min-w-0 truncate">Monthly Budget Set (All Accounts)</span>
             </CardTitle>
-            <p className="mt-2 text-sm text-violet-950/60">
-              Set one total monthly spending limit and compare it with live expenses across all accounts.
+            <p className="mt-0.5 text-[11px] text-slate-500 font-medium truncate">
+              Set monthly spending limit across all accounts.
             </p>
             {demoMode ? (
-              <p className="mt-2 inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">
+              <p className="mt-1 inline-flex rounded-full border border-amber-200 bg-amber-50 px-2 py-0.2 text-[10px] font-semibold uppercase tracking-wider text-amber-700">
                 Read-Only Demo
               </p>
             ) : null}
@@ -623,20 +658,20 @@ export default function BudgetPlanningBoard({
                   ? showDemoModeToast("editing monthly budgets")
                   : setIsEditingMonthly(true)
               }
-              className="h-12 w-12 self-end transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)] sm:h-10 sm:w-10"
+              className="h-8 w-8 shrink-0 rounded-lg text-violet-700 hover:bg-violet-100/80"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-3.5 w-3.5" />
             </Button>
           ) : null}
         </CardHeader>
-        <CardContent className="flex min-w-0 flex-col space-y-5 px-4 pb-4 min-[420px]:px-5 min-[420px]:pb-5 2xl:h-full">
+        <CardContent className="flex flex-1 min-h-0 flex-col p-3 sm:p-4 overflow-hidden gap-3">
           {isEditingMonthly ? (
-            <div className="space-y-4">
+            <div className="space-y-4 xl:min-h-0 xl:flex-1 xl:overflow-y-auto modern-scrollbar xl:pr-2">
               <div className="flex items-center justify-end gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 sm:h-10 sm:w-10"
+                  className="h-10 w-10 sm:h-9 sm:w-9"
                   onClick={handleMonthlySave}
                   disabled={isUpdatingMonthly || isSavingPreferences}
                 >
@@ -645,7 +680,7 @@ export default function BudgetPlanningBoard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 sm:h-10 sm:w-10"
+                  className="h-10 w-10 sm:h-9 sm:w-9"
                   onClick={() => {
                     restoreBudgetTargets();
                     setIsEditingMonthly(false);
@@ -656,25 +691,23 @@ export default function BudgetPlanningBoard({
                 </Button>
               </div>
 
-              <div className="rounded-2xl border border-violet-100 bg-violet-50/45 p-3 pb-5 min-[420px]:p-4 min-[420px]:pb-6">
-                <div className="mb-3">
-                  <div>
-                    <p className="text-sm font-medium text-slate-950">
-                      Upcoming 6 Month Plan
-                    </p>
-                    <p className="mt-1 text-xs text-violet-950/60">
-                      Set the current month first, then the next six months.
-                    </p>
-                  </div>
+              <div className="rounded-2xl border border-violet-100 bg-violet-50/45 p-3 pb-4 min-[420px]:p-3.5">
+                <div className="mb-2.5">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-950">
+                    Upcoming 6 Month Plan
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-violet-950/60 font-medium">
+                    Set the current month first, then the next six months.
+                  </p>
                 </div>
 
-                <div className="grid min-w-0 gap-3 md:grid-cols-2">
+                <div className="grid min-w-0 gap-2.5 sm:grid-cols-2">
                   {budgetTimeline.map((month, index) => (
                     <div
                       key={month.key}
-                      className="min-w-0 rounded-2xl border border-violet-100 bg-white p-3 min-[420px]:p-4"
+                      className="min-w-0 rounded-xl border border-violet-100 bg-white p-2.5 sm:p-3"
                     >
-                      <p className="text-sm font-medium text-slate-950">
+                      <p className="text-xs font-semibold text-slate-950 truncate">
                         {index === 0 ? `${month.label} (Current)` : month.label}
                       </p>
                       <Input
@@ -684,7 +717,7 @@ export default function BudgetPlanningBoard({
                           handleUpcomingBudgetChange(month.key, e.target.value)
                         }
                         placeholder="Set month budget"
-                        className="mt-3 min-h-12 sm:min-h-10"
+                        className="mt-2 h-9 text-xs"
                       />
                     </div>
                   ))}
@@ -692,8 +725,8 @@ export default function BudgetPlanningBoard({
               </div>
             </div>
           ) : (
-            <div className="flex h-full flex-col space-y-4">
-              <div className="grid min-w-0 gap-3 min-[520px]:grid-cols-3">
+            <div className="flex h-full min-h-0 flex-1 flex-col space-y-3">
+              <div className="grid min-w-0 gap-2 grid-cols-2 min-[420px]:grid-cols-3 shrink-0">
                 <StatTile
                   label="Budget"
                   value={
@@ -713,23 +746,24 @@ export default function BudgetPlanningBoard({
                       ? formatCurrency(
                           Math.max(effectiveBudgetAmount - currentExpenses, 0)
                         )
-                      : "Set your budget"
+                      : "—"
                   }
+                  className="col-span-2 min-[420px]:col-span-1"
                 />
               </div>
 
-              <div className="min-w-0 flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-3 min-[420px]:p-4">
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-slate-950">
+              <div className="min-w-0 flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-3 flex min-h-0 flex-col overflow-hidden">
+                <div className="mb-2.5 shrink-0">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-950">
                     Upcoming 6 Month Plan
                   </p>
-                  <p className="mt-1 text-xs text-violet-950/60">
-                    This rolling planner keeps the current month plus the next six months ready.
+                  <p className="mt-0.5 text-[11px] text-violet-950/60 font-medium">
+                    Rolling plan for the current month plus six months.
                   </p>
                 </div>
 
                 {hasMonthlyBudgetPlan ? (
-                <div className="min-w-0 space-y-4">
+                <div className="min-w-0 space-y-2 flex-1 min-h-0 overflow-y-auto modern-scrollbar pr-1 sm:pr-1.5 max-h-[320px] xl:max-h-none">
                   {budgetTimeline.map((month, index) => {
                     const plannedBudget = Number(upcomingBudgetTargets[month.key] || 0);
                     const progressValue =
@@ -746,17 +780,17 @@ export default function BudgetPlanningBoard({
                     return (
                       <div
                         key={month.key}
-                        className={`space-y-2 rounded-xl px-2 py-1.5 transition ${
+                        className={`space-y-1.5 rounded-xl px-2.5 py-2 transition ${
                           month.key === currentMonthKey
-                            ? "bg-violet-100/65 ring-1 ring-violet-300/55 shadow-[0_16px_34px_-28px_rgba(109,40,217,0.42)]"
+                            ? "bg-violet-100/65 ring-1 ring-violet-300/55 shadow-xs"
                             : "hover:bg-violet-100/40"
                         }`}
                       >
-                        <div className="flex min-w-0 flex-col gap-1 text-sm min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
-                          <span className="min-w-0 break-words font-medium text-slate-950">
+                        <div className="flex items-center justify-between text-xs font-semibold gap-2">
+                          <span className="truncate text-slate-900">
                             {index === 0 ? `${month.label} (Current)` : month.label}
                           </span>
-                          <span className="shrink-0 text-violet-950/65">
+                          <span className="shrink-0 text-violet-950/70 font-medium">
                             {plannedBudget > 0
                               ? formatCurrency(plannedBudget)
                               : "Not set yet"}
@@ -780,85 +814,84 @@ export default function BudgetPlanningBoard({
               </div>
             </div>
           )}
-
         </CardContent>
       </Card>
       </m.div>
 
       <m.div
-        className="min-w-0"
-        whileHover={{ y: -5 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
+        className={cn(
+          "min-w-0 xl:h-full xl:min-h-0 flex flex-col",
+          mobileBudgetSection === "categories" ? "flex" : "hidden xl:flex"
+        )}
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
       >
-      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] 2xl:min-h-[50rem]">
-        <CardHeader className="flex flex-col gap-3 p-4 pb-3 min-[420px]:p-5 sm:flex-row sm:items-start sm:justify-between">
+      <Card className="flex flex-1 min-h-0 flex-col overflow-hidden border border-violet-100/90 bg-white/95 shadow-[0_16px_40px_-24px_rgba(109,40,217,0.18)] backdrop-blur-md rounded-2xl sm:rounded-3xl transition duration-300 hover:border-violet-200">
+        <CardHeader className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between border-b border-violet-50/90 px-3.5 py-3 sm:px-4 sm:py-3.5 shrink-0 space-y-0">
           <div className="min-w-0">
-            <CardTitle className="flex min-w-0 items-center gap-2 text-[0.95rem] leading-6 text-slate-950 min-[1500px]:text-base">
-              <PiggyBank className="h-4 w-4 text-violet-700" />
-              <span className="min-w-0 break-words">
-                Category-wise Budget Set
-              </span>
+            <CardTitle className="flex min-w-0 items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 leading-tight">
+              <PiggyBank className="h-4 w-4 text-violet-700 shrink-0" />
+              <span className="min-w-0 truncate">Category-wise Budget Set</span>
             </CardTitle>
+            <p className="mt-1 break-words text-xs leading-5 text-slate-500 font-medium">
+              Plan category caps based on actual monthly spending patterns.
+            </p>
+          </div>
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:flex-nowrap sm:justify-end">
             {isEditingCategory ? (
               <Button
                 type="button"
                 variant="outline"
-                className="mt-3 min-h-12 w-full gap-2 border-violet-200 text-violet-700 hover:bg-violet-50 hover:text-violet-800 min-[420px]:w-auto"
+                className="h-8 gap-1.5 border-violet-200 text-xs text-violet-700 hover:bg-violet-50 hover:text-violet-800"
                 onClick={() => setIsAddingCategory(true)}
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3.5 w-3.5" />
                 Add Category
               </Button>
-            ) : (
-              <p className="mt-2 text-sm text-violet-950/60">
-                Plan category caps based on actual monthly spending patterns.
-              </p>
-            )}
-          </div>
-          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
+            ) : null}
             <Select
               value={selectedCategoryMonth}
               onValueChange={handleCategoryMonthChange}
             >
-              <SelectTrigger className="min-h-12 w-full sm:min-h-10 sm:w-[11rem]">
+              <SelectTrigger className="h-8 min-w-0 flex-1 text-xs bg-violet-50/50 border-violet-200 sm:w-[9.5rem] sm:flex-none">
                 <SelectValue placeholder="Select month" />
               </SelectTrigger>
               <SelectContent>
                 {categoryMonthOptions.map((month) => (
-                  <SelectItem key={month.value} value={month.value}>
+                  <SelectItem key={month.value} value={month.value} className="text-xs">
                     {month.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          {!isEditingCategory ? (
+            {!isEditingCategory ? (
               <Button
                 variant="ghost"
                 size="icon"
-                className="ml-auto h-12 w-12 transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)] sm:ml-0 sm:h-10 sm:w-10"
+                className="h-8 w-8 shrink-0 rounded-lg text-violet-700 hover:bg-violet-100/80"
                 onClick={() =>
                   demoMode
                     ? showDemoModeToast("editing category budgets")
                     : setIsEditingCategory(true)
                 }
               >
-                <Pencil className="h-4 w-4" />
+                <Pencil className="h-3.5 w-3.5" />
               </Button>
             ) : (
-              <div className="ml-auto flex items-center gap-2 sm:ml-0">
+              <div className="flex items-center gap-1.5">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 sm:h-10 sm:w-10"
+                  className="h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50"
                   onClick={handleCategorySave}
                   disabled={isSavingPreferences}
                 >
-                  <Check className="h-4 w-4 text-green-600" />
+                  <Check className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 sm:h-10 sm:w-10"
+                  className="h-8 w-8 rounded-lg text-rose-500 hover:bg-rose-50"
                   onClick={() => {
                     const monthItems = buildCategoryItemsForMonth(
                       selectedCategoryMonth,
@@ -883,85 +916,15 @@ export default function BudgetPlanningBoard({
                   }}
                   disabled={isSavingPreferences}
                 >
-                  <X className="h-4 w-4 text-red-500" />
+                  <X className="h-3.5 w-3.5" />
                 </Button>
               </div>
             )}
           </div>
         </CardHeader>
-        <CardContent className="flex min-w-0 flex-col space-y-4 px-4 pb-5 min-[420px]:px-5 2xl:max-h-[44rem] 2xl:overflow-hidden">
+        <CardContent className="flex flex-1 min-h-0 flex-col p-3 sm:p-4 overflow-hidden gap-3">
           {isEditingCategory ? (
-            <>
-              <div className="grid min-w-0 grid-cols-1 gap-3 px-1 py-1 md:grid-cols-[repeat(2,minmax(0,1fr))] xl:grid-cols-1 2xl:max-h-[39rem] 2xl:overflow-y-auto 2xl:overscroll-contain 2xl:pb-10 2xl:pr-2 min-[1800px]:grid-cols-[repeat(2,minmax(0,1fr))]">
-                {currentCategoryItems.map((item) => {
-                  const target = Number(categoryTargets[item.category] || 0);
-                  const spentPercent =
-                    target > 0 ? Math.min((item.spent / target) * 100, 100) : 0;
-                  const progressStyles =
-                    target <= 0
-                      ? "bg-violet-400"
-                      : item.spent > target
-                        ? "bg-red-500"
-                        : spentPercent >= 100
-                          ? "bg-emerald-500"
-                          : spentPercent >= 80
-                            ? "bg-amber-500"
-                            : "bg-emerald-500";
-
-                  return (
-                    <div
-                      key={item.category}
-                      className="min-w-0 rounded-2xl border border-violet-100 bg-violet-50/55 p-3 transition duration-300 hover:shadow-[0_18px_36px_-26px_rgba(109,40,217,0.38)] min-[420px]:p-4"
-                    >
-                      <div className="flex min-w-0 items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-slate-950">
-                            {item.category}
-                          </p>
-                          <p className="mt-1 text-xs text-violet-950/60">
-                            Spent {formatCurrency(item.spent)} this month
-                          </p>
-                        </div>
-                        <span
-                          className="rounded-full px-2 py-1 text-[11px] font-medium text-white"
-                          style={{ backgroundColor: item.color }}
-                        >
-                          Live
-                        </span>
-                      </div>
-
-                      <div className="mt-4 space-y-2">
-                        <Input
-                          type="number"
-                          value={categoryTargets[item.category] || ""}
-                          onChange={(e) =>
-                            handleCategoryTargetChange(item.category, e.target.value)
-                          }
-                          placeholder="Set category budget"
-                          className="min-h-12 sm:min-h-10"
-                        />
-                        <GlowProgress
-                          value={spentPercent}
-                          className="h-1.5"
-                          extraStyles={progressStyles}
-                        />
-                        <div className="flex min-w-0 flex-col gap-1 text-[11px] text-violet-950/60 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
-                          <span className="min-w-0 break-words">
-                            Target {formatCurrency(target)}
-                          </span>
-                          <span className="shrink-0">
-                            {spentPercent.toFixed(0)}% used
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          ) : (
-            hasCategoryBudgetPlan ? (
-            <div className="min-w-0 space-y-4 px-1 py-1 2xl:max-h-[39rem] 2xl:overflow-y-auto 2xl:overscroll-contain 2xl:pb-10 2xl:pr-2">
+            <div className="grid min-w-0 grid-cols-1 gap-2.5 p-0.5 flex-1 min-h-0 overflow-y-auto modern-scrollbar pr-1 sm:pr-1.5 max-h-[380px] xl:max-h-none">
               {currentCategoryItems.map((item) => {
                 const target = Number(categoryTargets[item.category] || 0);
                 const spentPercent =
@@ -980,13 +943,77 @@ export default function BudgetPlanningBoard({
                 return (
                   <div
                     key={item.category}
-                    className="snap-start space-y-2 rounded-xl border border-violet-100/60 bg-white/70 px-3 py-3 transition duration-300 hover:shadow-[0_16px_30px_-24px_rgba(109,40,217,0.34)]"
+                    className="min-w-0 rounded-xl border border-violet-100 bg-violet-50/55 p-2.5 sm:p-3 transition duration-200 hover:bg-violet-100/40"
                   >
-                    <div className="flex min-w-0 flex-col gap-1 text-sm min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
-                      <span className="min-w-0 break-words font-medium text-slate-950">
+                    <div className="flex min-w-0 items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-sm font-semibold text-slate-950 truncate">
+                          {item.category}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-violet-950/60 font-medium">
+                          Spent {formatCurrency(item.spent)} this month
+                        </p>
+                      </div>
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-white shrink-0"
+                        style={{ backgroundColor: item.color }}
+                      >
+                        Live
+                      </span>
+                    </div>
+
+                    <div className="mt-2.5 space-y-1.5">
+                      <Input
+                        type="number"
+                        value={categoryTargets[item.category] || ""}
+                        onChange={(e) =>
+                          handleCategoryTargetChange(item.category, e.target.value)
+                        }
+                        placeholder="Set category budget"
+                        className="h-8 text-xs"
+                      />
+                      <GlowProgress
+                        value={spentPercent}
+                        className="h-1.5"
+                        extraStyles={progressStyles}
+                      />
+                      <div className="flex min-w-0 items-center justify-between text-[11px] text-violet-950/60 font-medium">
+                        <span className="truncate">Target: {formatCurrency(target)}</span>
+                        <span className="shrink-0">{spentPercent.toFixed(0)}% used</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            hasCategoryBudgetPlan ? (
+            <div className="min-w-0 space-y-2 flex-1 min-h-0 overflow-y-auto modern-scrollbar pr-1 sm:pr-1.5 max-h-[380px] xl:max-h-none">
+              {currentCategoryItems.map((item) => {
+                const target = Number(categoryTargets[item.category] || 0);
+                const spentPercent =
+                  target > 0 ? Math.min((item.spent / target) * 100, 100) : 0;
+                const progressStyles =
+                  target <= 0
+                    ? "bg-violet-400"
+                    : item.spent > target
+                      ? "bg-red-500"
+                      : spentPercent >= 100
+                        ? "bg-emerald-500"
+                        : spentPercent >= 80
+                          ? "bg-amber-500"
+                          : "bg-emerald-500";
+
+                return (
+                  <div
+                    key={item.category}
+                    className="space-y-1.5 rounded-xl border border-violet-100/70 bg-violet-50/45 px-3 py-2 sm:py-2.5 transition duration-200 hover:bg-violet-100/40"
+                  >
+                    <div className="flex items-center justify-between text-xs font-semibold gap-2">
+                      <span className="truncate text-slate-900">
                         {item.category}
                       </span>
-                      <span className="shrink-0 text-violet-950/65">
+                      <span className="shrink-0 text-violet-950/70 font-medium">
                         {formatCurrency(target)}
                       </span>
                     </div>
@@ -995,8 +1022,8 @@ export default function BudgetPlanningBoard({
                       className="h-1.5"
                       extraStyles={progressStyles}
                     />
-                    <div className="flex min-w-0 flex-col gap-1 text-[11px] text-violet-950/60 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
-                      <span className="min-w-0 break-words">Spent {formatCurrency(item.spent)} this month</span>
+                    <div className="flex items-center justify-between text-[11px] text-violet-950/60 font-medium">
+                      <span className="truncate">Spent {formatCurrency(item.spent)} this month</span>
                       <span className="shrink-0">{spentPercent.toFixed(0)}% used</span>
                     </div>
                   </div>
@@ -1091,22 +1118,23 @@ export default function BudgetPlanningBoard({
       ) : null}
 
       <m.div
-        className="min-w-0"
-        whileHover={{ y: -5 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
+        className={cn(
+          "min-w-0 xl:h-full xl:min-h-0 flex flex-col",
+          mobileBudgetSection === "goals" ? "flex" : "hidden xl:flex"
+        )}
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
       >
-      <Card className="min-w-0 border-violet-100 bg-white/95 shadow-[0_20px_50px_-36px_rgba(109,40,217,0.34)] transition duration-300 hover:shadow-[0_30px_70px_-34px_rgba(109,40,217,0.45)] 2xl:min-h-[50rem]">
-        <CardHeader className="flex flex-col gap-3 p-4 pb-3 min-[420px]:p-5 sm:flex-row sm:items-start sm:justify-between">
+      <Card className="flex flex-1 min-h-0 flex-col overflow-hidden border border-violet-100/90 bg-white/95 shadow-[0_16px_40px_-24px_rgba(109,40,217,0.18)] backdrop-blur-md rounded-2xl sm:rounded-3xl transition duration-300 hover:border-violet-200">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-violet-50/90 px-3.5 py-3 sm:px-4 sm:py-3.5 shrink-0 space-y-0">
           <div className="min-w-0">
-            <CardTitle className="flex min-w-0 items-center gap-2 text-base leading-6 text-slate-950">
-              <Target className="h-4 w-4 text-violet-700" />
-              <span className="min-w-0 break-words">Goal Saving</span>
+            <CardTitle className="flex min-w-0 items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 leading-tight">
+              <Target className="h-4 w-4 text-violet-700 shrink-0" />
+              <span className="min-w-0 truncate">Goal Saving</span>
             </CardTitle>
-            {!isEditingGoal ? (
-              <p className="mt-2 text-sm text-violet-950/60">
-                Set the current month first, then keep the next six savings goals ready.
-              </p>
-            ) : null}
+            <p className="mt-0.5 text-[11px] text-slate-500 font-medium truncate">
+              Keep current month and six month savings goals ready.
+            </p>
           </div>
 
           {!isEditingGoal ? (
@@ -1118,48 +1146,48 @@ export default function BudgetPlanningBoard({
                   ? showDemoModeToast("editing savings goals")
                   : setIsEditingGoal(true)
               }
-              className="h-12 w-12 self-end transition duration-300 hover:bg-violet-100/80 hover:shadow-[0_10px_30px_-16px_rgba(109,40,217,0.5)] sm:h-10 sm:w-10"
+              className="h-8 w-8 shrink-0 rounded-lg text-violet-700 hover:bg-violet-100/80"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-3.5 w-3.5" />
             </Button>
           ) : (
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex items-center gap-1.5 shrink-0">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-12 sm:h-10 sm:w-10"
+                className="h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50"
                 onClick={handleGoalSave}
                 disabled={isSavingPreferences}
               >
-                <Check className="h-4 w-4 text-green-600" />
+                <Check className="h-3.5 w-3.5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-12 sm:h-10 sm:w-10"
+                className="h-8 w-8 rounded-lg text-rose-500 hover:bg-rose-50"
                 onClick={() => {
                   restoreGoalTargets();
                   setIsEditingGoal(false);
                 }}
                 disabled={isSavingPreferences}
               >
-                <X className="h-4 w-4 text-red-500" />
+                <X className="h-3.5 w-3.5" />
               </Button>
             </div>
           )}
         </CardHeader>
-        <CardContent className="flex min-w-0 flex-col space-y-4 px-4 pb-4 min-[420px]:px-5 min-[420px]:pb-5 2xl:h-full">
+        <CardContent className="flex flex-1 min-h-0 flex-col p-3 sm:p-4 overflow-hidden gap-3">
           {isEditingGoal ? (
-            <div className="space-y-4">
-              <div className="rounded-2xl border border-violet-100 bg-violet-50/45 p-3 min-[420px]:p-4">
-                <div className="min-w-0 space-y-4 pb-4 2xl:pr-2">
+            <div className="space-y-3 flex-1 min-h-0 overflow-y-auto modern-scrollbar pr-1 sm:pr-1.5 max-h-[360px] xl:max-h-none">
+              <div className="rounded-2xl border border-violet-100 bg-violet-50/45 p-3">
+                <div className="min-w-0 space-y-3">
                   {budgetTimeline.map((month, index) => (
-                    <div key={month.key} className="space-y-2">
-                      <div className="flex min-w-0 flex-col gap-1 text-sm min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
-                        <span className="min-w-0 break-words font-medium text-slate-950">
+                    <div key={month.key} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs font-semibold gap-2">
+                        <span className="truncate text-slate-900">
                           {index === 0 ? `${month.label} (Current)` : month.label}
                         </span>
-                        <span className="shrink-0 text-violet-950/65">
+                        <span className="shrink-0 text-violet-950/65 font-medium">
                           {formatCurrency(Number(upcomingGoalTargets[month.key] || 0))}
                         </span>
                       </div>
@@ -1170,7 +1198,7 @@ export default function BudgetPlanningBoard({
                           handleUpcomingGoalChange(month.key, e.target.value)
                         }
                         placeholder="Set savings goal"
-                        className="min-h-12 sm:min-h-10"
+                        className="h-8 text-xs"
                       />
                     </div>
                   ))}
@@ -1178,8 +1206,8 @@ export default function BudgetPlanningBoard({
               </div>
             </div>
           ) : (
-            <div className="flex h-full flex-col space-y-4">
-              <div className="grid min-w-0 gap-3 min-[520px]:grid-cols-2">
+            <div className="flex h-full min-h-0 flex-1 flex-col space-y-3">
+              <div className="grid min-w-0 gap-2 grid-cols-2 shrink-0">
                 <StatTile
                   label="Current savings"
                   value={formatCurrency(currentSavings)}
@@ -1194,9 +1222,17 @@ export default function BudgetPlanningBoard({
                 />
               </div>
 
-              <div className="min-w-0 flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-3 min-[420px]:p-4">
+              <div className="min-w-0 flex-1 rounded-2xl border border-violet-100 bg-violet-50/45 p-3 flex min-h-0 flex-col overflow-hidden">
+                <div className="mb-2.5 shrink-0">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-950">
+                    Upcoming 6 Month Plan
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-violet-950/60 font-medium">
+                    Rolling plan for the current month plus six months.
+                  </p>
+                </div>
                 {hasSavingsGoalPlan ? (
-                <div className="min-w-0 space-y-4 pb-4 2xl:max-h-[31rem] 2xl:overflow-y-auto 2xl:overscroll-contain 2xl:pr-2">
+                <div className="min-w-0 space-y-2 flex-1 min-h-0 overflow-y-auto modern-scrollbar pr-1 sm:pr-1.5 max-h-[320px] xl:max-h-none">
                   {budgetTimeline.map((month, index) => {
                     const plannedGoal = Number(upcomingGoalTargets[month.key] || 0);
                     const progressValue =
@@ -1215,17 +1251,17 @@ export default function BudgetPlanningBoard({
                     return (
                       <div
                         key={month.key}
-                        className={`space-y-2 rounded-xl px-2 py-1.5 transition ${
+                        className={`space-y-1.5 rounded-xl px-2.5 py-2 transition ${
                           month.key === currentMonthKey
-                            ? "bg-violet-100/65 ring-1 ring-violet-300/55 shadow-[0_16px_34px_-28px_rgba(109,40,217,0.42)]"
+                            ? "bg-violet-100/65 ring-1 ring-violet-300/55 shadow-xs"
                             : "hover:bg-violet-100/40"
                         }`}
                       >
-                        <div className="flex min-w-0 flex-col gap-1 text-sm min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between min-[420px]:gap-3">
-                          <span className="min-w-0 break-words font-medium text-slate-950">
+                        <div className="flex items-center justify-between text-xs font-semibold gap-2">
+                          <span className="truncate text-slate-900">
                             {index === 0 ? `${month.label} (Current)` : month.label}
                           </span>
-                          <span className="shrink-0 text-violet-950/65">
+                          <span className="shrink-0 text-violet-950/70 font-medium">
                             {plannedGoal > 0
                               ? formatCurrency(plannedGoal)
                               : "Not set yet"}
@@ -1286,13 +1322,13 @@ function GlowProgress({
   );
 }
 
-function StatTile({ label, value }: { label: string; value: string }) {
+function StatTile({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
-    <div className="min-w-0 rounded-2xl border border-violet-100 bg-violet-50/55 p-3 min-[420px]:p-4">
-      <p className="break-words text-xs font-medium uppercase tracking-[0.12em] text-violet-700">
+    <div className={`min-w-0 rounded-2xl border border-violet-100 bg-violet-50/55 p-2.5 min-[420px]:p-3${className ? ` ${className}` : ""}`}>
+      <p className="truncate text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-700">
         {label}
       </p>
-      <p className="mt-2 break-words text-lg font-semibold leading-snug text-slate-950 sm:text-xl">
+      <p className="mt-1.5 break-words text-sm font-bold leading-tight text-slate-950 min-[420px]:text-base sm:text-lg">
         {value}
       </p>
     </div>

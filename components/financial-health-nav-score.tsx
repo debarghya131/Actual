@@ -28,7 +28,11 @@ type FinancialHealthResponse = {
   parts: ScorePart[];
 };
 
-export default function FinancialHealthNavScore() {
+export default function FinancialHealthNavScore({
+  demoMode = false,
+}: {
+  demoMode?: boolean;
+}) {
   const [data, setData] = useState<FinancialHealthResponse | null>(null);
 
   useEffect(() => {
@@ -36,9 +40,12 @@ export default function FinancialHealthNavScore() {
 
     async function loadScore() {
       try {
-        const response = await fetch("/api/financial-health", {
+        const response = await fetch(
+          demoMode ? "/api/financial-health?demo=1" : "/api/financial-health",
+          {
           credentials: "same-origin",
-        });
+          },
+        );
 
         if (!response.ok) {
           return;
@@ -59,7 +66,7 @@ export default function FinancialHealthNavScore() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [demoMode]);
 
   if (!data) {
     return (
@@ -83,13 +90,13 @@ export default function FinancialHealthNavScore() {
             <span className="text-violet-950/50">/100</span>
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" sideOffset={12} className="max-w-[calc(100vw-2rem)] rounded-3xl p-0">
-          <div className="w-[min(320px,calc(100vw-2rem))] rounded-[24px] border border-violet-200/70 bg-white p-5 text-center shadow-[0_22px_60px_-34px_rgba(91,33,182,0.24)] sm:p-6">
+        <TooltipContent side="bottom" sideOffset={12} className="max-h-[calc(100dvh-5rem)] max-w-[calc(100vw-1.5rem)] overflow-y-auto overscroll-contain rounded-3xl p-0">
+          <div className="w-[min(320px,calc(100vw-1.5rem))] rounded-[24px] border border-violet-200/70 bg-white p-4 text-center shadow-[0_22px_60px_-34px_rgba(91,33,182,0.24)] sm:p-6">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
               <HeartPulse className="h-7 w-7" />
             </div>
             <p className="mt-5 text-sm font-medium text-violet-700">
-              Current Score
+              {demoMode ? "Demo Financial Health Score" : "Current Score"}
             </p>
             <div className="mt-4 flex items-end justify-center gap-2">
               <span className="text-6xl font-semibold tracking-tight text-slate-950">
@@ -103,9 +110,11 @@ export default function FinancialHealthNavScore() {
               {data.status.label}
             </p>
             <p className="mt-3 text-sm text-violet-950/60">
-              {data.isReady
-                ? "Hover to see how this score is calculated."
-                : "Add a few completed transactions to unlock your score."}
+              {demoMode
+                ? "Calculated from the fixed, read-only demo transactions."
+                : data.isReady
+                  ? "Hover to see how this score is calculated."
+                  : "Add a few completed transactions to unlock your score."}
             </p>
 
             <div className="mt-6 space-y-3 rounded-2xl bg-violet-50/70 p-4 text-left">

@@ -45,6 +45,7 @@ export default function Home() {
                   alt="Debarghya Bandyopadhyay"
                   width={280}
                   height={340}
+                  sizes="(min-width: 768px) 240px, 176px"
                   className="h-full w-full rounded-full object-cover"
                 />
               </div>
@@ -206,6 +207,7 @@ export default function Home() {
                   alt="Kubera finance guide"
                   width={160}
                   height={160}
+                  sizes="(min-width: 1024px) 140px, 120px"
                   className="relative h-[54%] w-[54%] object-contain drop-shadow-[0_22px_45px_rgba(217,163,59,0.34)]"
                 />
               </div>

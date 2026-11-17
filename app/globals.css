@@ -215,6 +215,25 @@
     color: rgb(76 29 149 / 0.86);
     text-shadow: 0 0 22px rgba(109, 40, 217, 0.18);
   }
+
+  .modern-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.22) transparent;
+  }
+  .modern-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  .modern-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .modern-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.22);
+    border-radius: 9999px;
+  }
+  .modern-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.45);
+  }
 }
 
 @keyframes weeklyInsightSweep {

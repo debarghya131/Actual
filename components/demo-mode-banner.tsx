@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import AuthWakeButton from "@/components/auth-wake-button";
 
 type DemoModeBannerProps = {
   className?: string;
@@ -19,12 +19,12 @@ export default function DemoModeBanner({ className }: DemoModeBannerProps) {
           Explore the product with prebuilt sample data. Saving, editing, and submitting are disabled.
         </p>
       </div>
-      <Link
+      <AuthWakeButton
         href="/sign-in"
         className="inline-flex h-10 items-center justify-center rounded-full bg-slate-950 px-4 text-sm font-medium text-white transition hover:bg-slate-900"
       >
         Sign In To Use Real Features
-      </Link>
+      </AuthWakeButton>
     </div>
   );
 }

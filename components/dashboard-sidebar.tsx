@@ -50,7 +50,7 @@ export default function DashboardSidebar({
     <aside
       className={`hidden h-full shrink-0 border-r border-violet-100 bg-white/92 backdrop-blur-xl lg:flex ${dashboardSidebarWidthClass}`}
     >
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col px-4 py-5 min-[1200px]:px-5 min-[1200px]:py-6">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto modern-scrollbar px-4 py-4 min-[1200px]:px-5 min-[1200px]:py-5">
         <nav className="min-w-0 space-y-2">
           {dashboardNavItems.map((item) => {
             const href = `${basePath}${item.segment}`;

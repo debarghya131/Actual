@@ -53,49 +53,45 @@ export type FinancialHealthSnapshot = {
   scoreParts: Record<ScoreKey, number>;
 };
 
-export async function getFinancialHealthSnapshot(userId: string) {
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+type FinancialHealthInput = {
+  balances: number[];
+  transactions: Array<{
+    type: "INCOME" | "EXPENSE";
+    amount: number;
+    isRecurring: boolean;
+    date: Date | string;
+  }>;
+  budgetAmount: number | null;
+  referenceDate: Date;
+};
 
-  const [accounts, transactions, budget] = await Promise.all([
-    db.account.findMany({
-      where: { userId },
-    }),
-    db.transaction.findMany({
-      where: {
-        userId,
-        status: "COMPLETED",
-        date: {
-          gte: startOfMonth,
-          lte: now,
-        },
-      },
-      orderBy: { date: "desc" },
-    }),
-    db.budget.findUnique({
-      where: { userId },
-    }),
-  ]);
-
-  const totalBalance = accounts.reduce(
-    (total, account) => total + Number(account.balance),
-    0
+export function calculateFinancialHealthSnapshot({
+  balances,
+  transactions,
+  budgetAmount,
+  referenceDate,
+}: FinancialHealthInput): FinancialHealthSnapshot {
+  const startOfMonth = new Date(
+    referenceDate.getFullYear(),
+    referenceDate.getMonth(),
+    1,
   );
-  const totalIncome = transactions
+  const monthlyTransactions = transactions.filter((transaction) => {
+    const date = new Date(transaction.date);
+    return date >= startOfMonth && date <= referenceDate;
+  });
+  const totalBalance = balances.reduce((total, balance) => total + balance, 0);
+  const totalIncome = monthlyTransactions
     .filter((transaction) => transaction.type === "INCOME")
-    .reduce((total, transaction) => total + Number(transaction.amount), 0);
-  const totalExpenses = transactions
+    .reduce((total, transaction) => total + transaction.amount, 0);
+  const totalExpenses = monthlyTransactions
     .filter((transaction) => transaction.type === "EXPENSE")
-    .reduce((total, transaction) => total + Number(transaction.amount), 0);
-  const recurringExpenses = transactions
-    .filter(
-      (transaction) =>
-        transaction.type === "EXPENSE" && transaction.isRecurring
-    )
-    .reduce((total, transaction) => total + Number(transaction.amount), 0);
+    .reduce((total, transaction) => total + transaction.amount, 0);
+  const recurringExpenses = monthlyTransactions
+    .filter((transaction) => transaction.type === "EXPENSE" && transaction.isRecurring)
+    .reduce((total, transaction) => total + transaction.amount, 0);
   const hasMeaningfulActivity = totalIncome > 0 || totalExpenses > 0;
   const net = totalIncome - totalExpenses;
-  const budgetAmount = budget ? Number(budget.amount) : null;
 
   const savingsRatio = totalIncome > 0 ? Math.max(net / totalIncome, 0) : 0;
   const expenseRatio = totalIncome > 0 ? totalExpenses / totalIncome : 1;
@@ -122,26 +118,49 @@ export async function getFinancialHealthSnapshot(userId: string) {
       score: null,
       isReady: false,
       status: getInsufficientDataStatus(),
-      scoreParts: {
-        savings: 0,
-        spending: 0,
-        budget: 0,
-        recurring: 0,
-        balance: 0,
-      },
-    } satisfies FinancialHealthSnapshot;
+      scoreParts: { savings: 0, spending: 0, budget: 0, recurring: 0, balance: 0 },
+    };
   }
 
-  const score = Math.round(
-    Object.values(scoreParts).reduce((total, part) => total + part, 0)
-  );
+  const score = Math.round(Object.values(scoreParts).reduce((total, part) => total + part, 0));
+  return { score, isReady: true, status: getScoreStatus(score), scoreParts };
+}
 
-  return {
-    score,
-    isReady: true,
-    status: getScoreStatus(score),
-    scoreParts,
-  } satisfies FinancialHealthSnapshot;
+export async function getFinancialHealthSnapshot(userId: string) {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [accounts, transactions, budget] = await Promise.all([
+    db.account.findMany({
+      where: { userId },
+    }),
+    db.transaction.findMany({
+      where: {
+        userId,
+        status: "COMPLETED",
+        date: {
+          gte: startOfMonth,
+          lte: now,
+        },
+      },
+      orderBy: { date: "desc" },
+    }),
+    db.budget.findUnique({
+      where: { userId },
+    }),
+  ]);
+
+  return calculateFinancialHealthSnapshot({
+    balances: accounts.map((account) => Number(account.balance)),
+    transactions: transactions.map((transaction) => ({
+      type: transaction.type,
+      amount: Number(transaction.amount),
+      isRecurring: transaction.isRecurring,
+      date: transaction.date,
+    })),
+    budgetAmount: budget ? Number(budget.amount) : null,
+    referenceDate: now,
+  });
 }
 
 export function getMaxScore(key: ScoreKey) {

@@ -27,12 +27,10 @@ function toIsoDate(year: number, month: number, day: number) {
   return new Date(Date.UTC(year, month - 1, day, 12, 0, 0)).toISOString();
 }
 
-const today = new Date();
-const currentYear = today.getUTCFullYear();
-const currentMonth = today.getUTCMonth() + 1;
-const previousMonthDate = new Date(Date.UTC(currentYear, currentMonth - 2, 12, 12, 0, 0));
-const previousMonth = previousMonthDate.getUTCMonth() + 1;
-const previousMonthYear = previousMonthDate.getUTCFullYear();
+// Demo mode is an intentionally fixed, read-only snapshot. It must not drift
+// as the calendar changes, otherwise its totals no longer match its sample data.
+export const DEMO_REFERENCE_DATE = new Date(Date.UTC(2026, 9, 19, 12, 0, 0));
+export const DEMO_REFERENCE_MONTH_KEY = format(DEMO_REFERENCE_DATE, "yyyy-MM");
 
 export const demoAccounts: DemoAccount[] = [
   {
@@ -51,7 +49,16 @@ export const demoAccounts: DemoAccount[] = [
   },
 ];
 
-export const demoTransactions: DemoTransaction[] = [
+export function getDemoTransactions(today = DEMO_REFERENCE_DATE): DemoTransaction[] {
+  const currentYear = today.getUTCFullYear();
+  const currentMonth = today.getUTCMonth() + 1;
+  const previousMonthDate = new Date(
+    Date.UTC(currentYear, currentMonth - 2, 12, 12, 0, 0),
+  );
+  const previousMonth = previousMonthDate.getUTCMonth() + 1;
+  const previousMonthYear = previousMonthDate.getUTCFullYear();
+
+  return [
   {
     id: "demo-tx-01",
     accountId: "demo-main",
@@ -244,22 +251,29 @@ export const demoTransactions: DemoTransaction[] = [
     recurringInterval: null,
     nextRecurringDate: null,
   },
-];
+  ];
+}
 
 export const demoBudget = {
   id: "demo-budget",
   amount: 5501,
 };
 
-const currentMonthKey = format(today, "yyyy-MM");
-const previousMonthKey = format(previousMonthDate, "yyyy-MM");
-
-export const demoDashboardPreferences: {
+export function getDemoDashboardPreferences(today = DEMO_REFERENCE_DATE): {
   monthlyBudgetTargets: Record<string, string>;
   savingsGoalTargets: Record<string, string>;
   categoryTargetsByMonth: Record<string, Record<string, string>>;
   visibleCategoryIdsByMonth: Record<string, string[]>;
-} = {
+} {
+  const currentYear = today.getUTCFullYear();
+  const currentMonth = today.getUTCMonth() + 1;
+  const previousMonthDate = new Date(
+    Date.UTC(currentYear, currentMonth - 2, 12, 12, 0, 0),
+  );
+  const currentMonthKey = format(today, "yyyy-MM");
+  const previousMonthKey = format(previousMonthDate, "yyyy-MM");
+
+  return {
   monthlyBudgetTargets: {
     [currentMonthKey]: "5501",
     [previousMonthKey]: "5200",
@@ -296,7 +310,8 @@ export const demoDashboardPreferences: {
       "transportation",
     ],
   },
-};
+  };
+}
 
 export const demoCategories = defaultCategories.map((category) => ({
   id: category.id,

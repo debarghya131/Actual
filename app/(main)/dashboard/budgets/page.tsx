@@ -73,33 +73,31 @@ export default async function BudgetsPage() {
   const savingsGoalSeed = currentIncome > 0 ? Math.max(currentIncome * 0.2, 5000) : 0;
 
   return (
-    <section className="min-h-full w-full">
-      <div className="w-full rounded-2xl border border-violet-100/90 bg-white/92 p-3 shadow-[0_22px_60px_-34px_rgba(91,33,182,0.18)] min-[420px]:p-4 sm:rounded-3xl sm:p-5 lg:p-6 xl:p-8">
-        <BudgetPlanningBoard
-          initialBudget={
-            budget
-              ? {
-                  id: budget.id,
-                  amount: Number(budget.amount),
-                }
-              : null
-          }
-          currentExpenses={currentExpenses}
-          currentIncome={currentIncome}
-          savingsGoalSeed={savingsGoalSeed}
-          categoryDefinitions={expenseCategories.map((category) => ({
-            id: category.id,
-            category: category.name,
-            color: category.color,
-          }))}
-          completedTransactions={serializedTransactions}
-          initialPreferences={
-            isFreshBudgetExperience
-              ? EMPTY_DASHBOARD_PREFERENCES
-              : dashboardPreferences
-          }
-        />
-      </div>
-    </section>
+    <div className="flex h-full min-h-full w-full flex-1 flex-col min-w-0 lg:min-h-0">
+      <BudgetPlanningBoard
+        initialBudget={
+          budget
+            ? {
+                id: budget.id,
+                amount: Number(budget.amount),
+              }
+            : null
+        }
+        currentExpenses={currentExpenses}
+        currentIncome={currentIncome}
+        savingsGoalSeed={savingsGoalSeed}
+        categoryDefinitions={expenseCategories.map((category) => ({
+          id: category.id,
+          category: category.name,
+          color: category.color,
+        }))}
+        completedTransactions={serializedTransactions}
+        initialPreferences={
+          isFreshBudgetExperience
+            ? EMPTY_DASHBOARD_PREFERENCES
+            : dashboardPreferences
+        }
+      />
+    </div>
   );
 }

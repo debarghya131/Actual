@@ -51,7 +51,7 @@ export default function DashboardOverviewClient({
   preferences,
 }: DashboardOverviewClientProps) {
   return (
-    <div className="min-w-0 space-y-5 md:space-y-6">
+    <div className="flex min-w-0 flex-1 flex-col lg:h-full lg:min-h-0 space-y-3.5 sm:space-y-4">
       <BudgetProgress
         initialBudget={budget}
         currentExpenses={currentExpenses}

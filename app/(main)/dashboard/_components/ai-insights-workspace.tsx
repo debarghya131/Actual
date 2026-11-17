@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { LazyMotion, domAnimation, m } from "framer-motion";
-import { BrainCircuit, Loader2, MessageSquareText } from "lucide-react";
+import { BrainCircuit, Loader2, MessageSquareText, Sparkles } from "lucide-react";
 
 import { chatWithKubera } from "@/app/actions/ai-insights";
 import { Button } from "@/components/ui/button";
@@ -57,89 +57,134 @@ export default function AiInsightsWorkspace({
   return (
     <LazyMotion features={domAnimation}>
       <m.div
-        className="grid min-w-0 gap-4 md:gap-5 xl:grid-cols-[minmax(16rem,21.25rem)_minmax(0,1fr)] xl:items-stretch"
-        initial={{ opacity: 0, y: 18 }}
+        className="flex flex-1 flex-col min-w-0 min-h-0 lg:h-full lg:min-h-0 xl:grid xl:grid-cols-[minmax(18rem,21rem)_minmax(0,1fr)] xl:items-stretch gap-3.5 sm:gap-4 md:gap-5"
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
-      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="min-w-0">
-      <Card className="group min-w-0 overflow-hidden border-0 bg-[radial-gradient(circle_at_top,_rgba(217,163,59,0.28),_rgba(32,21,14,0.98)_44%,_rgba(19,13,10,1)_100%)] text-amber-50 shadow-[0_30px_80px_-42px_rgba(74,34,5,0.9)] transition duration-300 hover:shadow-[0_36px_90px_-40px_rgba(116,54,10,0.95)]">
-        <CardContent className="relative flex min-h-[34rem] flex-col overflow-hidden px-4 py-5 min-[420px]:px-5 sm:min-h-[36rem] sm:px-6 sm:py-7 xl:min-h-[49rem]">
-          <div className="pointer-events-none absolute inset-x-6 top-8 h-32 rounded-full bg-[radial-gradient(circle,_rgba(250,204,21,0.18),_transparent_72%)] opacity-80 blur-2xl transition duration-500 group-hover:opacity-100 sm:inset-x-8 sm:top-10 sm:h-40" />
-          <m.div
-            className="mx-auto flex aspect-square w-[min(58vw,11rem)] items-center justify-center rounded-full border border-amber-300/35 bg-[radial-gradient(circle,_rgba(250,204,21,0.08),_transparent_70%)] shadow-[0_0_80px_rgba(245,158,11,0.12)] sm:w-56"
-            animate={{ boxShadow: ["0 0 60px rgba(245,158,11,0.10)", "0 0 86px rgba(245,158,11,0.18)", "0 0 60px rgba(245,158,11,0.10)"] }}
-            transition={{ duration: 4.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-          >
-            <Image
-              src="/kuberlogo.webp"
-              alt="Kubera logo"
-              width={180}
-              height={180}
-              sizes="180px"
-              className="h-[78%] w-[78%] object-contain"
-            />
-          </m.div>
+        {/* Left Column: Lord Kubera Card */}
+        <m.div
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="flex min-w-0 flex-col xl:h-full xl:min-h-0 shrink-0"
+        >
+          <Card className="group relative flex h-full min-w-0 flex-col overflow-hidden border-0 bg-[radial-gradient(circle_at_top,_rgba(217,163,59,0.28),_rgba(32,21,14,0.98)_44%,_rgba(19,13,10,1)_100%)] text-amber-50 shadow-[0_24px_70px_-40px_rgba(74,34,5,0.85)] rounded-2xl sm:rounded-3xl">
+            <CardContent className="relative flex flex-1 min-h-0 flex-col justify-between overflow-y-auto modern-scrollbar p-4 sm:p-5 xl:p-6 gap-3">
+              <div className="pointer-events-none absolute inset-x-6 top-6 h-28 rounded-full bg-[radial-gradient(circle,_rgba(250,204,21,0.18),_transparent_72%)] opacity-80 blur-2xl transition duration-500 group-hover:opacity-100" />
 
-          <div className="mt-6 text-center sm:mt-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-amber-300/80 sm:tracking-[0.42em]">
-             Lord Kubera 
-            </p>
-            <h2 className="mt-3 text-[clamp(2rem,9vw,2.5rem)] font-semibold leading-tight tracking-tight text-amber-50 sm:mt-4">
-              I Am Kubera
-            </h2>
-            <p className="mx-auto mt-4 max-w-72 text-sm leading-7 text-amber-50/72 sm:mt-5">
-              Your personal finance guide for clearer spending, smarter
-              savings, and sharper money decisions.
-            </p>
-          </div>
+              {/* Avatar & Title */}
+              <div className="text-center pt-1">
+                <m.div
+                  className="mx-auto flex aspect-square w-20 min-[420px]:w-24 sm:w-28 xl:w-32 items-center justify-center rounded-full border border-amber-300/35 bg-[radial-gradient(circle,_rgba(250,204,21,0.08),_transparent_70%)] shadow-[0_0_60px_rgba(245,158,11,0.12)]"
+                  animate={{
+                    boxShadow: [
+                      "0 0 40px rgba(245,158,11,0.10)",
+                      "0 0 60px rgba(245,158,11,0.18)",
+                      "0 0 40px rgba(245,158,11,0.10)",
+                    ],
+                  }}
+                  transition={{
+                    duration: 4.8,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <Image
+                    src="/kuberlogo.webp"
+                    alt="Kubera logo"
+                    width={130}
+                    height={130}
+                    sizes="130px"
+                    className="h-[78%] w-[78%] object-contain"
+                  />
+                </m.div>
 
-          <div className="mt-6 grid gap-3 sm:mt-8">
-            <ModeButton
-              active={mode === "insights"}
-              icon={BrainCircuit}
-              label="Insights"
-              onClick={() => setMode("insights")}
-            />
-            <ModeButton
-              active={mode === "chat"}
-              icon={MessageSquareText}
-              label="Chat with Kubera"
-              onClick={() => setMode("chat")}
-            />
-          </div>
+                <p className="mt-3 text-[10px] sm:text-xs uppercase tracking-[0.3em] text-amber-300/80 font-semibold">
+                  Lord Kubera
+                </p>
+                <h2 className="mt-1 text-xl sm:text-2xl font-bold tracking-tight text-amber-50 leading-tight">
+                  I Am Kubera
+                </h2>
+                <p className="mx-auto mt-2 max-w-[260px] text-xs sm:text-sm leading-relaxed text-amber-50/70">
+                  Your personal finance guide for clearer spending, smarter
+                  savings, and sharper money decisions.
+                </p>
+              </div>
 
-          <div className="mt-6 border-t border-amber-200/10 pt-5 text-center sm:mt-auto sm:pt-6">
-            <p className="text-sm italic text-amber-100/50">
-              &ldquo;Savings today become financial strength tomorrow.&rdquo;
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-      </m.div>
+              {/* Mode switch buttons */}
+              <div className="my-1 sm:my-2 grid gap-2 sm:gap-2.5">
+                <ModeButton
+                  active={mode === "insights"}
+                  icon={BrainCircuit}
+                  label="Insights"
+                  onClick={() => setMode("insights")}
+                />
+                <ModeButton
+                  active={mode === "chat"}
+                  icon={MessageSquareText}
+                  label="Chat with Kubera"
+                  onClick={() => setMode("chat")}
+                />
+              </div>
 
-      <m.div whileHover={{ y: -4 }} transition={{ duration: 0.2, ease: "easeOut" }} className="min-w-0">
-      <Card className="min-w-0 overflow-hidden border-violet-100 bg-white/95 shadow-[0_24px_70px_-44px_rgba(91,33,182,0.25)] transition duration-300 hover:shadow-[0_30px_78px_-40px_rgba(91,33,182,0.34)]">
-        {mode === "insights" ? (
-          <CardHeader className="border-b border-violet-100/70 p-4 pb-5 min-[420px]:p-5 min-[420px]:pb-5">
-            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle className="min-w-0 break-words text-xl font-semibold text-slate-950">
-                Kubera Insights
-              </CardTitle>
-              <ComingSoonBadge />
-            </div>
-            <p className="text-sm leading-7 text-violet-950/60">
-              Browse focused insight themes designed to turn your financial
-              data into disciplined action.
-            </p>
-          </CardHeader>
-        ) : null}
+              {/* Quote */}
+              <div className="border-t border-amber-200/10 pt-2.5 sm:pt-3 text-center shrink-0">
+                <p className="text-[11px] sm:text-xs italic text-amber-100/50">
+                  &ldquo;Savings today become financial strength tomorrow.&rdquo;
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </m.div>
 
-        <CardContent className="min-w-0 p-4 min-[420px]:p-5 lg:p-6">
-          {mode === "chat" ? <ChatView demoMode={demoMode} /> : <InsightsView />}
-        </CardContent>
-      </Card>
-      </m.div>
+        {/* Right Column: Workspace View */}
+        <m.div
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="flex min-w-0 flex-1 flex-col xl:h-full xl:min-h-0"
+        >
+          <Card className="flex flex-1 min-h-0 flex-col overflow-hidden border border-violet-100/90 bg-white/95 shadow-[0_20px_60px_-36px_rgba(91,33,182,0.22)] backdrop-blur-md rounded-2xl sm:rounded-3xl">
+            {mode === "insights" ? (
+              <CardHeader className="border-b border-violet-100/80 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <CardTitle className="text-base sm:text-lg font-bold text-slate-950 flex items-center gap-2">
+                      <BrainCircuit className="h-4 w-4 sm:h-5 sm:w-5 text-violet-700" />
+                      Kubera Insights
+                    </CardTitle>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                      Focused financial themes turned into disciplined action.
+                    </p>
+                  </div>
+                  <ComingSoonBadge />
+                </div>
+              </CardHeader>
+            ) : null}
+
+            <CardContent className="flex flex-1 min-h-0 flex-col p-3 min-[420px]:p-3.5 sm:p-5 lg:p-5.5 overflow-hidden">
+              <div
+                className={
+                  mode === "chat"
+                    ? "flex min-h-0 flex-1 flex-col"
+                    : "hidden"
+                }
+                aria-hidden={mode !== "chat"}
+              >
+                <ChatView demoMode={demoMode} />
+              </div>
+              <div
+                className={
+                  mode === "insights"
+                    ? "flex min-h-0 flex-1 flex-col"
+                    : "hidden"
+                }
+                aria-hidden={mode !== "insights"}
+              >
+                <InsightsView />
+              </div>
+            </CardContent>
+          </Card>
+        </m.div>
       </m.div>
     </LazyMotion>
   );
@@ -162,25 +207,28 @@ function ModeButton({
       onClick={onClick}
       whileHover={{ y: -2, scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
-      transition={{ duration: 0.18, ease: "easeOut" }}
+      transition={{ duration: 0.16, ease: "easeOut" }}
       className={cn(
-        "flex min-h-14 items-center justify-between rounded-2xl border px-3 py-3 text-left transition duration-300 min-[420px]:px-4 min-[420px]:py-4",
+        "flex min-h-12 items-center justify-between rounded-xl sm:rounded-2xl border px-3 py-2.5 text-left transition duration-200 min-[420px]:px-3.5",
         active
-          ? "border-amber-400/35 bg-amber-400/14 text-amber-100 shadow-[0_20px_44px_-30px_rgba(245,158,11,0.55),inset_0_0_0_1px_rgba(251,191,36,0.18)]"
-          : "border-amber-100/10 bg-white/4 text-amber-50/76 hover:border-amber-200/15 hover:bg-white/7 hover:shadow-[0_18px_38px_-30px_rgba(255,255,255,0.18)]"
+          ? "border-amber-400/40 bg-amber-400/15 text-amber-100 shadow-[0_16px_36px_-24px_rgba(245,158,11,0.5),inset_0_0_0_1px_rgba(251,191,36,0.2)]"
+          : "border-amber-100/10 bg-white/4 text-amber-50/75 hover:border-amber-200/20 hover:bg-white/8 hover:shadow-xs"
       )}
     >
-      <span className="flex min-w-0 items-center gap-3">
+      <span className="flex min-w-0 items-center gap-2.5">
         <span
           className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-            active ? "bg-amber-300/16" : "bg-white/7"
+            "flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg sm:rounded-xl",
+            active ? "bg-amber-300/20 text-amber-200" : "bg-white/8 text-amber-100/70"
           )}
         >
           <Icon className="h-4 w-4" />
         </span>
-        <span className="min-w-0 break-words text-sm font-medium">{label}</span>
+        <span className="truncate text-xs sm:text-sm font-semibold">{label}</span>
       </span>
+      {active ? (
+        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] shrink-0" />
+      ) : null}
     </m.button>
   );
 }
@@ -195,10 +243,7 @@ function ChatView({ demoMode = false }: { demoMode?: boolean }) {
     },
   ]);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const {
-    loading,
-    fn: sendKuberaMessage,
-  } = useFetch(chatWithKubera);
+  const { loading, fn: sendKuberaMessage } = useFetch(chatWithKubera);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -258,224 +303,163 @@ function ChatView({ demoMode = false }: { demoMode?: boolean }) {
   };
 
   return (
-    <m.div
-      className="min-w-0 space-y-5 md:space-y-6"
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <m.div
-        className="min-w-0 rounded-2xl border border-violet-100 bg-[linear-gradient(180deg,_rgba(250,245,255,0.92)_0%,_rgba(255,255,255,0.98)_100%)] p-3 min-[420px]:p-4 sm:rounded-3xl lg:p-6"
-        initial={{ opacity: 0, scale: 0.985 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.42, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <m.div
-          className="grid min-w-0 gap-3 sm:grid-cols-[auto_minmax(0,1fr)] lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.34, delay: 0.12, ease: "easeOut" }}
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
-            <MessageSquareText className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <p className="break-words text-base font-semibold leading-snug text-slate-950">
-              Start a conversation with Kubera
-            </p>
-            <p className="mt-1 text-sm leading-6 text-violet-950/60">
-              Pick a prompt to begin your guided financial chat.
-            </p>
+    <div className="flex flex-1 min-h-0 flex-col gap-2.5 sm:gap-3.5 xl:h-full">
+      {/* Suggestions Header Panel */}
+      <div className="shrink-0 rounded-2xl border border-violet-100/90 bg-[linear-gradient(180deg,_rgba(250,245,255,0.92)_0%,_rgba(255,255,255,0.98)_100%)] p-3 sm:p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 shadow-xs">
+              <MessageSquareText className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs sm:text-sm font-semibold text-slate-900 leading-tight">
+                Start a conversation with Kubera
+              </p>
+              <p className="truncate text-[11px] sm:text-xs text-slate-500 font-medium">
+                Pick a prompt to begin your guided financial chat.
+              </p>
+            </div>
           </div>
           <ComingSoonBadge />
-        </m.div>
+        </div>
 
-        <div className="mt-5 grid min-w-0 gap-3 md:grid-cols-3 lg:mt-6">
-          {starterPrompts.map((prompt, index) => (
-            <m.div
+        {/* 3 Starter Prompts */}
+        <div className="mt-2.5 sm:mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {starterPrompts.map((prompt) => (
+            <button
               key={prompt}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.32, delay: 0.18 + index * 0.05, ease: "easeOut" }}
-            >
-            <Button
               type="button"
-              variant="outline"
-              size="lg"
-              className="h-auto min-h-14 w-full justify-start whitespace-normal rounded-2xl border-violet-200 px-4 py-3 text-left text-sm leading-6 text-violet-950 hover:bg-violet-50 md:min-h-20 md:py-4"
               onClick={() =>
                 demoMode
                   ? showDemoModeToast("using AI prompts")
                   : void submitMessage(prompt)
               }
               disabled={loading}
+              className="group text-left rounded-xl border border-violet-200/80 bg-white/90 px-3 py-2 text-xs font-semibold text-violet-950 transition hover:bg-violet-50 hover:border-violet-300 shadow-2xs leading-relaxed"
             >
-              {prompt}
-            </Button>
-            </m.div>
+              <span className="flex items-start gap-1.5">
+                <Sparkles className="h-3 w-3 text-violet-500 shrink-0 mt-0.5 group-hover:scale-110 transition" />
+                <span className="line-clamp-2">{prompt}</span>
+              </span>
+            </button>
           ))}
         </div>
+      </div>
 
-        <m.div
-          className="mt-5 min-w-0 rounded-2xl border border-violet-100 bg-white p-3 shadow-[0_18px_45px_-34px_rgba(91,33,182,0.24)] min-[420px]:p-4 sm:rounded-3xl lg:mt-6"
-          initial={{ opacity: 0, y: 18, scale: 0.99 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.42, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="h-[clamp(18rem,52vh,24rem)] min-w-0 space-y-4 overflow-y-auto pr-1 min-[420px]:pr-2">
-            {messages.map((message, index) => (
-              <m.div
-                key={`${message.role}-${index}`}
-                layout
-                initial={{ opacity: 0, y: 14, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.3, delay: index === 0 ? 0.42 : 0, ease: "easeOut" }}
+      {/* Chat Messages + Input Box */}
+      <div className="flex flex-1 min-h-[300px] xl:min-h-0 flex-col rounded-2xl border border-violet-100/90 bg-white shadow-xs p-3 sm:p-4 overflow-hidden">
+        {/* Messages List with internal modern scrollbar */}
+        <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-1 sm:pr-2 modern-scrollbar">
+          {messages.map((message, index) => (
+            <m.div
+              key={`${message.role}-${index}`}
+              layout
+              initial={{ opacity: 0, y: 10, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className={cn(
+                "flex",
+                message.role === "user" ? "justify-end" : "justify-start"
+              )}
+            >
+              <div
                 className={cn(
-                  "flex",
-                  message.role === "user" ? "justify-end" : "justify-start"
+                  "max-w-[90%] sm:max-w-[82%] rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm leading-relaxed shadow-2xs",
+                  message.role === "user"
+                    ? "rounded-br-xs bg-violet-700 text-white font-medium"
+                    : "rounded-bl-xs border border-violet-100 bg-violet-50/70 text-violet-950"
                 )}
               >
-                <div
-                  className={cn(
-                    "max-w-[92%] rounded-3xl px-3 py-3 text-sm leading-7 shadow-sm min-[420px]:max-w-[85%] min-[420px]:px-4",
-                    message.role === "user"
-                      ? "rounded-br-md bg-violet-700 text-white"
-                      : "rounded-bl-md border border-violet-100 bg-violet-50/70 text-violet-950"
-                  )}
-                >
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] opacity-70">
-                    {message.role === "user" ? "You" : "Kubera"}
-                  </p>
-                  <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                </div>
-              </m.div>
-            ))}
+                <p className="mb-0.5 text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {message.role === "user" ? "You" : "Kubera"}
+                </p>
+                <p className="whitespace-pre-wrap break-words">{message.content}</p>
+              </div>
+            </m.div>
+          ))}
 
-            {loading ? (
-              <m.div
-                className="flex justify-start"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.24, ease: "easeOut" }}
-              >
-                <div className="rounded-3xl rounded-bl-md border border-violet-100 bg-violet-50/70 px-4 py-3 text-sm text-violet-950">
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Kubera is thinking...</span>
-                  </div>
-                </div>
-              </m.div>
-            ) : null}
+          {loading ? (
+            <div className="flex justify-start">
+              <div className="rounded-2xl rounded-bl-xs border border-violet-100 bg-violet-50/70 px-3.5 py-2.5 text-xs text-violet-950 flex items-center gap-2">
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-violet-700" />
+                <span className="font-medium">Kubera is thinking...</span>
+              </div>
+            </div>
+          ) : null}
 
-            <div ref={bottomRef} />
-          </div>
+          <div ref={bottomRef} />
+        </div>
 
-          <m.form
-            onSubmit={handleSubmit}
-            className="mt-4 grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.48, ease: "easeOut" }}
+        {/* Pinned Input Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-violet-50 flex items-center gap-2 shrink-0"
+        >
+          <Input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={
+              demoMode
+                ? "Demo mode is read-only. Sign in to use Kubera chat."
+                : "Ask Kubera about your spending, savings, or budget..."
+            }
+            className="h-10 sm:h-11 flex-1 rounded-xl border-violet-200 bg-violet-50/40 px-3 sm:px-4 text-xs sm:text-sm focus-visible:ring-violet-400"
+            disabled={loading}
+          />
+          <Button
+            type="submit"
+            className="h-10 sm:h-11 rounded-xl bg-violet-700 px-4 sm:px-5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-violet-800 shrink-0"
+            disabled={loading || !draft.trim()}
+            onClick={() => {
+              if (demoMode) showDemoModeToast("chatting with Kubera");
+            }}
           >
-            <Input
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder={
-                demoMode
-                  ? "Demo mode is read-only. Sign in to use Kubera chat."
-                  : "Ask Kubera about your spending, savings, or budget..."
-              }
-              className="h-12 min-w-0 rounded-2xl border-violet-200 bg-violet-50/45 px-4 text-sm"
-              disabled={loading}
-            />
-            <Button
-              type="submit"
-              size="lg"
-              className="h-12 w-full rounded-2xl bg-violet-700 px-5 text-white hover:bg-violet-800 sm:w-auto"
-              onClick={() => {
-                if (demoMode) {
-                  showDemoModeToast("chatting with Kubera");
-                }
-              }}
-              disabled={loading || !draft.trim()}
-            >
-              Send
-            </Button>
-          </m.form>
-        </m.div>
-      </m.div>
-    </m.div>
+            Send
+          </Button>
+        </form>
+      </div>
+    </div>
   );
 }
 
 function ComingSoonBadge() {
   return (
-    <m.div
-      className="inline-flex min-h-7 w-fit max-w-full items-center gap-2 rounded-full border border-emerald-200 bg-[linear-gradient(135deg,_rgba(236,253,245,1),_rgba(240,253,250,0.95))] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 shadow-[0_10px_30px_-22px_rgba(16,185,129,0.55)]"
-      animate={{
-        boxShadow: [
-          "0 10px 30px -22px rgba(16,185,129,0.38)",
-          "0 16px 38px -22px rgba(16,185,129,0.58)",
-          "0 10px 30px -22px rgba(16,185,129,0.38)",
-        ],
-      }}
-      transition={{ duration: 3.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-    >
-      <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-        <m.span
-          className="absolute inline-flex h-full w-full rounded-full bg-emerald-400/55"
-          animate={{ scale: [1, 1.9, 1], opacity: [0.5, 0, 0.5] }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeOut" }}
-        />
-        <span className="relative h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_14px_rgba(16,185,129,0.65)]" />
+    <div className="inline-flex min-h-6.5 w-fit items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide text-emerald-700 shadow-2xs shrink-0">
+      <span className="relative flex h-2 w-2 items-center justify-center">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+        <span className="relative h-2 w-2 rounded-full bg-emerald-500 shadow-xs" />
       </span>
-      <span className="break-words leading-5">Full Features Coming Soon</span>
-    </m.div>
+      <span>Full Features Coming Soon</span>
+    </div>
   );
 }
 
 function InsightsView() {
   return (
-    <m.div
-      className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-3"
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: 0.09,
-          },
-        },
-      }}
-    >
-      {insightThemes.map((theme, index) => (
-        <m.div
-          key={theme.title}
-          variants={{
-            hidden: { opacity: 0, y: 18 },
-            visible: { opacity: 1, y: 0 },
-          }}
-          transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1], delay: index * 0.03 }}
-          whileHover={{ y: -7, scale: 1.012 }}
-          className="group relative min-w-0 overflow-hidden rounded-2xl border border-violet-100 bg-[linear-gradient(180deg,_rgba(250,245,255,0.95)_0%,_rgba(255,255,255,1)_100%)] p-4 shadow-[0_18px_40px_-34px_rgba(91,33,182,0.18)] transition duration-300 hover:border-violet-200/80 hover:shadow-[0_28px_56px_-30px_rgba(91,33,182,0.28)] min-[420px]:p-5 sm:rounded-3xl"
-        >
-          <div className="pointer-events-none absolute inset-x-10 top-0 h-20 bg-[radial-gradient(circle,_rgba(168,85,247,0.12),_transparent_72%)] opacity-0 blur-2xl transition duration-300 group-hover:opacity-100" />
-          <m.div
-            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-100 text-violet-700 shadow-[0_16px_34px_-24px_rgba(109,40,217,0.42)]"
-            whileHover={{ rotate: -8, scale: 1.06 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
+    <div className="flex-1 min-h-0 overflow-y-auto modern-scrollbar pr-1 sm:pr-2">
+      <div className="grid min-w-0 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {insightThemes.map((theme) => (
+          <div
+            key={theme.title}
+            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-violet-100 bg-[linear-gradient(180deg,_rgba(250,245,255,0.95)_0%,_rgba(255,255,255,1)_100%)] p-4 sm:p-5 shadow-xs transition duration-300 hover:border-violet-200 hover:shadow-md"
           >
-            <BrainCircuit className="h-5 w-5" />
-          </m.div>
-          <p className="mt-5 break-words text-lg font-semibold leading-snug text-slate-950">
-            {theme.title}
-          </p>
-          <p className="mt-3 break-words text-sm leading-7 text-violet-950/62">
-            {theme.description}
-          </p>
-        </m.div>
-      ))}
-    </m.div>
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-700 shadow-xs">
+                <BrainCircuit className="h-5 w-5" />
+              </div>
+              <h3 className="mt-3.5 text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                {theme.title}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
+                {theme.description}
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-violet-50 text-[11px] font-semibold text-violet-700">
+              Analysis Model
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

@@ -22,7 +22,7 @@ export default function DashboardRouteTransition({
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
           transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-          className="min-h-full"
+          className="flex min-h-full flex-1 flex-col lg:h-full lg:min-h-0"
         >
           {children}
         </m.div>

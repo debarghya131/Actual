@@ -42,9 +42,9 @@ export default function DashboardShellClient({
   return (
     <div className="flex min-h-full bg-[linear-gradient(180deg,_#fcfaff_0%,_#f6f0ff_100%)] lg:h-full lg:gap-6">
       <DashboardSidebar accounts={accounts} />
-      <div className="min-w-0 flex-1 lg:overflow-y-auto">
+      <div className="flex min-w-0 flex-1 flex-col lg:h-full lg:overflow-y-auto modern-scrollbar">
         <DashboardMobileNav accounts={accounts} />
-        <div className="mx-auto w-full max-w-[104rem] px-3 py-4 min-[380px]:px-4 md:px-6 md:py-6">
+        <div className="mx-auto flex w-full max-w-[104rem] flex-1 flex-col px-3 py-3 sm:px-4 sm:py-4 md:px-6 md:py-4.5 lg:h-full lg:min-h-0">
           <DashboardRouteTransition>{children}</DashboardRouteTransition>
         </div>
       </div>

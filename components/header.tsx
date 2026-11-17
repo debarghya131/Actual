@@ -8,8 +8,6 @@ import {
   ClerkLoaded,
   ClerkLoading,
   Show,
-  SignInButton,
-  SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
 import { CreditCard, LayoutDashboard, Menu, X } from "lucide-react";
@@ -17,6 +15,7 @@ import { CreditCard, LayoutDashboard, Menu, X } from "lucide-react";
 import { dashboardSidebarWidthClass } from "@/components/dashboard-sidebar";
 import FinancialHealthNavScore from "@/components/financial-health-nav-score";
 import SiteViewCounter from "@/components/site-view-counter";
+import AuthWakeButton from "@/components/auth-wake-button";
 
 const navItems = [
   { href: "#features", label: "Features" },
@@ -42,52 +41,43 @@ const Header = () => {
   const isDemoRoute = pathname.startsWith("/demo/dashboard");
 
   const signInButton = (
-    <button className="h-10 cursor-pointer rounded-full border border-violet-200 bg-white/80 px-4 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:text-violet-900 sm:px-5">
+    <AuthWakeButton
+      href="/sign-in"
+      className="h-10 cursor-pointer rounded-full border border-violet-200 bg-white/80 px-4 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:text-violet-900 disabled:cursor-wait disabled:opacity-75 sm:px-5"
+    >
       Login
-    </button>
+    </AuthWakeButton>
   );
 
   const signUpButton = (
-    <button className="h-10 cursor-pointer rounded-full bg-violet-700 px-4 text-sm font-medium text-white transition hover:bg-violet-800 sm:px-5">
+    <AuthWakeButton
+      href="/sign-up"
+      className="h-10 cursor-pointer rounded-full bg-violet-700 px-4 text-sm font-medium text-white transition hover:bg-violet-800 disabled:cursor-wait disabled:opacity-75 sm:px-5"
+    >
       Sign Up
-    </button>
+    </AuthWakeButton>
   );
 
   const signInLink = (
-    <Link
+    <AuthWakeButton
       href="/sign-in"
       className="inline-flex h-10 items-center justify-center rounded-full border border-violet-200 bg-white/80 px-4 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:text-violet-900 sm:px-5"
     >
       Login
-    </Link>
+    </AuthWakeButton>
   );
 
   const signUpLink = (
-    <Link
+    <AuthWakeButton
       href="/sign-up"
       className="inline-flex h-10 items-center justify-center rounded-full bg-violet-700 px-4 text-sm font-medium text-white transition hover:bg-violet-800 sm:px-5"
     >
       Sign Up
-    </Link>
+    </AuthWakeButton>
   );
 
   const userButtonFallback = (
     <div className="h-10 w-10 animate-pulse rounded-full bg-violet-100 ring-1 ring-violet-200" />
-  );
-
-  const mobileDashboardActions = (
-    <div className="flex items-center gap-2">
-      <Link
-        href="/dashboard"
-        className="inline-flex h-10 items-center justify-center rounded-full border border-violet-200 bg-white/90 px-4 text-sm font-medium text-violet-800"
-      >
-        Dashboard
-      </Link>
-      <ClerkLoading>{userButtonFallback}</ClerkLoading>
-      <ClerkLoaded>
-        <UserButton />
-      </ClerkLoaded>
-    </div>
   );
 
   if (isDashboardNav) {
@@ -136,12 +126,12 @@ const Header = () => {
                 <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">
                   Demo Mode
                 </span>
-                <Link
+                <AuthWakeButton
                   href="/sign-in"
                   className="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-900"
                 >
                   Sign In
-                </Link>
+                </AuthWakeButton>
               </div>
             ) : (
               <nav className="ml-auto mr-3 hidden items-center gap-2 sm:flex">
@@ -234,12 +224,8 @@ const Header = () => {
             </nav>
 
             <div className="ml-auto hidden items-center gap-3 md:flex">
-              <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
-                {signInButton}
-              </SignInButton>
-              <SignUpButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
-                {signUpButton}
-              </SignUpButton>
+              {signInButton}
+              {signUpButton}
             </div>
           </Show>
 
@@ -297,33 +283,6 @@ const Header = () => {
         </ClerkLoaded>
       </div>
 
-      <ClerkLoaded>
-        {!mobileMenuOpen ? (
-          <div className="border-t border-violet-100 bg-white/85 px-3 py-3 min-[380px]:px-4 md:hidden">
-            <Show when="signed-out">
-              <div className="grid grid-cols-2 gap-2">
-                <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
-                  <button className="min-h-11 cursor-pointer rounded-full border border-violet-200 bg-white/90 px-4 text-sm font-semibold text-violet-700">
-                    Login
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
-                  <button className="gradient-glow-button min-h-11 cursor-pointer rounded-full bg-violet-700 px-4 text-sm font-semibold text-white">
-                    Sign Up
-                  </button>
-                </SignUpButton>
-              </div>
-            </Show>
-
-            <Show when="signed-in">
-              <div className="flex items-center justify-between gap-3">
-                {mobileDashboardActions}
-              </div>
-            </Show>
-          </div>
-        ) : null}
-      </ClerkLoaded>
-
       {mobileMenuOpen ? (
         <div className="border-t border-violet-100 bg-white/92 px-3 py-4 shadow-[0_18px_42px_-30px_rgba(91,33,182,0.28)] min-[380px]:px-4 md:hidden">
           <nav className="grid gap-2">
@@ -345,16 +304,18 @@ const Header = () => {
 
           <Show when="signed-out">
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
-                <button className="min-h-12 cursor-pointer rounded-full border border-violet-200 bg-white/90 px-4 text-sm font-semibold text-violet-700">
-                  Login
-                </button>
-              </SignInButton>
-              <SignUpButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
-                <button className="gradient-glow-button min-h-12 cursor-pointer rounded-full bg-violet-700 px-4 text-sm font-semibold text-white">
-                  Sign Up
-                </button>
-              </SignUpButton>
+              <AuthWakeButton
+                href="/sign-in"
+                className="min-h-12 cursor-pointer rounded-full border border-violet-200 bg-white/90 px-4 text-sm font-semibold text-violet-700 disabled:cursor-wait disabled:opacity-75"
+              >
+                Login
+              </AuthWakeButton>
+              <AuthWakeButton
+                href="/sign-up"
+                className="gradient-glow-button min-h-12 cursor-pointer rounded-full bg-violet-700 px-4 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-75"
+              >
+                Sign Up
+              </AuthWakeButton>
             </div>
           </Show>
 
